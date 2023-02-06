@@ -1,3 +1,139 @@
+#AUTHOR = "Christopher Rowe"
+#VERSION = "2.0.0"
+#DATE = "06/02/2023"
+#DESCRIPTION = "Renders SWIFT SPH data."
+#
+#from argparse import ArgumentError
+#from matplotlib import pyplot as plt
+#from matplotlib.colors import LogNorm
+#import numpy as np
+#import os
+#import swiftsimio as sw
+#from swiftsimio.visualisation.sphviewer import SPHViewerWrapper
+#import sys
+#from typing import List
+#from unyt import Mpc, Unit, unyt_array as u_arr
+#
+#sys.path.append(__file__.rsplit(os.path.pathsep, 1)[0])
+#from box_region import BoxRegion
+#import console_log_printing as clp
+#from console_log_printing import print_info, print_verbose_info, print_warning, print_verbose_warning, print_error, print_verbose_error, print_debug
+#from script_wrapper import ScriptWrapper
+#from swift_data_expression import seperate_terms, parse_string
+#
+#
+#
+## Value of 1K resolution
+#RESOLUTION_BASE_MESUREMENT = 1080
+#
+#
+#
+#def __main(data: str, output_file: str,
+#           gas: bool, star: bool, dark_matter: bool,
+#           camera_x_position: float, camera_y_position: float, camera_z_position: float, projection: bool, perspective: bool, projection_width: float,
+#           smoothing_attr: str, smoothing_unit: str, filter_unit: str, filter_min: float, filter_max: float,
+#           contour: str, contour_percentiles: List[float],
+#           title: str, no_density: bool, no_log: bool, image_size: int,
+#           **kwargs):
+#           
+#    bok_region = BoxRegion(**kwargs)
+#
+#
+#
+#if __name__ == "__main__":
+#    args_info = [
+#                 ["data", "SWIFT snapshot file.", None],
+#                 ["output_file", "Name (or relitive file path) to store the resulting image.", None]
+#                ]
+#    kwargs_info = [
+#                   ["gas", None, "Gas map (gas, star and dark-matter flags are exclusive).\nThis is the defult of no map type is specified.", False, True, None, True, ["star", "dark-matter"]],
+#                   ["star", None, "Star map (gas, star and dark-matter flags are exclusive).", False, True, None, None, ["gas", "dark-matter"]],
+#                   ["dark-matter", None, "Dark Matter map (gas, star and dark-matter flags are exclusive).", False, True, None, None, ["gas", "star"]],
+#
+#                   ["camera-x-position", "x", "Position of the camera on the x-axis in Mpc.", True, False, float, None],
+#                   ["camera-y-position", "y", "Position of the camera on the y-axis in Mpc.", True, False, float, None],
+#                   ["camera-z-position", "z", "Position of the camera on the z-axis in Mpc.\nDefaults to 0.0 if not set.", False, False, float, 0.0],
+#                   ["projection", None, "Image is rendered as a parallel projection.\nNot compatible with the --perspective flag.\nThis is the default render option.", False, True, None, True, ["perspective"]],
+#                   ["perspective", None, "Image is rendered with perspective projection from the camera.\nNot compatible with the --projection flag.", False, True, None, True, ["projection"]],
+#                   ["projection-width", "w", "Size of the projected region's width/height in Mpc.\nThis will default to 5 Mpc if unset.", False, False, float, 5.0],
+#
+#                   ["smoothing-attr", "s", "Smoothing variable or expression.\nTerms must start with the particle attribute, e.g. \"gas.masses*gas.metallicity\".\nThis will default to \"gas.masses\" and will produce a surface density map if the --no-density flag remains unset.", False, False, None, "gas.masses"],
+#                   ["smoothing-unit", "u", "Smoothing variable unit (valid unyt string - use \"Mpc\" not \"mpc\").\n Defaults to \"Msun\".", False, False, None, "Msun"],
+#                   ["filter-unit", None, "Filter variable unit (valid unyt string - use \"Mpc\" not \"mpc\").\nSpecifying this will indicate a particle filter based on the first term of the smoothing length variable argument.", False, False, None, None],
+#                   ["filter-min", None, "Minimum (exclusive) value to filter away anything less than or equal.", False, False, float, None],
+#                   ["filter-max", None, "Maximum (inclusive) value to filter away anything more than.", False, False, float, None],
+#
+#                   ["contour", "c", "Optionally draw contours for a specified variable.\nName (or expression) of the data set containing data to be used for colouring.\nPermits float constants.", False, False, None, None],
+#                   ["contour-percentiles", None, "Comma seperated list of percentile values to place contours on.\nDefault is \"10.0,25.0,50.0,75.0,90.0\".", False, False, ScriptWrapper.make_list_converter(",", float), [10.0,25.0,50.0,75.0,90.0]],
+#
+#                   ["title", "t", "Title for the map (defaults to an empty string).", False, False, None, ""],
+#                   ["no-density", "p", "Remove the surface density dependance on the colour units.", False, True, None, None],
+#                   ["no-log", "l", "Do not log the pixel values before applying colours.", False, True, None, None],
+#                   ["image-size", "r", "Size of the (square) image in pixels (defaults to 1080px).", False, False, int, "1080"],
+#
+#                   *BoxRegion.get_command_params(use_abbriviation = False)
+#                  ]
+#    
+#    script = ScriptWrapper("sph_map.py",
+#                           AUTHOR,
+#                           VERSION,
+#                           DATE,
+#                           DESCRIPTION,
+#                           [],
+#                           ["snapshot_file.hdf5 test.png --gas -r 1080 -x 10 -y 200"],
+#                           args_info,
+#                           kwargs_info)
+#
+#    script.run(__main)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 """
 File: sph_map.py
 
@@ -130,6 +266,7 @@ def _sph_gas_map(projection: bool, perspective: bool, filepath: str, data_file: 
 
         mask = sw.mask(data_file, spatial_only = False)
 
+        #TODO: DOES THIS STILL WORK!!!
         #u.Msun.units.dimensions
         #dim_string = str(parse_string(smoothing_variable.replace("**", "¬").replace("*", "¬").replace("/", "¬").replace("+", "¬").replace("-", "¬").split("¬")[0], sw.load(data_file))[0].units.dimensions).replace("(", "").replace(")", "")
         dim_string = str(parse_string(seperate_terms(smoothing_variable)[0][0], sw.load(data_file))[0].units.dimensions).replace("(", "").replace(")", "")
@@ -193,17 +330,26 @@ def _sph_gas_map(projection: bool, perspective: bool, filepath: str, data_file: 
 
         print_verbose_info(f"Loading data file ({data_file}).")
         particle_data: sw.SWIFTDataset = sw.load(data_file, mask)
+        print_debug("Loaded data.")
 
     else:
         particle_data: sw.SWIFTDataset = sw.load(data_file)
 
+    print_debug("HERE 1")
+    print_debug(coordinate_units)
+    print_debug(particle_data.gas.coordinates)
+
     particle_data.gas.coordinates.convert_to_units(coordinate_units)
+    print_debug("HERE 2")
     particle_data.gas.smoothing_lengths.convert_to_units(coordinate_units)
+
+    print_debug("HERE 3")
 
     if not desnsity_map:
         smoothing_variable_unit += ("*" if smoothing_variable_unit != "" else "") + "Msun"
 
     gas = None
+    print_debug(smoothing_variable)
     if smoothing_variable == "gas.masses":
         particle_data.gas.masses.convert_to_units(smoothing_variable_unit)
         gas = SPHViewerWrapper(particle_data.gas, smooth_over = "masses")
