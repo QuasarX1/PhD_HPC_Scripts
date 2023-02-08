@@ -2,8 +2,8 @@
 File: box_region.py
 
 Author: Christopher Rowe
-Vesion: 1.5.0
-Date:   07/02/2023
+Vesion: 1.5.1
+Date:   08/02/2023
 
 Convinence functions for handeling spatial regions within a cosmological box.
 
@@ -16,11 +16,15 @@ Dependancies:
 
     console_log_printing (local file)
     numpy
+    sys
+    os
+    typing
 """
 
 import numpy as np
 import sys
 import os
+from typing import Union, List
 
 SWIFTSIMIO_AVALIBLE = False
 try:
@@ -189,7 +193,7 @@ class BoxRegion(object):
         self.__set_calculated_attributes()
 
     @property
-    def side_length(self) -> float:
+    def side_length(self) -> Union[float, List[float]]:
         return self.__side_length
 
     @property

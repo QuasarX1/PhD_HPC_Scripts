@@ -260,11 +260,8 @@ def make_plot(particle_data: sw.SWIFTDataset, output_file: str,
     # Position
     print_verbose_info("Adding camera position.")
     camera_params = camera.get_params()
-    testVar1 = "({0:.3f}, {1:.3f}, {2:.3f}) ${{\\rm {3}}}$".format(camera_params["x"], camera_params["y"], camera_params["z"], coordinate_units)
-    print()
-    print(testVar1)
-    plt.text(0, image_size * (1 - 0.04),
-             testVar1,#"({0:.3f}, {1:.3f}, {2:.3f}) ${{\\rm {3}}}$".format(camera_params["x"], camera_params["y"], camera_params["z"], coordinate_units),
+    plt.text(0, image_size * (1 - 0.040),
+             "(${0:.3f}$, ${1:.3f}$, ${2:.3f}$) ${{\\rm {3}}}$".format(camera_params["x"], camera_params["y"], camera_params["z"], coordinate_units),
              #usetex = False,#True,
              bbox = dict(facecolor = "black", alpha = 0.4, edgecolor = "black"))
 
@@ -272,13 +269,22 @@ def make_plot(particle_data: sw.SWIFTDataset, output_file: str,
         # Viewport
         print_verbose_info("Adding projection viewport.")
         viewport = camera_settings["extent"][1] - camera_settings["extent"][0]
-        testVar2 = f"{float(viewport)} ${{\\rm Mpc}}$"
-        print(testVar2)
-        print()
-        plt.text(0, image_size * (1 - 0.093),
-                 testVar2,#f"{float(viewport)} ${{\\rm Mpc}}$",
-                 usetex = False,#True,
+        #plt.text(0, image_size * (1 - 0.093),
+        plt.text(0, image_size * (1 - 0.102),# dh = 0.009 for adding ^
+                 f"${float(viewport):.1f}^2$ ${{\\rm Mpc^2}}$",
+                 #usetex = False,#True,
                  bbox = dict(facecolor = "black", alpha = 0.4, edgecolor = "black"))
+
+        # Slice Depth
+        print_verbose_info("Adding depth.")
+        box_side_length = box_region.side_length
+        if isinstance(box_side_length, list):
+            box_side_length = box_side_length[2]
+        plt.text(0, image_size * (1 - 0.158),
+                 f"${float(box_side_length):.1f}$ ${{\\rm Mpc}}$",
+                 #usetex = False,#True,
+                 bbox = dict(facecolor = "black", alpha = 0.4, edgecolor = "black"))
+
     else:
         pass#TODO: perspective log text
     
@@ -295,7 +301,7 @@ def make_plot(particle_data: sw.SWIFTDataset, output_file: str,
     #             bbox = dict(facecolor = "black", alpha = 0.4, edgecolor = "black"))
 
     #plt.rcParams["figure.figsize"] = (inches, inches)
-    cameraSettingsInsert = f"{float(viewport)}Mpc" if render_type == RenderType.projection else f""#TODO: perspective log text
+    cameraSettingsInsert = f"{float(viewport):.1f}Mpc2_{box_side_length:.1f}Mpc" if render_type == RenderType.projection else f""#TODO: perspective log text
     filepath_sections = output_file.rsplit(".", 1)
     target_file = f"{filepath_sections[0]}__{cameraSettingsInsert}_{image_size / RESOLUTION_BASE_MESUREMENT}K_py-sphviewer.{filepath_sections[1]}"
     print_verbose_info(f"Saving image to {target_file}")
