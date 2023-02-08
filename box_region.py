@@ -2,8 +2,8 @@
 File: box_region.py
 
 Author: Christopher Rowe
-Vesion: 1.4.0
-Date:   29/01/2023
+Vesion: 1.5.0
+Date:   07/02/2023
 
 Convinence functions for handeling spatial regions within a cosmological box.
 
@@ -18,8 +18,20 @@ Dependancies:
     numpy
 """
 
-from console_log_printing import print_info, print_verbose_info, print_warning, print_verbose_warning, print_error, print_verbose_error, print_debug
 import numpy as np
+import sys
+import os
+
+SWIFTSIMIO_AVALIBLE = False
+try:
+    import swiftsimio as sw
+    import unyt
+    SWIFTSIMIO_AVALIBLE = True
+except ImportError: pass
+
+sys.path.append(__file__.rsplit(os.path.pathsep, 1)[0])
+from console_log_printing import print_info, print_verbose_info, print_warning, print_verbose_warning, print_error, print_verbose_error, print_debug
+
 
 class BoxRegion(object):
     def __init__(self, centre_x_position = None, centre_y_position = None, centre_z_position = None, side_length = None, x_min = None, x_max = None, y_min = None, y_max = None, z_min = None, z_max = None, x_side_length = None, y_side_length = None, z_side_length = None):
@@ -96,6 +108,17 @@ class BoxRegion(object):
         if self.__z_max is not None:
             arr_filter = arr_filter & (coord_2d_arr[:, 2] <= self.__z_max)
         return arr_filter
+
+    def constrain_mask(self, mask):
+        if not SWIFTSIMIO_AVALIBLE:
+            raise NotImplementedError("The swiftsimio and unyt package is required to use this method.")
+
+        box_size = mask.metadata.boxsize
+        box_size_units = box_size[0].units.__repr__()
+        
+        return mask.constrain_spatial([[unyt.unyt_quantity(self.__x_min if (self.__x_min is not None and self.__x_min != -np.inf) else 0, box_size[0].units.__repr__()), unyt.unyt_quantity(self.__x_max if (self.__x_max is not None and self.__x_max != np.inf) else box_size[0], box_size_units)],
+                                       [unyt.unyt_quantity(self.__y_min if (self.__y_min is not None and self.__y_min != -np.inf) else 0, box_size[1].units.__repr__()), unyt.unyt_quantity(self.__y_max if (self.__y_max is not None and self.__y_max != np.inf) else box_size[1], box_size_units)],
+                                       [unyt.unyt_quantity(self.__z_min if (self.__z_min is not None and self.__z_min != -np.inf) else 0, box_size[2].units.__repr__()), unyt.unyt_quantity(self.__z_max if (self.__z_max is not None and self.__z_max != np.inf) else box_size[2], box_size_units)]])
 
     def complete_bounds_from_coords(self, coord_2d_arr: np.ndarray):
         if self.__x_min is None: self.x_min = np.min(coord_2d_arr[:, 0])
