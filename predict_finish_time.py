@@ -1,18 +1,18 @@
 AUTHOR = "Christopher Rowe"
-VERSION = "1.0.0"
+VERSION = "1.0.1"
 DATE = "13/02/2023"
 DESCRIPTION = "Predicts the finish time of a simulation."
 
-import numpy as np
-from matplotlib import pyplot as plt
-import sys
-import os
 import datetime
+from matplotlib import pyplot as plt
+import numpy as np
+import os
 from sympy import var, Eq, solve, core
+import sys
 
 sys.path.append(__file__.rsplit(os.path.pathsep, 1)[0])
-from script_wrapper import ScriptWrapper
 from console_log_printing import print_info, print_verbose_info, print_warning, print_verbose_warning, print_debug
+from script_wrapper import ScriptWrapper
 
 def __main():
     with open("./timesteps_64.txt", "r") as file:
@@ -56,7 +56,8 @@ def __main():
         print_warning("No valid fit root found.")
 
     plt.plot((t_csum / 1000 / 60**2), z, c = "b", label = "Data")
-    plt.plot(t_csum / 1000 / 60**2, (fit[0] * t_csum**3) + (fit[1] * t_csum**2) + (fit[2] * t_csum) + fit[3], linestyle = ":", c = "orange", label = "Fit")#
+    fit_time_values = np.linspace(0, end_time, 10000) if prediction_avalible else t_csum
+    plt.plot(fit_time_values / 1000 / 60**2, (fit[0] * fit_time_values**3) + (fit[1] * fit_time_values**2) + (fit[2] * fit_time_values) + fit[3], linestyle = ":", c = "orange", label = "Fit")#
     if prediction_avalible:
         plt.scatter([end_time / 1000 / 60**2], [0.0], c = "g", label = "End Time")
     plt.xlabel("Time (hours)")
@@ -73,7 +74,7 @@ if __name__ == "__main__":
                            VERSION,
                            DATE,
                            DESCRIPTION,
-                           ["os", "script_wrapper.py (local file)", "swift_data_expression.py (local file)", "swiftsimio", "sys"],
+                           ["console_log_printing.py (local file)", "datetime", "matplotlib", "numpy", "os", "script_wrapper.py (local file)", "sympy", "sys"],
                            [""],
                            args_info,
                            kwargs_info)
