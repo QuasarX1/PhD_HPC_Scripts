@@ -9,3 +9,4 @@ alias graph-past-halo-masses="~/python_environments/data_analysis/bin/python ~/s
 alias halo-n-part="~/python_environments/data_analysis/bin/python ~/scripts/n_halo_particles.py"
 alias gas-crit-density="~/python_environments/data_analysis/bin/python ~/scripts/get_gas_crit_density.py"
 alias eval-swift-data="~/python_environments/data_analysis/bin/python ~/scripts/evaluate_swift_data_expression.py"
+alias finish-time="~/python_environments/data_analysis/bin/python ~/scripts/predict_finish_time.py"
