@@ -4,6 +4,7 @@ DATE = "13/02/2023"
 DESCRIPTION = "Predicts the finish time of a simulation."
 
 import datetime
+import glob
 from matplotlib import pyplot as plt
 import numpy as np
 import os
@@ -14,15 +15,32 @@ sys.path.append(__file__.rsplit(os.path.pathsep, 1)[0])
 from console_log_printing import print_info, print_verbose_info, print_warning, print_verbose_warning, print_debug
 from script_wrapper import ScriptWrapper
 
+FILE_PATERN = "timesteps_*.txt"
+FILE_LINE_DATA_START = 14
+FILE_Z_DATA_START = 36
+FILE_Z_DATA_END = 49
+FILE_T_DATA_START = 139
+FILE_T_DATA_END = 161
+
 def __main():
-    with open("./timesteps_64.txt", "r") as file:
+    files = glob.glob(FILE_PATERN)
+    if len(files) == 0:
+        raise FileNotFoundError(f"Unable to find a file that matches the expected patern: {FILE_PATERN}")
+    elif len(files) != 1:
+        raise FileNotFoundError(f"Too many posible files!\nPattern: {FILE_PATERN}\nMatches: {files}")
+
+    with open(files[0], "r") as file:
         lines = file.readlines()
+
+    n_lines = len(lines)
+    if n_lines < 18:
+        raise RuntimeError("Not enough lines in file to make prediction.")
 
     z = []
     t = []
-    for line in lines[14:-2]:
-        z.append(float(line[36:49]))
-        t.append(float(line[139:161]))
+    for line in lines[FILE_LINE_DATA_START:-2]:# Chop off the headder and the last line as it likley isn't complete
+        z.append(float(line[FILE_Z_DATA_START:FILE_Z_DATA_END]))
+        t.append(float(line[FILE_T_DATA_START:FILE_T_DATA_END]))
 
     print_debug(f"Got {len(z)} redshift values and {len(t)} times.")
 
