@@ -82,9 +82,15 @@ def __main(expansion_factor: bool, redshift: bool, input_file: str, output_file:
     a = []
     t = []
     for line in lines[FILE_LINE_DATA_START:-2]:# Chop off the headder and the last line as it likley isn't complete
-        z.append(float(line[FILE_Z_DATA_START:FILE_Z_DATA_END]))
-        a.append(float(line[FILE_A_DATA_START:FILE_A_DATA_END]))
-        t.append(float(line[FILE_T_DATA_START:FILE_T_DATA_END]))
+        try:
+            z_val = float(line[FILE_Z_DATA_START:FILE_Z_DATA_END])
+            a_val = float(line[FILE_A_DATA_START:FILE_A_DATA_END])
+            t_val = float(line[FILE_T_DATA_START:FILE_T_DATA_END])
+
+            z.append(z_val)
+            a.append(a_val)
+            t.append(t_val)
+        except: pass
 
     print_debug(f"Got {len(a)} expansion factor values, {len(z)} redshift values and {len(t)} times.")
 
