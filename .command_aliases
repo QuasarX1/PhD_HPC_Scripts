@@ -1,8 +1,8 @@
 scripts_directory=$(dirname "$(readlink -f ${BASH_SOURCE})")
 python_interpreter_path="/home/aricrowe/python_environments/data_analysis/bin/python"
 
-alias qx1-pipline="$scripts_directory/submit_pipline.sh"
-alias new-pipline-config="cp $scripts_directory/_example_data_pipline_settings.sh ./qx1_pipline_settings_copy.sh"
+alias qx1-pipeline="$scripts_directory/submit_pipline.sh"
+alias new-pipeline-config="cp $scripts_directory/_example_data_pipeline_settings.sh ./qx1_pipeline_settings_copy.sh"
 
 alias img_data="$python_interpreter_path $scripts_directory/img_data.py"
 alias img_data_mpi="$scripts_directory/img_data_mpi.sh"
