@@ -140,4 +140,22 @@ graph-past-halo-masses ./ "plot_temp_dens_enrichment_halo_mass.png" $present_day
 
 
 echo ""
+echo "GRAPHS DONE"
+
+echo ""
+echo "MAKING HTML PAGE"
+
+cp $scripts_directory/_example_pipeline_view.html ./view.html
+search_result=( map_surface_density*.png )
+sed -i "s@{sd_map_file}@${search_result[0]}@" ./view.html
+search_result=( map_mean_mass_weighted_metal_mass*.png )
+sed -i "s@{mmwmm_map_file}@${search_result[0]}@" ./view.html
+search_result=( map_mean_mass_weighted_metalicity*.png )
+sed -i "s@{mmwm_map_file}@${search_result[0]}@" ./view.html
+search_result=( map_mean_metal_weighted_redshift*.png )
+sed -i "s@{mmwr_map_file}@${search_result[0]}@" ./view.html
+
+
+
+echo ""
 echo "PiPELINE COMPLETE"

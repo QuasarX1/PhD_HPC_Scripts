@@ -6,6 +6,10 @@ alias pipeline-qx1-new-config="cp $scripts_directory/_example_data_pipeline_sett
 
 
 
+alias add-py="python $scripts_directory/install_py_file.py install"
+
+
+
 alias cat-z="$python_interpreter_path $scripts_directory/get_redshift.py"
 alias eval-swift-data="$python_interpreter_path $scripts_directory/evaluate_swift_data_expression.py"
 alias finish-time="$python_interpreter_path $scripts_directory/predict_finish_time.py"
@@ -31,7 +35,10 @@ alias qx1-help="echo 'Avalible Commands:
         pipeline-qx1 <config-file>
         pipeline-qx1-new-config
 
-    Python Scripts (use <command> -h for more infomation):
+    Python Tools:
+        add-py <module file name>
+
+    SWIFT Data Python Scripts (use <command> -h for more infomation):
         cat-z
         eval-swift-data
         finish-time
