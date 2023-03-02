@@ -148,19 +148,19 @@ def __main(expansion_factor: bool, redshift: bool, input_files: List[str], outpu
         is_first_prediction = True
         for i in range(len(all_prediction_avalible)):
             line_colour = LINE_COLOUR_OPTIONS[i % len(LINE_COLOUR_OPTIONS)]
-            plt.plot((all_t_csum[i] / 1000 / 60**2), all_a[i] if expansion_factor else all_z[i], c = line_colour, label = all_labels[i] + ("" if all_multipliers[i] == 1.0 else f" (x{all_multipliers[i]})"))
+            plt.plot(all_a[i] if expansion_factor else all_z[i], (all_t_csum[i] / 1000 / 60**2), c = line_colour, label = all_labels[i] + ("" if all_multipliers[i] == 1.0 else f" (x{all_multipliers[i]})"))
             fit_time_values = np.linspace(0, all_end_time[i], 10000) if all_prediction_avalible[i] else all_t_csum[i]
             kwargs = {}
             if i == 0: kwargs["label"] = "Fit"
-            plt.plot(fit_time_values / 1000 / 60**2, get_fit_value(fit_time_values, all_fit[i]), linestyle = ":", c = "orange", **kwargs)
+            plt.plot(get_fit_value(fit_time_values, all_fit[i]), fit_time_values / 1000 / 60**2, linestyle = ":", c = "orange", **kwargs)
             if all_prediction_avalible[i]:
                 kwargs = {}
                 if is_first_prediction:
                     kwargs["label"] = "End Time"
                     is_first_prediction = False
-                plt.scatter([all_end_time[i] / 1000 / 60**2], [1.0 if expansion_factor else 0.0], c = "g" if len(all_prediction_avalible) == 1 else line_colour, **kwargs)
-        plt.xlabel("Time (hours)")
-        plt.ylabel("Expansion Factor" if expansion_factor else "Redshift")
+                plt.scatter([1.0 if expansion_factor else 0.0], [all_end_time[i] / 1000 / 60**2], c = "g" if len(all_prediction_avalible) == 1 else line_colour, **kwargs)
+        plt.xlabel("Expansion Factor" if expansion_factor else "Redshift")
+        plt.ylabel("Time (hours)")
         plt.legend()
         plt.savefig("TimeEst.png" if output_file is None else output_file)
 
