@@ -28,7 +28,7 @@ alias qx1-help="echo 'Avalible Commands:
         qx1-help
 
     Shell Scripts:
-        pipeline-qx1
+        pipeline-qx1 <config-file>
         pipeline-qx1-new-config
 
     Python Scripts (use <command> -h for more infomation):
