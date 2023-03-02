@@ -19,7 +19,7 @@ alias finish-time="$python_interpreter_path $scripts_directory/predict_finish_ti
 alias gal-mass-dist="$python_interpreter_path $scripts_directory/galaxy_mass_profiles.py"
 alias gal-masses="$python_interpreter_path $scripts_directory/galaxy_mass_frequency.py"
 
-alias qx1-help=echo "Avalible Commands:
+alias qx1-help="echo 'Avalible Commands:
     Python Scripts (use <command> -h for more infomation):
         img_data
         img_data_mpi
@@ -39,4 +39,4 @@ alias qx1-help=echo "Avalible Commands:
     Shell Scripts:
         pipeline-qx1
         pipeline-qx1-new-config
-"
+'"
