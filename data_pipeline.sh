@@ -158,4 +158,4 @@ sed -i "s@{mmwr_map_file}@${search_result[0]}@" ./view.html
 
 
 echo ""
-echo "PiPELINE COMPLETE"
+echo "PIPELINE COMPLETE"

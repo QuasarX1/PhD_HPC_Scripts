@@ -15,6 +15,12 @@ import sys
 from typing import List
 from unyt import Mpc, unyt_quantity
 
+TOL_AVAILABLE = False
+try:
+    import tol_colors
+    TOL_AVAILABLE = True
+except: pass
+
 sys.path.append(__file__.rsplit(os.path.pathsep, 1)[0])
 from box_region import BoxRegion
 from console_log_printing import print_info, print_verbose_info, print_warning, print_verbose_warning, print_error, print_verbose_error, print_debug
@@ -108,7 +114,8 @@ def make_plot(particle_data: sw.SWIFTDataset, output_file: str,
               smoothing_attr: str = "gas.masses", smoothing_unit: str = "Msun",
               filter_attr: str = None, filter_unit: str = None, filter_min: float = None, filter_max: float = None,
               contour: str = None, contour_percentiles: List[float] = [10.0, 25.0, 50.0, 75.0, 90.0], exclude_filter_from_contour: bool = False,
-              title: str = "", no_density: bool = False, no_log: bool = False, image_size: int = 1080):
+              title: str = "", no_density: bool = False, no_log: bool = False, image_size: int = 1080,
+              colour_map: List[str] = None):
 
     print_debug(("Making plot. Params are:" + ("\n{}" * 22)).format(particle_data, output_file, box_region, parttype, x, y, z, render_type, projection_width, smoothing_attr, smoothing_unit, filter_attr, filter_unit, filter_min, filter_max, contour, contour_percentiles, exclude_filter_from_contour, title, no_density, no_log, image_size))
     
@@ -226,9 +233,24 @@ def make_plot(particle_data: sw.SWIFTDataset, output_file: str,
     plt.figure(dpi = dpi)
     plt.axis("off")
 
-    # Render the map
     print_verbose_info("Rendering final map.")
-    plt.imshow(data_image)
+    if colour_map is None:
+        colour_map = [None]
+    if not TOL_AVAILABLE and (len(colour_map) > 1 or colour_map[0] in ('sunset_discrete', 'sunset',
+                                            'nightfall_discrete', 'nightfall',
+                                            'BuRd_discrete', 'BuRd',
+                                            'PRGn_discrete', 'PRGn',
+                                            'YlOrBr_discrete', 'YlOrBr',
+                                            'WhOrBr', 'iridescent',
+                                            'rainbow_PuRd', 'rainbow_PuBr', 'rainbow_WhRd', 'rainbow_WhBr', 'rainbow_discrete')):
+        print_warning(f"Paul Tol's colours are not avalible. This is likley required for colourmap: {colour_map} and this process may fail as a result!\nSee --help for instalation instructions.")
+    # Render the map
+    #plt.imshow(data_image, cmap = tol_colors.LinearSegmentedColormap.from_list("test", ["#125A56", "#FD9A44", "#A01813"]))
+    plt.imshow(data_image, cmap = (tol_colors.tol_cmap(colour_map[0]) if len(colour_map) == 1 else tol_colors.LinearSegmentedColormap.from_list("custom-map", colour_map)) if TOL_AVAILABLE and colour_map[0] in tol_colors.tol_cmap() else colour_map[0])
+    #plt.imshow(data_image, cmap = tol_colors.tol_cmap("rainbow_discrete"))
+    #plt.imshow(data_image, cmap = tol_colors.tol_cmap("nightfall"))
+    #plt.imshow(data_image, cmap = tol_colors.LinearSegmentedColormap.from_list("test", ["#FF0000", "#FFFF00", "#0000FF"]))
+    
 
     # Add a colourbar using the alt stylesheet
     print_verbose_info("Adding colourbar.")
@@ -316,6 +338,7 @@ def __main(data: str, output_file: str,
            filter_attr: str, filter_unit: str, filter_min: float, filter_max: float,
            contour: str, contour_percentiles: List[float], exclude_filter_from_contour: bool,
            title: str, no_density: bool, no_log: bool, image_size: int,
+           colour_map: List[str],
            **kwargs):
 
     parttype = PartType.gas if gas else PartType.dark_matter if dark_matter else PartType.star
@@ -338,7 +361,8 @@ def __main(data: str, output_file: str,
               smoothing_attr, smoothing_unit,
               filter_attr, filter_unit, filter_min, filter_max,
               contour, contour_percentiles, exclude_filter_from_contour,
-              title, no_density, no_log, image_size)
+              title, no_density, no_log, image_size,
+              colour_map)
 
 
 
@@ -375,6 +399,8 @@ if __name__ == "__main__":
                    ["no-density", "p", "Remove the surface density dependance on the colour units.", False, True, None, None],
                    ["no-log", "l", "Do not log the pixel values before applying colours.", False, True, None, None],
                    ["image-size", "r", "Size of the (square) image in pixels (defaults to 1080px).", False, False, int, 1080],
+
+                   ["colour-map", None, "Name of the colour map to use. Supports the avalible matplotlib colourmaps" + (", as well as those designed by Paul Tol (https://personal.sron.nl/~pault/).\nTo use a custom map, specify the colours in the format \"#RRGGBB\" as a semicolon seperated list (must have at least 2 values)." if TOL_AVAILABLE else ".\nTo add support for Paul Tol's colours, download the python file from https://personal.sron.nl/~pault/ and install using \"add-py tol_colors\".") + "\nDefaults to whatever is set by the stylesheet - usually \"twilight_shifted\".", False, False, str, "twilight_shifted"],
 
                    *BoxRegion.get_command_params(use_abbriviation = False)
                   ]

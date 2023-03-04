@@ -12,8 +12,6 @@ figure.figsize: 10.0, 10.0
 
 # Settings for Images
 image.cmap: twilight_shifted
-#image.cmap: "twilight"
-#image.cmap: "hot"
 image.aspect: equal
 image.interpolation: none
 image.origin: lower

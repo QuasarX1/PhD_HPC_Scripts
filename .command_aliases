@@ -1,5 +1,5 @@
 scripts_directory=$(dirname "$(readlink -f ${BASH_SOURCE})")
-python_interpreter_path="/home/aricrowe/python_environments/data_analysis/bin/python"
+source $scripts_directory/.python_interpreter_path.sh
 
 alias pipeline-qx1="$scripts_directory/submit_pipline.sh"
 alias pipeline-qx1-new-config="cp $scripts_directory/_example_data_pipeline_settings.sh ./qx1_pipeline_settings_copy.sh"
@@ -10,20 +10,20 @@ alias add-py="python $scripts_directory/install_py_file.py install"
 
 
 
-alias cat-z="$python_interpreter_path $scripts_directory/get_redshift.py"
-alias eval-swift-data="$python_interpreter_path $scripts_directory/evaluate_swift_data_expression.py"
-alias finish-time="$python_interpreter_path $scripts_directory/predict_finish_time.py"
-alias gas-crit-density="$python_interpreter_path $scripts_directory/get_gas_crit_density.py"
-alias gas-line="$python_interpreter_path $scripts_directory/gas_particle_line_graph.py"
-alias gal-mass-dist="$python_interpreter_path $scripts_directory/galaxy_mass_profiles.py"
-alias gal-masses="$python_interpreter_path $scripts_directory/galaxy_mass_frequency.py"
-alias get-past-halo-masses="$python_interpreter_path $scripts_directory/find_gas_last_halo_masses.py"
-alias graph-past-halo-masses="$python_interpreter_path $scripts_directory/last_halo_mass.py"
-alias halo-n-part="$python_interpreter_path $scripts_directory/n_halo_particles.py"
-alias img_data="$python_interpreter_path $scripts_directory/img_data.py"
+alias cat-z="$QX1_PYTHON $scripts_directory/get_redshift.py"
+alias eval-swift-data="$QX1_PYTHON $scripts_directory/evaluate_swift_data_expression.py"
+alias finish-time="$QX1_PYTHON $scripts_directory/predict_finish_time.py"
+alias gas-crit-density="$QX1_PYTHON $scripts_directory/get_gas_crit_density.py"
+alias gas-line="$QX1_PYTHON $scripts_directory/gas_particle_line_graph.py"
+alias gal-mass-dist="$QX1_PYTHON $scripts_directory/galaxy_mass_profiles.py"
+alias gal-masses="$QX1_PYTHON $scripts_directory/galaxy_mass_frequency.py"
+alias get-past-halo-masses="$QX1_PYTHON $scripts_directory/find_gas_last_halo_masses.py"
+alias graph-past-halo-masses="$QX1_PYTHON $scripts_directory/last_halo_mass.py"
+alias halo-n-part="$QX1_PYTHON $scripts_directory/n_halo_particles.py"
+alias img_data="$QX1_PYTHON $scripts_directory/img_data.py"
 alias img_data_mpi="$scripts_directory/img_data_mpi.sh"
-alias sph-map="$python_interpreter_path $scripts_directory/sph_map.py"
-alias t-d="$python_interpreter_path $scripts_directory/temp_density_diagram.py"
+alias sph-map="$QX1_PYTHON $scripts_directory/sph_map.py"
+alias t-d="$QX1_PYTHON $scripts_directory/temp_density_diagram.py"
 
 
 
