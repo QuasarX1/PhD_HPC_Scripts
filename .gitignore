@@ -1,2 +1,4 @@
 __pycache__/
 stable/
+environment/
+.python_interpreter_path.sh
