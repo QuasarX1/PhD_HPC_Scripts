@@ -15,10 +15,5 @@ ytick.direction: in
 
 # Colormap
 image.cmap: viridis
-#image.cmap: gist_rainbow #1
-#image.cmap: turbo      #2
-#image.cmap: brg        #3
-#image.cmap: jet        #4
-#image.cmap: terrain_r  #BAD
 
 savefig.dpi: 120

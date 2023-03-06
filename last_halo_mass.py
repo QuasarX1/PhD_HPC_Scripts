@@ -14,7 +14,7 @@ from box_region import BoxRegion
 from script_wrapper import ScriptWrapper
 from temp_density_diagram import make_diagram
 
-def __main(directory, output_file, data, **kwargs):
+def __main(directory, output_file, data, colour_map, **kwargs):
     halo_masses_file = os.path.join(directory, "gas_particle_ejection_tracking__halo_masses.pickle")
 
     halo_mass_data = None
@@ -33,7 +33,8 @@ def __main(directory, output_file, data, **kwargs):
                  log_colour = True,
                  colour_weight = "gas.masses*gas.metal_mass_fractions",
                  box_region = box,
-                 min_colour_value = 0)
+                 min_colour_value = 0,
+                 colour_map = colour_map)
 
 if __name__ == "__main__":
     args_info = [
@@ -43,7 +44,8 @@ if __name__ == "__main__":
                 ]
 
     kwargs_info = [
-                   *BoxRegion.get_command_params()
+                   *BoxRegion.get_command_params(),
+                   ["colour-map", None, "Name of the colour map to use.\nSee the help info for the density temp map for further info.", False, False, str, None]
                   ]
     
     script = ScriptWrapper("find_gas_last_halo_masses.py",

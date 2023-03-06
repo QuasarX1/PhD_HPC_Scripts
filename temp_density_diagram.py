@@ -13,6 +13,12 @@ import swiftsimio as sw
 import sys
 from unyt import Mpc, unyt_quantity, unyt_array as u_arr
 
+TOL_AVAILABLE = False
+try:
+    import tol_colors
+    TOL_AVAILABLE = True
+except: pass
+
 sys.path.append(__file__.rsplit(os.path.pathsep, 1)[0])
 from box_region import BoxRegion
 import console_log_printing as clp
@@ -21,7 +27,7 @@ from get_gas_crit_density import critical_gas_density
 from script_wrapper import ScriptWrapper
 from swift_data_expression import parse_string
 
-def make_diagram(particle_data, output_file_path, colour_variable_name = "gas.masses", colour_unit = "Msun", colour_name = None, fraction_colour = False, fraction_mean_colour = False, log_colour = False, colour_weight = "gas.masses", contour_variable_name = None, contour_unit = None, box_region = BoxRegion(), min_colour_value = None, max_colour_value = None, keep_outliers = False):
+def make_diagram(particle_data, output_file_path, colour_variable_name = "gas.masses", colour_unit = "Msun", colour_name = None, fraction_colour = False, fraction_mean_colour = False, log_colour = False, colour_weight = "gas.masses", contour_variable_name = None, contour_unit = None, box_region = BoxRegion(), min_colour_value = None, max_colour_value = None, keep_outliers = False, colour_map = None):
     print_debug(f"make_diagram arguments: {particle_data} {output_file_path} {colour_variable_name} {contour_variable_name} {box_region.x_min} {box_region.x_max} {box_region.y_min} {box_region.y_max} {box_region.z_min} {box_region.z_max}")
     
     coords = np.array(particle_data.gas.coordinates)
@@ -86,8 +92,26 @@ def make_diagram(particle_data, output_file_path, colour_variable_name = "gas.ma
             return c
         kwargs["reduce_C_function"] = colour_reduction
         kwargs["C"] = np.linspace(0, colour_weights.shape[0] - 1, colour_weights.shape[0], dtype = int)
-    
-    hex_out = ax.hexbin(x, t, gridsize = 500, **kwargs)
+
+    throwaway_fig = plt.figure()
+    throwaway_ax = throwaway_fig.gca()
+    raw_hex_out = throwaway_ax.hexbin(x, t, gridsize = 500, **kwargs)
+    colour_percentiles = np.percentile(np.array(raw_hex_out.get_array()), [5, 95])
+    plt.close(throwaway_fig)
+
+    # Handle colour map
+    if colour_map is None:
+        colour_map = [None]
+    if not TOL_AVAILABLE and (len(colour_map) > 1 or colour_map[0] in ('sunset_discrete', 'sunset',
+                                            'nightfall_discrete', 'nightfall',
+                                            'BuRd_discrete', 'BuRd',
+                                            'PRGn_discrete', 'PRGn',
+                                            'YlOrBr_discrete', 'YlOrBr',
+                                            'WhOrBr', 'iridescent',
+                                            'rainbow_PuRd', 'rainbow_PuBr', 'rainbow_WhRd', 'rainbow_WhBr', 'rainbow_discrete')):
+        print_warning(f"Paul Tol's colours are not avalible. This is likley required for colourmap: {colour_map} and this process may fail as a result!\nSee --help for instalation instructions.")
+
+    hex_out = ax.hexbin(x, t, gridsize = 500, vmin = colour_percentiles[0], vmax = colour_percentiles[1], cmap = (tol_colors.tol_cmap(colour_map[0]) if len(colour_map) == 1 else tol_colors.LinearSegmentedColormap.from_list("custom-map", colour_map)) if TOL_AVAILABLE and colour_map[0] in tol_colors.tol_cmap() else colour_map[0], **kwargs)
 
     ax.set_xlabel("${\\rm log_{10}}$ $\\rho$/<$\\rho$>")
     ax.set_ylabel("${\\rm log_{10}}$ $T$ (${\\rm K}$)")
@@ -141,7 +165,7 @@ def make_diagram(particle_data, output_file_path, colour_variable_name = "gas.ma
 
 #TODO: implement better filter params
 def __main(data, output_file, colour, colour_unit, colour_name, fraction_colour, fraction_mean_colour, log_colour, colour_weight,
-         contour, contour_unit, colour_min, colour_max, keep_outliers, limit_fields, limit_units, limits_min, limits_max, **kwargs):
+           contour, contour_unit, colour_min, colour_max, keep_outliers, limit_fields, limit_units, limits_min, limits_max, colour_map, **kwargs):
     box_region_object = BoxRegion(**BoxRegion.filter_command_params(**kwargs))
 
     print_debug("Paramiters:\ndata: {}\noutput_file: {}\ncolour: {}\ncolour_unit: {}\ncolour_name: {}\nfraction_colour: {}\nfraction_mean_colour: {}\nlog_colour: {}\ncolour_weight: {}\ncontour: {}\ncontour_unit: {}\ncentre_x_position: {}\ncentre_y_position: {}\ncentre_z_position: {}\nside_length: {}\nx_min: {}\nx_max: {}\ny_min: {}\ny_max: {}\nz_min: {}\nz_max: {}\ncolour_min: {}\ncolour_max: {}\nkeep_outliers: {}".format(
@@ -175,43 +199,45 @@ def __main(data, output_file, colour, colour_unit, colour_name, fraction_colour,
 
 if __name__ == "__main__":
     args_info = [["data", "Path to the SWIFT data file.", None]]
-    #               name                    char. desc.                           requ.  flag   conv. def.  mutually exclusive flags
+    #               name                    char. desc.                             requ.  flag   conv. def.  mutually exclusive flags
     kwargs_info = [["output_file",          "o",  "Name (or relitive file path) to store\nthe resulting image.",
-                                                                                  True,  False, None, None],
+                                                                                    True,  False, None, None],
                    ["colour",               "c",  "Name (or expression with no spaces) of\nthe data set containing data to be\nused for colouring. Only supports *\nand / operators, and permits int and\nfloat constants.\nDefault is \"gas.masses\".",
-                                                                                  False, False, None, "gas.masses"],
+                                                                                    False, False, None, "gas.masses"],
                    ["colour-unit",          "u",  "Unit expression for the colour data.\nDefault is \"Msun\".",
-                                                                                  False, False, None, "Msun"],
+                                                                                    False, False, None, "Msun"],
                    ["colour-name",          None, "Unit expression for the colour data.\nDefault is \"Msun\".",
-                                                                                  False, False, None, None],
+                                                                                    False, False, None, None],
                    ["fraction-colour",      None,  "Make the pixel colour the fraction of the total value of the (un-logged) dataset.",
-                                                                                   False, True,  None,  None],
+                                                                                    False, True,  None,  None],
                    ["fraction-mean-colour", None,  "Make the pixel colour the fraction of the mean value of the (un-logged) dataset.",
-                                                                                   False, True,  None,  None],
+                                                                                    False, True,  None,  None],
                    ["log-colour",           None, "Apply a base 10 log to the colour data.",
-                                                                                   False, True,  None, None],
+                                                                                    False, True,  None, None],
                    ["colour-weight",        None, "Name (or expression with no spaces) of\n the data set containing data to be\nused for weighting colour data. Only\n supports * and / operators, and\n permits int and float constants.\n Default is \"gas.masses\".",
-                                                                                   False, False, None, "gas.masses"],
+                                                                                    False, False, None, "gas.masses"],
                    ["contour",              "l",  "Optionally draw contours for a specified\nvariable. See \"--colour\" for rules.",
-                                                                                   False, False, None, None],
+                                                                                    False, False, None, None],
                    ["contour-unit",         None, "Unit expression for the contour data.",
-                                                                                   False, False, None, None],
+                                                                                    False, False, None, None],
                     *BoxRegion.get_command_params(),
                    ["colour-min",           None, "Minimum value for the colour field data.\Particles with lower values will be\nignored by default or will be set to\nthis value if the \"--keep-outliers\"\nflag is specified.",
-                                                                                   False, False, float, None],
+                                                                                    False, False, float, None],
                    ["colour-max",           None, "Maximum value for the colour field data.\Particles with higher values will be\nignored by default or will be set to\nthis value if the \"--keep-outliers\"\nflag is specified.",
-                                                                                   False, False, float, None],
+                                                                                    False, False, float, None],
                    ["keep-outliers",        None, "Force points outside the colour range\nspecified to either the upper or lower\nbound (whichever appropriate).",
-                                                                                   False, True,  None,  None],
+                                                                                    False, True,  None,  None],
 
                    ["limit-fields",         None, "Names (or expressions with no spaces) as a semicolon seperated list of the data set to be used for filtering the list of particles. Only supports * and / operators, and permits int and float constants.",
-                                                                                   False, False, ScriptWrapper.make_list_converter(";"), None],
+                                                                                    False, False, ScriptWrapper.make_list_converter(";"), None],
                    ["limit-units",          None, "Unit expression for the limits specified. Uses a semicolon seperated list.",
-                                                                                   False, False, ScriptWrapper.make_list_converter(";"), None],
+                                                                                    False, False, ScriptWrapper.make_list_converter(";"), None],
                    ["limits-min",           None, "",
-                                                                                   False, False, ScriptWrapper.make_list_converter(";", float), None],
+                                                                                    False, False, ScriptWrapper.make_list_converter(";", float), None],
                    ["limits-max",           None, "",
-                                                                                   False, False, ScriptWrapper.make_list_converter(";", float), None]
+                                                                                    False, False, ScriptWrapper.make_list_converter(";", float), None],
+                   ["colour-map",           None, "Name of the colour map to use. Supports the avalible matplotlib colourmaps" + (", as well as those designed by Paul Tol (https://personal.sron.nl/~pault/).\nTo use a custom map, specify the colours in the format \"#RRGGBB\" as a semicolon seperated list (must have at least 2 values)." if TOL_AVAILABLE else ".\nTo add support for Paul Tol's colours, download the python file from https://personal.sron.nl/~pault/ and install using \"add-py tol_colors\".") + "\nDefaults to whatever is set by the stylesheet - usually \"viridis\".",
+                                                                                    False, False, str, "viridis"]
                   ]
     
     script = ScriptWrapper("temp_density_diagram.py",
