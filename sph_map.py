@@ -1,6 +1,6 @@
 AUTHOR = "Christopher Rowe"
-VERSION = "2.0.0"
-DATE = "06/02/2023"
+VERSION = "2.1.0"
+DATE = "04/03/2023"
 DESCRIPTION = "Renders SWIFT SPH data."
 
 
@@ -9,6 +9,7 @@ from enum import Enum
 from matplotlib import pyplot as plt
 import numpy as np
 import os
+from sphviewer import Particles, Camera, Scene, Render
 import swiftsimio as sw
 from swiftsimio.visualisation.sphviewer import SPHViewerWrapper
 import sys
@@ -65,7 +66,6 @@ class RenderType(Enum):
 
 
 
-from sphviewer import Particles, Camera, Scene, Render
 def _render_pixels(particle_data: sw.SWIFTDataset, parttype: PartType, spatial_filter: np.ndarray, smooth_over: sw.SWIFTDataset, camera_settings: dict, return_camera = False):
     dataset = parttype.get_dataset(particle_data)
 
@@ -120,7 +120,7 @@ def make_plot(particle_data: sw.SWIFTDataset, output_file: str,
     print_debug(("Making plot. Params are:" + ("\n{}" * 22)).format(particle_data, output_file, box_region, parttype, x, y, z, render_type, projection_width, smoothing_attr, smoothing_unit, filter_attr, filter_unit, filter_min, filter_max, contour, contour_percentiles, exclude_filter_from_contour, title, no_density, no_log, image_size))
     
     # Needed as masking may have only been spatial and would not be exact
-    print_verbose_info("Making spatial array filter (not currently used!!!).")
+    print_verbose_info("Making spatial array filter.")
     spatial_filter = box_region.make_array_filter(particle_data.gas.coordinates)
 
     combined_filter = spatial_filter.copy()
