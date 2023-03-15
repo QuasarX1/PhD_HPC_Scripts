@@ -1,6 +1,6 @@
 AUTHOR = "Christopher Rowe"
-VERSION = "1.2.0"
-DATE = "02/02/2023"
+VERSION = "2.0.0"
+DATE = "15/03/2023"
 DESCRIPTION = "Creates a gas temperature-density diagram coloured by the mass of the last encountered halo."
 
 import os

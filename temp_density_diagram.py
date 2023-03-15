@@ -1,6 +1,6 @@
 AUTHOR = "Christopher Rowe"
-VERSION = "3.0.3"
-DATE = "31/01/2023"
+VERSION = "3.1.0"
+DATE = "15/03/2023"
 DESCRIPTION = "Creates a temprature vs. density diagram from SWIFT particle data."
 
 from argparse import ArgumentError
@@ -11,6 +11,7 @@ import os
 from scipy.interpolate import Rbf
 import swiftsimio as sw
 import sys
+from typing import List
 from unyt import Mpc, unyt_quantity, unyt_array as u_arr
 
 TOL_AVAILABLE = False
@@ -268,7 +269,7 @@ if __name__ == "__main__":
                            VERSION,
                            DATE,
                            DESCRIPTION,
-                           ["argparse", "BoxRegion.py  (local file)", "console_log_printing.py (local file)", "get_gas_crit_density.py (local file)", "matplotlib", "numpy", "os", "scipy", "swift_data_expression.py (local file)", "swiftsimio", "script_wrapper.py (local file)", "sys", "unyt"],
+                           ["argparse", "BoxRegion.py  (local file)", "console_log_printing.py (local file)", "get_gas_crit_density.py (local file)", "matplotlib", "numpy", "os", "scipy", "swift_data_expression.py (local file)", "swiftsimio", "script_wrapper.py (local file)", "sys", "typing", "unyt"],
                            ["--pressure --data ~/datafile.hdf5 -o result.png", "--density --data ~/datafile.hdf5 -o result.png --node gas --colour mean_metal_weighted_redshifts", "--pressure --data ~/datafile.hdf5 -o result.png -x 5 -y 253 -w 20", "--density --data ~/datafile.hdf5 -o result.png --z-min 10 --z-max 20"],
                            args_info,
                            kwargs_info)
