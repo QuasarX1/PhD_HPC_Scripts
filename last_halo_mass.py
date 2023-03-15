@@ -35,6 +35,23 @@ def __main(directory, output_file, data, colour_map, **kwargs):
                  box_region = box,
                  min_colour_value = 0,
                  colour_map = colour_map)
+    
+    output_file = "plot_temp_dens_metallicity.png"
+    new_file = "_no_dwarfs"
+    old_file_parts = output_file.split(".")
+    new_file = old_file_parts[0] + new_file + ("".join(old_file_parts[1:]) if len(old_file_parts) > 1 else "")
+    make_diagram(particle_data = snap_data,
+                 output_file_path = new_file,
+                 colour_variable_name = "gas.metal_mass_fractions/0.0134",
+                 colour_unit = "",
+                 colour_name = "$Z/Z_{\\odot}$",
+                 log_colour = True,
+#                 colour_weight = "gas.masses*gas.metal_mass_fractions",
+                 box_region = box,
+                 limit_fields = "gas.last_halo_mass",
+                 limit_units = "Msun",
+                 limits_min = 10**10,
+                 colour_map = colour_map)
 
 if __name__ == "__main__":
     args_info = [

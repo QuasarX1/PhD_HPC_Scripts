@@ -400,7 +400,7 @@ if __name__ == "__main__":
                    ["no-log", "l", "Do not log the pixel values before applying colours.", False, True, None, None],
                    ["image-size", "r", "Size of the (square) image in pixels (defaults to 1080px).", False, False, int, 1080],
 
-                   ["colour-map", None, "Name of the colour map to use. Supports the avalible matplotlib colourmaps" + (", as well as those designed by Paul Tol (https://personal.sron.nl/~pault/).\nTo use a custom map, specify the colours in the format \"#RRGGBB\" as a semicolon seperated list (must have at least 2 values)." if TOL_AVAILABLE else ".\nTo add support for Paul Tol's colours, download the python file from https://personal.sron.nl/~pault/ and install using \"add-py tol_colors\".") + "\nDefaults to whatever is set by the stylesheet - usually \"twilight_shifted\".", False, False, str, "twilight_shifted"],
+                   ["colour-map", None, "Name of the colour map to use. Supports the avalible matplotlib colourmaps" + (", as well as those designed by Paul Tol (https://personal.sron.nl/~pault/).\nTo use a custom map, specify the colours in the format \"#RRGGBB\" as a semicolon seperated list (must have at least 2 values)." if TOL_AVAILABLE else ".\nTo add support for Paul Tol's colours, download the python file from https://personal.sron.nl/~pault/ and install using \"add-py tol_colors\".") + "\nDefaults to whatever is set by the stylesheet - usually \"twilight_shifted\".", False, False, str, None],
 
                    *BoxRegion.get_command_params(use_abbriviation = False)
                   ]
