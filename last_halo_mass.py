@@ -48,16 +48,16 @@ def __main(directory: List[str], output_file, data: List[str], labels: List[str]
     snap_data.gas.last_halo_mass = unyt.array.unyt_array(halo_mass_data_sets[0], "Msun")
     box = BoxRegion(**BoxRegion.filter_command_params(**kwargs))
 
-    #make_diagram(particle_data = snap_data,
-    #             output_file_path = output_file,
-    #             colour_variable_name = "gas.last_halo_mass",
-    #             colour_unit = "Msun",
-    #             colour_name = "Halo Mass",
-    #             log_colour = True,
-    #             colour_weight = "gas.masses*gas.metal_mass_fractions",
-    #             box_region = box,
-    #             min_colour_value = 0,
-    #             colour_map = colour_map)
+    make_diagram(particle_data = snap_data,
+                 output_file_path = output_file,
+                 colour_variable_name = "gas.last_halo_mass",
+                 colour_unit = "Msun",
+                 colour_name = "Halo Mass",
+                 log_colour = True,
+                 colour_weight = "gas.masses*gas.metal_mass_fractions",
+                 box_region = box,
+                 min_colour_value = 0,
+                 colour_map = colour_map)
     
 
 
