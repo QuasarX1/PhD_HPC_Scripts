@@ -29,7 +29,7 @@ from script_wrapper import ScriptWrapper
 from swift_data_expression import parse_string
 
 def make_diagram(particle_data, output_file_path, colour_variable_name = "gas.masses", colour_unit = "Msun", colour_name = None, fraction_colour = False, fraction_mean_colour = False, log_colour = False, colour_weight = "gas.masses", contour_variable_name = None, contour_unit = None, box_region = BoxRegion(), min_colour_value = None, max_colour_value = None, keep_outliers = False, limit_fields: List[str] = None, limit_units: List[str] = None, limits_min: List[float] = None, limits_max: List[float] = None, colour_map = None):
-    print_debug(f"make_diagram arguments: {particle_data} {output_file_path} {colour_variable_name} {contour_variable_name} {box_region.x_min} {box_region.x_max} {box_region.y_min} {box_region.y_max} {box_region.z_min} {box_region.z_max}")
+    print_debug(f"make_diagram arguments: {particle_data} {output_file_path} {colour_variable_name} {contour_variable_name} {box_region.x_min} {box_region.x_max} {box_region.y_min} {box_region.y_max} {box_region.z_min} {box_region.z_max} {min_colour_value} {max_colour_value} {keep_outliers} {limit_fields} {limit_units} {limits_min} {limits_max} {colour_map}")
     
     coords = np.array(particle_data.gas.coordinates)
     box_region.complete_bounds_from_coords(coords)
@@ -38,8 +38,17 @@ def make_diagram(particle_data, output_file_path, colour_variable_name = "gas.ma
 
     manual_filter = np.full_like(array_filter, True)
     if limit_fields is not None:
+        if isinstance(limit_fields, str):
+            limit_fields = [limit_fields]
+            limit_units = [limit_units]
+            if limits_min is not None:
+                limits_min = [limits_min]
+            if limits_max is not None:
+                limits_max = [limits_max]
+
         for i, field in enumerate(limit_fields):
-            field_value = parse_string(field, particle_data)[array_filter].to(limit_units[i])
+#            field_value = parse_string(field, particle_data)[array_filter].to(limit_units[i])
+            field_value = parse_string(field, particle_data).to(limit_units[i])
             if limits_min is not None and limits_min[i] != "":
                 manual_filter &= field_value >= limits_min[i]
             if limits_max is not None and limits_max[i] != "":
@@ -60,6 +69,10 @@ def make_diagram(particle_data, output_file_path, colour_variable_name = "gas.ma
         else:
             colour_filter = (colour_weights >= (min_colour_value if min_colour_value is not None else -np.Infinity)) & (colour_weights <= (max_colour_value if max_colour_value is not None else np.Infinity))
             colour_weights = colour_weights[colour_filter]
+        print(colour_weights.min())
+        print(colour_weights.max())
+        print(colour_weights.mean())
+        #exit()
     if colour_filter is None:
         colour_filter = np.full_like(colour_weights, True)
 
@@ -69,7 +82,7 @@ def make_diagram(particle_data, output_file_path, colour_variable_name = "gas.ma
         colour_field_divisor_value = np.mean(colour_weights)
 
     combined_data_filter = (array_filter & manual_filter)
-    combined_data_filter[colour_filter == False] = False
+    combined_data_filter[np.where(combined_data_filter)[0][colour_filter == False]] = False
 
     contour_values = None
     if contour_variable_name is not None:
@@ -128,7 +141,7 @@ def make_diagram(particle_data, output_file_path, colour_variable_name = "gas.ma
                                             'rainbow_PuRd', 'rainbow_PuBr', 'rainbow_WhRd', 'rainbow_WhBr', 'rainbow_discrete')):
         print_warning(f"Paul Tol's colours are not avalible. This is likley required for colourmap: {colour_map} and this process may fail as a result!\nSee --help for instalation instructions.")
 
-    hex_out = ax.hexbin(x, t, gridsize = 500, vmin = colour_percentiles[0], vmax = colour_percentiles[1], cmap = (tol_colors.tol_cmap(colour_map[0]) if len(colour_map) == 1 else tol_colors.LinearSegmentedColormap.from_list("custom-map", colour_map)) if TOL_AVAILABLE and colour_map[0] in tol_colors.tol_cmap() else colour_map[0], **kwargs)
+    hex_out = ax.hexbin(x, t, gridsize = 500, vmin = colour_percentiles[0], vmax = colour_percentiles[1], cmap = (tol_colors.tol_cmap(colour_map[0]) if len(colour_map) == 1 else tol_colors.LinearSegmentedColormap.from_list("custom-map", colour_map)) if TOL_AVAILABLE and (len(colour_map) > 1 or colour_map[0] in tol_colors.tol_cmap()) else colour_map[0], **kwargs)
 
     ax.set_xlabel("${\\rm log_{10}}$ $\\rho$/<$\\rho$>")
     ax.set_ylabel("${\\rm log_{10}}$ $T$ (${\\rm K}$)")
@@ -261,7 +274,7 @@ if __name__ == "__main__":
                    ["limits-max",           None, "",
                                                                                     False, False, ScriptWrapper.make_list_converter(";", float), None],
                    ["colour-map",           None, "Name of the colour map to use. Supports the avalible matplotlib colourmaps" + (", as well as those designed by Paul Tol (https://personal.sron.nl/~pault/).\nTo use a custom map, specify the colours in the format \"#RRGGBB\" as a semicolon seperated list (must have at least 2 values)." if TOL_AVAILABLE else ".\nTo add support for Paul Tol's colours, download the python file from https://personal.sron.nl/~pault/ and install using \"add-py tol_colors\".") + "\nDefaults to whatever is set by the stylesheet - usually \"viridis\".",
-                                                                                    False, False, str, None]
+                                                                                    False, False, ScriptWrapper.make_list_converter(";"), None]
                   ]
     
     script = ScriptWrapper("temp_density_diagram.py",

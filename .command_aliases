@@ -2,6 +2,7 @@ scripts_directory=$(dirname "$(readlink -f ${BASH_SOURCE})")
 source $scripts_directory/.python_interpreter_path.sh
 
 alias pipeline-qx1="$scripts_directory/submit_pipline.sh"
+alias pipeline-qx1-local="$scripts_directory/local_run_pipline.sh"
 alias pipeline-qx1-new-config="cp $scripts_directory/_example_data_pipeline_settings.sh ./qx1_pipeline_settings_copy.sh"
 
 
@@ -33,6 +34,7 @@ alias qx1-help="echo 'Avalible Commands:
 
     Shell Scripts:
         pipeline-qx1 <config-file>
+        pipeline-qx1-local <config-file>
         pipeline-qx1-new-config
 
     Python Tools:

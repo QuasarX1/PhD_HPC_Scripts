@@ -117,7 +117,7 @@ def make_plot(particle_data: sw.SWIFTDataset, output_file: str,
               title: str = "", no_density: bool = False, no_log: bool = False, image_size: int = 1080,
               colour_map: List[str] = None):
 
-    print_debug(("Making plot. Params are:" + ("\n{}" * 22)).format(particle_data, output_file, box_region, parttype, x, y, z, render_type, projection_width, smoothing_attr, smoothing_unit, filter_attr, filter_unit, filter_min, filter_max, contour, contour_percentiles, exclude_filter_from_contour, title, no_density, no_log, image_size))
+    print_debug(("Making plot. Params are:" + ("\n{}" * 23)).format(particle_data, output_file, box_region, parttype, x, y, z, render_type, projection_width, smoothing_attr, smoothing_unit, filter_attr, filter_unit, filter_min, filter_max, contour, contour_percentiles, exclude_filter_from_contour, title, no_density, no_log, image_size, colour_map))
     
     # Needed as masking may have only been spatial and would not be exact
     print_verbose_info("Making spatial array filter.")
@@ -246,7 +246,7 @@ def make_plot(particle_data: sw.SWIFTDataset, output_file: str,
         print_warning(f"Paul Tol's colours are not avalible. This is likley required for colourmap: {colour_map} and this process may fail as a result!\nSee --help for instalation instructions.")
     # Render the map
     #plt.imshow(data_image, cmap = tol_colors.LinearSegmentedColormap.from_list("test", ["#125A56", "#FD9A44", "#A01813"]))
-    plt.imshow(data_image, cmap = (tol_colors.tol_cmap(colour_map[0]) if len(colour_map) == 1 else tol_colors.LinearSegmentedColormap.from_list("custom-map", colour_map)) if TOL_AVAILABLE and colour_map[0] in tol_colors.tol_cmap() else colour_map[0])
+    plt.imshow(data_image, cmap = (tol_colors.tol_cmap(colour_map[0]) if len(colour_map) == 1 else tol_colors.LinearSegmentedColormap.from_list("custom-map", colour_map)) if TOL_AVAILABLE and (len(colour_map) > 1 or colour_map[0] in tol_colors.tol_cmap()) else colour_map[0])
     #plt.imshow(data_image, cmap = tol_colors.tol_cmap("rainbow_discrete"))
     #plt.imshow(data_image, cmap = tol_colors.tol_cmap("nightfall"))
     #plt.imshow(data_image, cmap = tol_colors.LinearSegmentedColormap.from_list("test", ["#FF0000", "#FFFF00", "#0000FF"]))
@@ -400,7 +400,7 @@ if __name__ == "__main__":
                    ["no-log", "l", "Do not log the pixel values before applying colours.", False, True, None, None],
                    ["image-size", "r", "Size of the (square) image in pixels (defaults to 1080px).", False, False, int, 1080],
 
-                   ["colour-map", None, "Name of the colour map to use. Supports the avalible matplotlib colourmaps" + (", as well as those designed by Paul Tol (https://personal.sron.nl/~pault/).\nTo use a custom map, specify the colours in the format \"#RRGGBB\" as a semicolon seperated list (must have at least 2 values)." if TOL_AVAILABLE else ".\nTo add support for Paul Tol's colours, download the python file from https://personal.sron.nl/~pault/ and install using \"add-py tol_colors\".") + "\nDefaults to whatever is set by the stylesheet - usually \"twilight_shifted\".", False, False, str, None],
+                   ["colour-map", None, "Name of the colour map to use. Supports the avalible matplotlib colourmaps" + (", as well as those designed by Paul Tol (https://personal.sron.nl/~pault/).\nTo use a custom map, specify the colours in the format \"#RRGGBB\" as a semicolon seperated list (must have at least 2 values)." if TOL_AVAILABLE else ".\nTo add support for Paul Tol's colours, download the python file from https://personal.sron.nl/~pault/ and install using \"add-py tol_colors\".") + "\nDefaults to whatever is set by the stylesheet - usually \"twilight_shifted\".", False, False, ScriptWrapper.make_list_converter(";"), None],
 
                    *BoxRegion.get_command_params(use_abbriviation = False)
                   ]

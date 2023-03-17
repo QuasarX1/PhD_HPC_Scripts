@@ -2,8 +2,8 @@
 File: swift_data_expression.py
 
 Author: Christopher Rowe
-Vesion: 2.0.0
-Date:   31/11/2022
+Vesion: 2.0.1
+Date:   15/03/2023
 
 Allows conversion from a string expression containing variables
 in the form of SWIFT particle file tree nodes into a loaded
@@ -21,6 +21,7 @@ Dependancies:
 To import all public methods, use:
 from swift_data_expression import seperate_terms, parse_string
 """
+import re
 
 try:
     import swiftsimio as sw
@@ -76,8 +77,11 @@ def __join(values: List[Union[unyt.unyt_array, unyt.unyt_quantity, List]], opera
     next_operator = operator_i + 1
     
     if isinstance(joined_value, list):
+#        print("(L) At", nvalues, value_i, operator_i)
+        _consistency_store = operator_i
         joined_value, operator_i = __join(values[value_i], operators, len(values[value_i]), 0, operator_i, True)
         next_operator = operator_i + 1
+#        print("(L) Returned", nvalues, value_i, f"{_consistency_store}-now-{operator_i}", f"next op {next_operator}")
 
     if len(operators) > 0 and value_i < nvalues - 1:
         if operators[value_i] == "**":
@@ -89,7 +93,12 @@ def __join(values: List[Union[unyt.unyt_array, unyt.unyt_quantity, List]], opera
                 joined_value **= values[next_value]
             value_i = next_value
 
-        next_value, next_operator = __join(values, operators, nvalues, value_i + 1, next_operator, True)
+#        print("(N) At", nvalues, value_i, operator_i)
+        if nvalues - 1 == value_i + 1:
+            next_value = __join(values, operators, nvalues, value_i + 1, next_operator, False)
+        else:
+            next_value, next_operator = __join(values, operators, nvalues, value_i + 1, next_operator, True)
+#        print("(N) Returned", nvalues, value_i, operator_i, f"next op {operator_i}")
         if operators[operator_i] == "*":
             #joined_value *= next_value# DON'T DO THIS (causes overflow warning and max recursion error on large datasets...)
             joined_value = joined_value * next_value
@@ -100,8 +109,11 @@ def __join(values: List[Union[unyt.unyt_array, unyt.unyt_quantity, List]], opera
         elif operators[operator_i] == "-":
             joined_value = joined_value - next_value
         else:
-            raise RuntimeError()
+            raise RuntimeError(f"Operator unrecognised: \"{operators[operator_i]}\"")
 
+#    print("Returning from", nvalues, value_i, operator_i)
+#    print("    " + str(joined_value))
+#    print()
     if not return_next_op_index:
         return joined_value
     else:
@@ -162,7 +174,7 @@ def seperate_terms(expression: str) -> Tuple[List[Union[str, List]], List[str]]:
     # Create a list of string operators using the identified terms
     attribute_opperators = unyt_checked_expression.replace("(", "").replace(")", "")
     for i in range(len(flattened_attribute_strings)):
-        attribute_opperators = attribute_opperators.replace(flattened_attribute_strings[i], "|")
+        attribute_opperators = re.compile(r"(?<![a-zA-Z0-9._])" + re.escape(flattened_attribute_strings[i]) + r"(?![a-zA-Z0-9._])").sub("|", attribute_opperators)
     attribute_opperators = attribute_opperators.replace("#", "").strip("|").split("|")
 
     # Re-add the unyt terms - replacing the # indicators
@@ -229,3 +241,9 @@ def parse_string(expression: str, root_node: sw.SWIFTDataset) -> Union[unyt.unyt
             
     # Stich all the attributes together using the opperators
     return __join(attribute_array, attribute_opperators, len(attribute_array))
+
+if __name__ == "__main__":
+    print(parse_string("1/2/2", None))
+    print(parse_string("1/(2/2)", None))
+    print(parse_string("(1/2)/2", None))
+    #print(parse_string("8/(5-1)/2", None))
