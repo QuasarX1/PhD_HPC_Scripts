@@ -64,11 +64,6 @@ echo ""
 echo "Metal Mass Fraction Map"
 sph-map $present_day_data map_mean_mass_weighted_metal_mass_fraction.png -t "\$M_Z/M\$" --gas -x $COLIBRE_DATA_PIPLINE__SLICE_CENTRE_X -y $COLIBRE_DATA_PIPLINE__SLICE_CENTRE_Y -z "0" --projection -w $COLIBRE_DATA_PIPLINE__SLICE_WIDTH -s "gas.metal_mass_fractions" -u "" -p -c gas.masses --centre-x-position $COLIBRE_DATA_PIPLINE__SLICE_CENTRE_X --centre-y-position $COLIBRE_DATA_PIPLINE__SLICE_CENTRE_Y --centre-z-position $COLIBRE_DATA_PIPLINE__SLICE_CENTRE_Z --side-length 25 --z-side-length $COLIBRE_DATA_PIPLINE__SLICE_DEPTH $COLIBRE_DATA_PIPLINE__MAP_COLOURMAP
 
-# Metalicity Map
-echo ""
-echo "Metalicity Map"
-sph-map $present_day_data map_mean_mass_weighted_metalicity.png -t "\$Z/Z_{\\odot}\$" --gas -x $COLIBRE_DATA_PIPLINE__SLICE_CENTRE_X -y $COLIBRE_DATA_PIPLINE__SLICE_CENTRE_Y -z "0" --projection -w $COLIBRE_DATA_PIPLINE__SLICE_WIDTH -s "(gas.metal_mass_fractions/(1-gas.metal_mass_fractions))/0.0134" -u "" -p -c gas.masses --centre-x-position $COLIBRE_DATA_PIPLINE__SLICE_CENTRE_X --centre-y-position $COLIBRE_DATA_PIPLINE__SLICE_CENTRE_Y --centre-z-position $COLIBRE_DATA_PIPLINE__SLICE_CENTRE_Z --side-length 25 --z-side-length $COLIBRE_DATA_PIPLINE__SLICE_DEPTH $COLIBRE_DATA_PIPLINE__MAP_COLOURMAP
-
 # Mean Metal Mass Weighted Redshift Map
 echo ""
 echo "Mean Metal Mass Weighted Redshift Map"
@@ -107,11 +102,6 @@ t-d $present_day_data -o plot_temp_dens_mass.png --colour-name "\$M\$" --fractio
 echo ""
 echo "Temp Density Colour=log_10(Metal Mass Fraction) Weighting=Mass"
 t-d $present_day_data -v -d -o plot_temp_dens_metal_mass_fraction.png -c gas.metal_mass_fractions -u "" --colour-name "\$M_Z/M\$" --log-colour --colour-min 0.0 $COLIBRE_DATA_PIPLINE__RHO_T_COLOURMAP
-
-# Temp Density Colour=log_10(Metallicitys) Weighting=Mass
-echo ""
-echo "Temp Density Colour=log_10(Metallicitys) Weighting=Mass"
-t-d $present_day_data -v -d -o plot_temp_dens_metallicity.png -c "(gas.metal_mass_fractions/(1-gas.metal_mass_fractions))/0.0134" -u "" --colour-name "\$Z/Z_{\\odot}\$" --colour-min 0.0 --log-colour $COLIBRE_DATA_PIPLINE__RHO_T_COLOURMAP
 
 # Temp Density Colour=log_10(Metal Mass) Weighting=Mass
 echo ""
