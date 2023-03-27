@@ -18,5 +18,5 @@ export COLIBRE_DATA_PIPLINE__COMPARISON_SNAPSHOTS="" # "/full/path/to/other/snap
 export COLIBRE_DATA_PIPLINE__COMPARISON_ALL_LABELS="" # "This Simulation;Other Simulation;This Simulation But Earlier"
 export COLIBRE_DATA_PIPLINE__COMPARISON_CACHED_ENRICHMENT_DATA_DIRECTORY="" # "/folder/path/to/other/graphs;/folder/path/to/earlier/graphs"
 
-export COLIBRE_DATA_PIPLINE__MAP_COLOURMAP="#125A56;#FD9A44;#A01813"
+export COLIBRE_DATA_PIPLINE__MAP_COLOURMAP=""
 export COLIBRE_DATA_PIPLINE__RHO_T_COLOURMAP="#125A56;#FD9A44;#A01813"

@@ -1,6 +1,6 @@
 AUTHOR = "Christopher Rowe"
-VERSION = "2.1.0"
-DATE = "04/03/2023"
+VERSION = "2.1.1"
+DATE = "23/03/2023"
 DESCRIPTION = "Renders SWIFT SPH data."
 
 
@@ -174,7 +174,7 @@ def make_plot(particle_data: sw.SWIFTDataset, output_file: str,
         print_verbose_info("Preparing to account for surface density.")
         # Add a mass unit to the smothing unit to account for the mass weighting of the data
         smoothing_unit += ("*" if smoothing_unit != "" else "") + "Msun"
-        selected_dataset.smothing_attribute *= selected_dataset.masses
+        selected_dataset.smothing_attribute = selected_dataset.smothing_attribute * selected_dataset.masses
         print_verbose_info("New units of initial map are {}.".format(smoothing_unit))
 
     # Set the units as requested

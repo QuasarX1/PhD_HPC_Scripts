@@ -1,6 +1,6 @@
 AUTHOR = "Christopher Rowe"
-VERSION = "5.1.0"
-DATE = "03/02/2023"
+VERSION = "5.2.1"
+DATE = "22/03/2023"
 DESCRIPTION = "Identifies the last halo a gas particle was found in and records the mass of the largest halo in the structure."
 
 import h5py

@@ -2,8 +2,8 @@
 File: box_region.py
 
 Author: Christopher Rowe
-Vesion: 1.5.1
-Date:   08/02/2023
+Vesion: 1.5.2
+Date:   21/03/2023
 
 Convinence functions for handeling spatial regions within a cosmological box.
 
@@ -131,6 +131,7 @@ class BoxRegion(object):
         if self.__y_max is None: self.y_max = np.max(coord_2d_arr[:, 1])
         if self.__z_min is None: self.z_min = np.min(coord_2d_arr[:, 2])
         if self.__z_max is None: self.z_max = np.max(coord_2d_arr[:, 2])
+        self.__set_calculated_attributes()
 
     @property
     def x_min(self) -> float:

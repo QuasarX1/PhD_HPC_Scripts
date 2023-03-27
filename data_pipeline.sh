@@ -45,99 +45,6 @@ cd $COLIBRE_DATA_PIPLINE__PIPELINE_OUTPUT_DIRECTORY
 # Critical Gas Density
 critical_gas_density=$(gas-crit-density "$present_day_data" -u "Msun/Mpc**3")
 
-
-
-# Maps
-
-# Surface Density Map
-echo ""
-echo "Surface Density Map"
-sph-map $present_day_data map_surface_density.png -t "\$\Sigma^{\rm gas}\$" --gas -x $COLIBRE_DATA_PIPLINE__SLICE_CENTRE_X -y $COLIBRE_DATA_PIPLINE__SLICE_CENTRE_Y -z "0" --projection -w $COLIBRE_DATA_PIPLINE__SLICE_WIDTH --centre-x-position $COLIBRE_DATA_PIPLINE__SLICE_CENTRE_X --centre-y-position $COLIBRE_DATA_PIPLINE__SLICE_CENTRE_Y --centre-z-position $COLIBRE_DATA_PIPLINE__SLICE_CENTRE_Z --side-length 25 --z-side-length $COLIBRE_DATA_PIPLINE__SLICE_DEPTH $COLIBRE_DATA_PIPLINE__MAP_COLOURMAP
-
-# Metal Surface Density Map
-echo ""
-echo "Metal Surface Density Map"
-sph-map $present_day_data map_mean_mass_weighted_metal_mass.png -t "\$\Sigma^{\rm gas}_{\rm metal}\$" --gas -x $COLIBRE_DATA_PIPLINE__SLICE_CENTRE_X -y $COLIBRE_DATA_PIPLINE__SLICE_CENTRE_Y -z "0" --projection -w $COLIBRE_DATA_PIPLINE__SLICE_WIDTH -s gas.metal_mass_fractions*gas.masses -u "Msun" -c gas.masses --centre-x-position $COLIBRE_DATA_PIPLINE__SLICE_CENTRE_X --centre-y-position $COLIBRE_DATA_PIPLINE__SLICE_CENTRE_Y --centre-z-position $COLIBRE_DATA_PIPLINE__SLICE_CENTRE_Z --side-length 25 --z-side-length $COLIBRE_DATA_PIPLINE__SLICE_DEPTH $COLIBRE_DATA_PIPLINE__MAP_COLOURMAP
-
-# Metal Mass Fraction Map
-echo ""
-echo "Metal Mass Fraction Map"
-sph-map $present_day_data map_mean_mass_weighted_metal_mass_fraction.png -t "\$M_Z/M\$" --gas -x $COLIBRE_DATA_PIPLINE__SLICE_CENTRE_X -y $COLIBRE_DATA_PIPLINE__SLICE_CENTRE_Y -z "0" --projection -w $COLIBRE_DATA_PIPLINE__SLICE_WIDTH -s "gas.metal_mass_fractions" -u "" -p -c gas.masses --centre-x-position $COLIBRE_DATA_PIPLINE__SLICE_CENTRE_X --centre-y-position $COLIBRE_DATA_PIPLINE__SLICE_CENTRE_Y --centre-z-position $COLIBRE_DATA_PIPLINE__SLICE_CENTRE_Z --side-length 25 --z-side-length $COLIBRE_DATA_PIPLINE__SLICE_DEPTH $COLIBRE_DATA_PIPLINE__MAP_COLOURMAP
-
-# Mean Metal Mass Weighted Redshift Map
-echo ""
-echo "Mean Metal Mass Weighted Redshift Map"
-sph-map $present_day_data map_mean_metal_weighted_redshift.png -t "\$z_Z\$+1" --gas -x $COLIBRE_DATA_PIPLINE__SLICE_CENTRE_X -y $COLIBRE_DATA_PIPLINE__SLICE_CENTRE_Y -z "0" --projection -w $COLIBRE_DATA_PIPLINE__SLICE_WIDTH -s gas.mean_metal_weighted_redshifts+1 -u "" -p --filter-attr gas.mean_metal_weighted_redshifts --filter-unit "" --filter-min 0.0 -c gas.masses --exclude-filter-from-contour --centre-x-position $COLIBRE_DATA_PIPLINE__SLICE_CENTRE_X --centre-y-position $COLIBRE_DATA_PIPLINE__SLICE_CENTRE_Y --centre-z-position $COLIBRE_DATA_PIPLINE__SLICE_CENTRE_Z --side-length 25 --z-side-length $COLIBRE_DATA_PIPLINE__SLICE_DEPTH $COLIBRE_DATA_PIPLINE__MAP_COLOURMAP
-
-
-
-# Temperature Density Diagrams
-
-# Temp Density Colour=z_Z Weighting=Mass Contours=Mass
-echo ""
-echo "Temp Density Colour=z_Z Weighting=Mass Contours=Mass"
-t-d $present_day_data -v -d -o plot_temp_dens_redshift.png -c gas.mean_metal_weighted_redshifts -u "" --colour-name "\$z_Z\$" --colour-min 0.0 --colour-max 10.2 -l gas.masses --contour-unit Msun $COLIBRE_DATA_PIPLINE__RHO_T_COLOURMAP
-
-# Temp Density Colour=log_10(1+z_Z) Weighting=Mass Contours=Mass
-echo ""
-echo "Temp Density Colour=log_10(1+z_Z) Weighting=Mass Contours=Mass"
-t-d $present_day_data -o plot_temp_dens_log_redshift.png -c 1+gas.mean_metal_weighted_redshifts -u "" --colour-name "\$1+z_Z\$" --log-colour --colour-min 1.0 --colour-max 11.2 -l gas.masses --contour-unit Msun $COLIBRE_DATA_PIPLINE__RHO_T_COLOURMAP
-
-# Temp Density Colour=z_Z Weighting=Volume Contours=Volume
-echo ""
-echo "Temp Density Colour=z_Z Weighting=Volume Contours=Volume"
-t-d $present_day_data -o plot_temp_dens_redshift_volume_weighting_volume_contours.png -c gas.mean_metal_weighted_redshifts -u "" --colour-name "\$z_Z\$" --colour-min 0.0 --colour-max 10.2 --colour-weight gas.masses/gas.densities -l gas.masses/gas.densities --contour-unit kpc**3 $COLIBRE_DATA_PIPLINE__RHO_T_COLOURMAP
-
-# Temp Density Colour=log_10(1+z_Z) Weighting=Volume Contours=Volume
-echo ""
-echo "Temp Density Colour=log_10(1+z_Z) Weighting=Volume Contours=Volume"
-t-d $present_day_data -o plot_temp_dens_log_redshift_volume_weighting_volume_contours.png -c 1+gas.mean_metal_weighted_redshifts -u "" --colour-name "\$1+z_Z\$" --log-colour --colour-min 1.0 --colour-max 11.2 --colour-weight gas.masses/gas.densities -l gas.masses/gas.densities --contour-unit kpc**3 $COLIBRE_DATA_PIPLINE__RHO_T_COLOURMAP
-
-# Temp Density Colour=log_10(Mass) Weighting=Mass
-echo ""
-echo "Temp Density Colour=log_10(Mass) Weighting=Mass"
-t-d $present_day_data -o plot_temp_dens_mass.png --colour-name "\$M\$" --fraction-colour $COLIBRE_DATA_PIPLINE__RHO_T_COLOURMAP
-
-# Temp Density Colour=log_10(Metal Mass Fraction) Weighting=Mass
-echo ""
-echo "Temp Density Colour=log_10(Metal Mass Fraction) Weighting=Mass"
-t-d $present_day_data -v -d -o plot_temp_dens_metal_mass_fraction.png -c gas.metal_mass_fractions -u "" --colour-name "\$M_Z/M\$" --log-colour --colour-min 0.0 $COLIBRE_DATA_PIPLINE__RHO_T_COLOURMAP
-
-# Temp Density Colour=log_10(Metal Mass) Weighting=Mass
-echo ""
-echo "Temp Density Colour=log_10(Metal Mass) Weighting=Mass"
-t-d $present_day_data -o plot_temp_dens_metal_mass.png -c gas.masses*gas.metal_mass_fractions -u "Msun" --colour-name "\$M_{\\rm Z}\$" --fraction-colour $COLIBRE_DATA_PIPLINE__RHO_T_COLOURMAP
-
-# Temp Density Colour=log_10(Volume) Weighting=Volume
-echo ""
-echo "Temp Density Colour=log_10(Volume) Weighting=Volume"
-t-d $present_day_data -o plot_temp_dens_volume.png -c gas.masses/gas.densities -u "kpc**3" --colour-name "\$V\$" --fraction-colour --log-colour $COLIBRE_DATA_PIPLINE__RHO_T_COLOURMAP
-
-
-
-# Gas Line Graphs
-
-# Density Redshift Gas Line Plot X=density Y=log_10(1+z_Z) Weighting=Mass???
-echo ""
-echo "Density Redshift Gas Line Plot X=density Y=log_10(1+z_Z) Weighting=Mass???"
-gas-line $present_day_data "z=0" "plot_dens_log_redshift.png" "densities/#<$critical_gas_density>#" "" "1+mean_metal_weighted_redshifts" "" --x-axis-name "$\rho$/<$\rho$>" --y-axis-name "\$1+z_Z\$" --log-x-axis --log-y-axis --y-axis-weight-field "masses" --min-y-field-value 1.0 --max-y-field-value 11.2 -e
-
-# Temp Redshift Gas Line Plot X=temp Y=log_10(1+z_Z) Weighting=Mass???
-echo ""
-echo "Temp Redshift Gas Line Plot X=temp Y=log_10(1+z_Z) Weighting=Mass???"
-gas-line $present_day_data "z=0" "plot_temp_log_redshift.png" "temperatures" "K" "1+mean_metal_weighted_redshifts" "" --x-axis-name "\$T\$" --y-axis-name "\$1+z_Z\$" --log-x-axis --log-y-axis --y-axis-weight-field masses --min-y-field-value 1.0 --max-y-field-value 11.2 -e
-
-# Density Redshift Gas Line Plot Convergence Test X=density Y=log_10(1+z_Z) Weighting=Mass???
-echo ""
-echo "Density Redshift Gas Line Plot Convergence Test X=density Y=log_10(1+z_Z) Weighting=Mass???"
-gas-line "$present_day_data;$COLIBRE_DATA_PIPLINE__COMPARISON_SNAPSHOTS" "$COLIBRE_DATA_PIPLINE__COMPARISON_ALL_LABELS" "convergence_test__plot_dens_log_redshift.png" "densities/#<$critical_gas_density>#" "" "1+mean_metal_weighted_redshifts" "" --x-axis-name "$\rho$/<$\rho$>" --y-axis-name "\$1+z_Z\$" --log-x-axis --log-y-axis --y-axis-weight-field "masses" --min-y-field-value 1.0 --max-y-field-value 11.2 -e
-
-# Temp Redshift Gas Line Plot Convergence Test X=temp Y=log_10(1+z_Z) Weighting=Mass???
-echo ""
-echo "Temp Redshift Gas Line Plot Convergence Test X=temp Y=log_10(1+z_Z) Weighting=Mass???"
-gas-line "$present_day_data;$COLIBRE_DATA_PIPLINE__COMPARISON_SNAPSHOTS" "$COLIBRE_DATA_PIPLINE__COMPARISON_ALL_LABELS" "convergence_test__plot_temp_log_redshift.png" "temperatures" "K" "1+mean_metal_weighted_redshifts" "" --x-axis-name "\$T\$" --y-axis-name "\$1+z_Z\$" --log-x-axis --log-y-axis --y-axis-weight-field masses --min-y-field-value 1.0 --max-y-field-value 11.2 -e
-
-
 if ! [ -f ./gas_particle_ejection_tracking__halo_masses.pickle ]
 then
     echo ""
@@ -148,10 +55,244 @@ else
     echo "Found saved gas-halo interaction data. Remove or rename this data to re-generate."
 fi
 
+if ! [ -f ./modified_present_day_snap.hdf5 ]
+then
+    echo ""
+    echo "Creating Updated Snapshot"
+    create-new-z0-data "$present_day_data" -v -d
+else
+    echo ""
+    echo "Found updated snapshot. Remove or rename this data to re-generate."
+fi
+
+
+
+# Maps
+
+# Surface Density Map
+if ! [ -f ./map_surface_density*.png ]
+then
+    echo ""
+    echo "Surface Density Map"
+    sph-map $present_day_data map_surface_density.png -t "\$\Sigma^{\rm gas}\$" --gas -x $COLIBRE_DATA_PIPLINE__SLICE_CENTRE_X -y $COLIBRE_DATA_PIPLINE__SLICE_CENTRE_Y -z "0" --projection -w $COLIBRE_DATA_PIPLINE__SLICE_WIDTH --centre-x-position $COLIBRE_DATA_PIPLINE__SLICE_CENTRE_X --centre-y-position $COLIBRE_DATA_PIPLINE__SLICE_CENTRE_Y --centre-z-position $COLIBRE_DATA_PIPLINE__SLICE_CENTRE_Z --side-length 25 --z-side-length $COLIBRE_DATA_PIPLINE__SLICE_DEPTH $COLIBRE_DATA_PIPLINE__MAP_COLOURMAP
+fi
+
+# Metal Surface Density Map
+if ! [ -f ./map_mean_mass_weighted_metal_mass*.png ]
+then
+    echo ""
+    echo "Metal Surface Density Map"
+    sph-map $present_day_data map_mean_mass_weighted_metal_mass.png -t "\$\Sigma^{\rm gas}_{\rm metal}\$" --gas -x $COLIBRE_DATA_PIPLINE__SLICE_CENTRE_X -y $COLIBRE_DATA_PIPLINE__SLICE_CENTRE_Y -z "0" --projection -w $COLIBRE_DATA_PIPLINE__SLICE_WIDTH -s gas.metal_mass_fractions*gas.masses -u "Msun" -c gas.masses --centre-x-position $COLIBRE_DATA_PIPLINE__SLICE_CENTRE_X --centre-y-position $COLIBRE_DATA_PIPLINE__SLICE_CENTRE_Y --centre-z-position $COLIBRE_DATA_PIPLINE__SLICE_CENTRE_Z --side-length 25 --z-side-length $COLIBRE_DATA_PIPLINE__SLICE_DEPTH $COLIBRE_DATA_PIPLINE__MAP_COLOURMAP
+fi
+
+# Metal Mass Fraction Map
+if ! [ -f ./map_mean_mass_weighted_metal_mass_fraction*.png ]
+then
+    echo ""
+    echo "Metal Mass Fraction Map"
+    sph-map $present_day_data map_mean_mass_weighted_metal_mass_fraction.png -t "\$M_Z/M\$" --gas -x $COLIBRE_DATA_PIPLINE__SLICE_CENTRE_X -y $COLIBRE_DATA_PIPLINE__SLICE_CENTRE_Y -z "0" --projection -w $COLIBRE_DATA_PIPLINE__SLICE_WIDTH -s "gas.metal_mass_fractions" -u "" -p -c gas.masses --centre-x-position $COLIBRE_DATA_PIPLINE__SLICE_CENTRE_X --centre-y-position $COLIBRE_DATA_PIPLINE__SLICE_CENTRE_Y --centre-z-position $COLIBRE_DATA_PIPLINE__SLICE_CENTRE_Z --side-length 25 --z-side-length $COLIBRE_DATA_PIPLINE__SLICE_DEPTH $COLIBRE_DATA_PIPLINE__MAP_COLOURMAP
+fi
+
+# Mean Metal Mass Weighted Redshift Map
+if ! [ -f ./map_mean_metal_weighted_redshift*.png ]
+then
+    echo ""
+    echo "Mean Metal Mass Weighted Redshift Map"
+    sph-map $present_day_data map_mean_metal_weighted_redshift.png -t "\$z_Z\$+1" --gas -x $COLIBRE_DATA_PIPLINE__SLICE_CENTRE_X -y $COLIBRE_DATA_PIPLINE__SLICE_CENTRE_Y -z "0" --projection -w $COLIBRE_DATA_PIPLINE__SLICE_WIDTH -s gas.mean_metal_weighted_redshifts+1 -u "" -p --filter-attr gas.mean_metal_weighted_redshifts --filter-unit "" --filter-min 0.0 -c gas.masses --exclude-filter-from-contour --centre-x-position $COLIBRE_DATA_PIPLINE__SLICE_CENTRE_X --centre-y-position $COLIBRE_DATA_PIPLINE__SLICE_CENTRE_Y --centre-z-position $COLIBRE_DATA_PIPLINE__SLICE_CENTRE_Z --side-length 25 --z-side-length $COLIBRE_DATA_PIPLINE__SLICE_DEPTH $COLIBRE_DATA_PIPLINE__MAP_COLOURMAP
+fi
+
+# Last Halo Mass Map
+if ! [ -f ./map_last_enrichment_halo_mass*.png ]
+then
+    echo ""
+    echo "Last Halo Mass Map"
+    sph-map modified_present_day_snap.hdf5 map_last_enrichment_halo_mass.png -t "\$M_{\rm halo}\$" --gas -x $COLIBRE_DATA_PIPLINE__SLICE_CENTRE_X -y $COLIBRE_DATA_PIPLINE__SLICE_CENTRE_Y -z "0" --projection -w $COLIBRE_DATA_PIPLINE__SLICE_WIDTH -s gas.last_halo_masses -u "Msun" -p --filter-attr gas.last_halo_masses --filter-unit "Msun" --filter-min 0.000000001 -c gas.masses --exclude-filter-from-contour --centre-x-position $COLIBRE_DATA_PIPLINE__SLICE_CENTRE_X --centre-y-position $COLIBRE_DATA_PIPLINE__SLICE_CENTRE_Y --centre-z-position $COLIBRE_DATA_PIPLINE__SLICE_CENTRE_Z --side-length 25 --z-side-length $COLIBRE_DATA_PIPLINE__SLICE_DEPTH $COLIBRE_DATA_PIPLINE__MAP_COLOURMAP
+fi
+if ! [ -f ./map_low_density_last_enrichment_halo_mass*.png ]
+then
+    echo ""
+    echo "(Low Density) Last Halo Mass Map"
+    sph-map modified_present_day_snap.hdf5 map_low_density_last_enrichment_halo_mass.png -t "\$M_{\rm halo}\$" --gas -x $COLIBRE_DATA_PIPLINE__SLICE_CENTRE_X -y $COLIBRE_DATA_PIPLINE__SLICE_CENTRE_Y -z "0" --projection -w $COLIBRE_DATA_PIPLINE__SLICE_WIDTH -s gas.last_halo_masses -u "Msun" -p --filter-attr "gas.densities/#<$critical_gas_density>#" --filter-unit "" --filter-max 2.5 -c gas.masses --exclude-filter-from-contour --centre-x-position $COLIBRE_DATA_PIPLINE__SLICE_CENTRE_X --centre-y-position $COLIBRE_DATA_PIPLINE__SLICE_CENTRE_Y --centre-z-position $COLIBRE_DATA_PIPLINE__SLICE_CENTRE_Z --side-length 25 --z-side-length $COLIBRE_DATA_PIPLINE__SLICE_DEPTH $COLIBRE_DATA_PIPLINE__MAP_COLOURMAP
+fi
+if ! [ -f ./map_mid_density_last_enrichment_halo_mass*.png ]
+then
+    echo ""
+    echo "(Mid Density) Last Halo Mass Map"
+    sph-map modified_present_day_snap.hdf5 map_mid_density_last_enrichment_halo_mass.png -t "\$M_{\rm halo}\$" --gas -x $COLIBRE_DATA_PIPLINE__SLICE_CENTRE_X -y $COLIBRE_DATA_PIPLINE__SLICE_CENTRE_Y -z "0" --projection -w $COLIBRE_DATA_PIPLINE__SLICE_WIDTH -s gas.last_halo_masses -u "Msun" -p --filter-attr "gas.densities/#<$critical_gas_density>#" --filter-unit "" --filter-min 2.5 --filter-max 7.5 -c gas.masses --exclude-filter-from-contour --centre-x-position $COLIBRE_DATA_PIPLINE__SLICE_CENTRE_X --centre-y-position $COLIBRE_DATA_PIPLINE__SLICE_CENTRE_Y --centre-z-position $COLIBRE_DATA_PIPLINE__SLICE_CENTRE_Z --side-length 25 --z-side-length $COLIBRE_DATA_PIPLINE__SLICE_DEPTH $COLIBRE_DATA_PIPLINE__MAP_COLOURMAP
+fi
+if ! [ -f ./map_high_density_last_enrichment_halo_mass*.png ]
+then
+    echo ""
+    echo "(High Density) Last Halo Mass Map"
+    sph-map modified_present_day_snap.hdf5 map_high_density_last_enrichment_halo_mass.png -t "\$M_{\rm halo}\$" --gas -x $COLIBRE_DATA_PIPLINE__SLICE_CENTRE_X -y $COLIBRE_DATA_PIPLINE__SLICE_CENTRE_Y -z "0" --projection -w $COLIBRE_DATA_PIPLINE__SLICE_WIDTH -s gas.last_halo_masses -u "Msun" -p --filter-attr "gas.densities/#<$critical_gas_density>#" --filter-unit "" --filter-min 7.5 -c gas.masses --exclude-filter-from-contour --centre-x-position $COLIBRE_DATA_PIPLINE__SLICE_CENTRE_X --centre-y-position $COLIBRE_DATA_PIPLINE__SLICE_CENTRE_Y --centre-z-position $COLIBRE_DATA_PIPLINE__SLICE_CENTRE_Z --side-length 25 --z-side-length $COLIBRE_DATA_PIPLINE__SLICE_DEPTH $COLIBRE_DATA_PIPLINE__MAP_COLOURMAP
+fi
+
+
+
+# Temperature Density Diagrams
+
+# Temp Density Colour=z_Z Weighting=Mass Contours=Mass
+if ! [ -f ./plot_temp_dens_redshift.png ]
+then
+    echo ""
+    echo "Temp Density Colour=z_Z Weighting=Mass Contours=Mass"
+    t-d $present_day_data -v -d -o plot_temp_dens_redshift.png -c gas.mean_metal_weighted_redshifts -u "" --colour-name "\$z_Z\$" --colour-min 0.0 --colour-max 10.2 -l gas.masses --contour-unit Msun $COLIBRE_DATA_PIPLINE__RHO_T_COLOURMAP
+fi
+
+# Temp Density Colour=log_10(1+z_Z) Weighting=Mass Contours=Mass
+if ! [ -f ./plot_temp_dens_log_redshift.png ]
+then
+    echo ""
+    echo "Temp Density Colour=log_10(1+z_Z) Weighting=Mass Contours=Mass"
+    t-d $present_day_data -o plot_temp_dens_log_redshift.png -c 1+gas.mean_metal_weighted_redshifts -u "" --colour-name "\$1+z_Z\$" --log-colour --colour-min 1.0 --colour-max 11.2 -l gas.masses --contour-unit Msun $COLIBRE_DATA_PIPLINE__RHO_T_COLOURMAP
+fi
+
+# Temp Density Colour=z_Z Weighting=Volume Contours=Volume
+if ! [ -f ./plot_temp_dens_redshift_volume_weighting_volume_contours.png ]
+then
+    echo ""
+    echo "Temp Density Colour=z_Z Weighting=Volume Contours=Volume"
+    t-d $present_day_data -o plot_temp_dens_redshift_volume_weighting_volume_contours.png -c gas.mean_metal_weighted_redshifts -u "" --colour-name "\$z_Z\$" --colour-min 0.0 --colour-max 10.2 --colour-weight gas.masses/gas.densities -l gas.masses/gas.densities --contour-unit kpc**3 $COLIBRE_DATA_PIPLINE__RHO_T_COLOURMAP
+fi
+
+# Temp Density Colour=log_10(1+z_Z) Weighting=Volume Contours=Volume
+if ! [ -f ./plot_temp_dens_log_redshift_volume_weighting_volume_contours.png ]
+then
+    echo ""
+    echo "Temp Density Colour=log_10(1+z_Z) Weighting=Volume Contours=Volume"
+    t-d $present_day_data -o plot_temp_dens_log_redshift_volume_weighting_volume_contours.png -c 1+gas.mean_metal_weighted_redshifts -u "" --colour-name "\$1+z_Z\$" --log-colour --colour-min 1.0 --colour-max 11.2 --colour-weight gas.masses/gas.densities -l gas.masses/gas.densities --contour-unit kpc**3 $COLIBRE_DATA_PIPLINE__RHO_T_COLOURMAP
+fi
+
+# Temp Density Colour=log_10(Mass) Weighting=Mass
+if ! [ -f ./plot_temp_dens_mass.png ]
+then
+    echo ""
+    echo "Temp Density Colour=log_10(Mass) Weighting=Mass"
+    t-d $present_day_data -o plot_temp_dens_mass.png --colour-name "\$M\$" --fraction-colour $COLIBRE_DATA_PIPLINE__RHO_T_COLOURMAP
+fi
+
+# Temp Density Colour=log_10(Metal Mass Fraction) Weighting=Mass
+if ! [ -f ./plot_temp_dens_metal_mass_fraction.png ]
+then
 echo ""
-echo "Plot Enrichment Halo Mass"
-graph-past-halo-masses "./;$COLIBRE_DATA_PIPLINE__COMPARISON_CACHED_ENRICHMENT_DATA_DIRECTORY" "plot_temp_dens_enrichment_halo_mass.png" "$present_day_data;$COLIBRE_DATA_PIPLINE__COMPARISON_SNAPSHOTS" --labels "$COLIBRE_DATA_PIPLINE__COMPARISON_ALL_LABELS" $COLIBRE_DATA_PIPLINE__RHO_T_COLOURMAP
-#graph-past-halo-masses ./ "plot_temp_dens_enrichment_halo_mass.png" $present_day_data --centre-x-position $COLIBRE_DATA_PIPLINE__SLICE_CENTRE_X --centre-y-position $COLIBRE_DATA_PIPLINE__SLICE_CENTRE_Y --side-length $COLIBRE_DATA_PIPLINE__SLICE_CENTRE_Z --z-side-length inf
+echo "Temp Density Colour=log_10(Metal Mass Fraction) Weighting=Mass"
+t-d $present_day_data -o plot_temp_dens_metal_mass_fraction.png -c gas.metal_mass_fractions -u "" --colour-name "\$M_Z/M\$" --log-colour --colour-min 0.0 $COLIBRE_DATA_PIPLINE__RHO_T_COLOURMAP
+fi
+if ! [ -f ./plot_temp_dens_metal_mass_fraction_only_halo_matches.png ]
+then
+echo ""
+echo "(Matched) Temp Density Colour=log_10(Metal Mass Fraction) Weighting=Mass"
+t-d modified_present_day_snap.hdf5 -o plot_temp_dens_metal_mass_fraction_only_halo_matches.png -c gas.metal_mass_fractions -u "" --colour-name "\$M_Z/M\$" --log-colour --colour-min 0.0 --limit-fields gas.last_halo_masses --limit-units Msun --limits-min 0 $COLIBRE_DATA_PIPLINE__RHO_T_COLOURMAP
+fi
+if ! [ -f ./plot_temp_dens_metal_mass_fraction_no_dwarfs.png ]
+then
+echo ""
+echo "(M > 10**10) Temp Density Colour=log_10(Metal Mass Fraction) Weighting=Mass"
+t-d modified_present_day_snap.hdf5 -o plot_temp_dens_metal_mass_fraction_no_dwarfs.png -c gas.metal_mass_fractions -u "" --colour-name "\$M_Z/M\$" --log-colour --colour-min 0.0 --limit-fields gas.last_halo_masses --limit-units Msun --limits-min 10000000000 $COLIBRE_DATA_PIPLINE__RHO_T_COLOURMAP
+fi
+
+# Temp Density Colour=log_10(Metal Mass) Weighting=Mass
+if ! [ -f ./plot_temp_dens_metal_mass.png ]
+then
+    echo ""
+    echo "Temp Density Colour=log_10(Metal Mass) Weighting=Mass"
+    t-d $present_day_data -o plot_temp_dens_metal_mass.png -c gas.masses*gas.metal_mass_fractions -u "Msun" --colour-name "\$M_{\\rm Z}\$" --fraction-colour $COLIBRE_DATA_PIPLINE__RHO_T_COLOURMAP
+fi
+
+# Temp Density Colour=log_10(Volume) Weighting=Volume
+if ! [ -f ./plot_temp_dens_volume.png ]
+then
+    echo ""
+    echo "Temp Density Colour=log_10(Volume) Weighting=Volume"
+    t-d $present_day_data -o plot_temp_dens_volume.png -c gas.masses/gas.densities -u "kpc**3" --colour-name "\$V\$" --fraction-colour --log-colour $COLIBRE_DATA_PIPLINE__RHO_T_COLOURMAP
+fi
+
+# Temp Density Colour=log_10(last halo mass) Weighting=Metal Mass
+if ! [ -f ./plot_temp_dens_enrichment_halo_mass.png ]
+then
+    echo ""
+    echo "Temp Density Colour=log_10(last halo mass) Weighting=Metal Mass"
+    t-d modified_present_day_snap.hdf5 -o plot_temp_dens_enrichment_halo_mass.png -c gas.last_halo_masses -u "Msun" --colour-name "\$Halo Mass\$" --log-colour --colour-min 0.0 $COLIBRE_DATA_PIPLINE__RHO_T_COLOURMAP
+    #graph-past-halo-masses "./;$COLIBRE_DATA_PIPLINE__COMPARISON_CACHED_ENRICHMENT_DATA_DIRECTORY" "plot_temp_dens_enrichment_halo_mass.png" "$present_day_data;$COLIBRE_DATA_PIPLINE__COMPARISON_SNAPSHOTS" --labels "$COLIBRE_DATA_PIPLINE__COMPARISON_ALL_LABELS" $COLIBRE_DATA_PIPLINE__RHO_T_COLOURMAP -v -d
+    #graph-past-halo-masses ./ "plot_temp_dens_enrichment_halo_mass.png" $present_day_data --centre-x-position $COLIBRE_DATA_PIPLINE__SLICE_CENTRE_X --centre-y-position $COLIBRE_DATA_PIPLINE__SLICE_CENTRE_Y --side-length $COLIBRE_DATA_PIPLINE__SLICE_CENTRE_Z --z-side-length inf
+fi
+
+
+
+# Gas Line Graphs
+
+# Density Redshift Gas Line Plot X=density Y=log_10(1+z_Z) Weighting=Mass
+if ! [ -f ./plot_dens_log_redshift.png ]
+then
+    echo ""
+    echo "Density Redshift Gas Line Plot X=density Y=log_10(1+z_Z) Weighting=Mass"
+    gas-line $present_day_data "Data" "plot_dens_log_redshift.png" "densities/#<$critical_gas_density>#" "" "1+mean_metal_weighted_redshifts" "" --x-axis-name "$\rho$/<$\rho$>" --y-axis-name "\$1+z_Z\$" --log-x-axis --log-y-axis --y-axis-weight-field "masses" --min-y-field-value 1.0 --max-y-field-value 11.2 -e
+fi
+
+# Temp Redshift Gas Line Plot X=temp Y=log_10(1+z_Z) Weighting=Mass
+if ! [ -f ./plot_temp_log_redshift.png ]
+then
+    echo ""
+    echo "Temp Redshift Gas Line Plot X=temp Y=log_10(1+z_Z) Weighting=Mass"
+    gas-line $present_day_data "Data" "plot_temp_log_redshift.png" "temperatures" "K" "1+mean_metal_weighted_redshifts" "" --x-axis-name "\$T\$" --y-axis-name "\$1+z_Z\$" --log-x-axis --log-y-axis --y-axis-weight-field masses --min-y-field-value 1.0 --max-y-field-value 11.2 -e
+fi
+
+# Density Metal Mass Fraction Gas Line Plot X=density Y=log_10(M_Z/M) Weighting=Mass
+if ! [ -f ./plot_dens_metal_mass_fraction.png ]
+then
+    echo ""
+    echo "Density Redshift Gas Line Plot X=density Y=log_10(M_Z/M) Weighting=Mass"
+    gas-line $present_day_data "All Particles" "plot_dens_metal_mass_fraction.png" "densities/#<$critical_gas_density>#" "" "metal_mass_fractions" "" --x-axis-name "$\rho$/<$\rho$>" --y-axis-name "\$M_Z/M\$" --log-x-axis --log-y-axis --y-axis-weight-field "masses" --min-y-field-value 0.0 -e
+fi
+if ! [ -f ./plot_dens_metal_mass_fraction_only_halo_matches.png ]
+then
+    echo ""
+    echo "(Matched) Density Redshift Gas Line Plot X=density Y=log_10(M_Z/M) Weighting=Mass"
+    gas-line modified_present_day_snap.hdf5 "Halo Matched Particles" "plot_dens_metal_mass_fraction_only_halo_matches.png" "densities/#<$critical_gas_density>#" "" "metal_mass_fractions" "" --x-axis-name "$\rho$/<$\rho$>" --y-axis-name "\$M_Z/M\$" --log-x-axis --log-y-axis --y-axis-weight-field "masses" --min-y-field-value 0.0 --limit-fields last_halo_masses --limit-units Msun --limits-min 0 -e
+fi
+if ! [ -f ./plot_dens_metal_mass_fraction_no_dwarfs.png ]
+then
+    echo ""
+    echo "(M > 10**10) Density Redshift Gas Line Plot X=density Y=log_10(M_Z/M) Weighting=Mass"
+    gas-line modified_present_day_snap.hdf5 "\$M_{\rm halo}>10^{10}\$" "plot_dens_metal_mass_fraction_no_dwarfs.png" "densities/#<$critical_gas_density>#" "" "metal_mass_fractions" "" --x-axis-name "$\rho$/<$\rho$>" --y-axis-name "\$M_Z/M\$" --log-x-axis --log-y-axis --y-axis-weight-field "masses" --min-y-field-value 0.0 --limit-fields last_halo_masses --limit-units Msun --limits-min 10000000000 -e
+fi
+
+# Density Redshift Gas Line Plot Convergence Test X=density Y=log_10(1+z_Z) Weighting=Mass
+if ! [ -f ./convergence_test__plot_dens_log_redshift.png ]
+then
+    echo ""
+    echo "Density Redshift Gas Line Plot Convergence Test X=density Y=log_10(1+z_Z) Weighting=Mass"
+    gas-line "$present_day_data;$COLIBRE_DATA_PIPLINE__COMPARISON_SNAPSHOTS" "$COLIBRE_DATA_PIPLINE__COMPARISON_ALL_LABELS" "convergence_test__plot_dens_log_redshift.png" "densities/#<$critical_gas_density>#" "" "1+mean_metal_weighted_redshifts" "" --x-axis-name "$\rho$/<$\rho$>" --y-axis-name "\$1+z_Z\$" --log-x-axis --log-y-axis --y-axis-weight-field "masses" --min-y-field-value 1.0 --max-y-field-value 11.2 -e
+fi
+
+# Temp Redshift Gas Line Plot Convergence Test X=temp Y=log_10(1+z_Z) Weighting=Mass
+if ! [ -f ./convergence_test__plot_temp_log_redshift.png ]
+then
+    echo ""
+    echo "Temp Redshift Gas Line Plot Convergence Test X=temp Y=log_10(1+z_Z) Weighting=Mass"
+    gas-line "$present_day_data;$COLIBRE_DATA_PIPLINE__COMPARISON_SNAPSHOTS" "$COLIBRE_DATA_PIPLINE__COMPARISON_ALL_LABELS" "convergence_test__plot_temp_log_redshift.png" "temperatures" "K" "1+mean_metal_weighted_redshifts" "" --x-axis-name "\$T\$" --y-axis-name "\$1+z_Z\$" --log-x-axis --log-y-axis --y-axis-weight-field masses --min-y-field-value 1.0 --max-y-field-value 11.2 -e
+fi
+
+# Density Metal Mass Fraction Gas Line Plot Convergence Test X=density Y=log_10(M_Z/M) Weighting=Mass
+if ! [ -f ./plot_dens_metal_mass_fraction_comparison.png ]
+then
+    echo ""
+    echo "Density Redshift Gas Line Plot X=density Y=log_10(M_Z/M) Weighting=Mass"
+    gas-line "$present_day_data;$COLIBRE_DATA_PIPLINE__COMPARISON_SNAPSHOTS" "$COLIBRE_DATA_PIPLINE__COMPARISON_ALL_LABELS" "plot_dens_metal_mass_fraction_comparison.png" "densities/#<$critical_gas_density>#" "" "metal_mass_fractions" "" --x-axis-name "$\rho$/<$\rho$>" --y-axis-name "\$M_Z/M\$" --log-x-axis --log-y-axis --y-axis-weight-field "masses" --min-y-field-value 0.0 -e
+fi
+if ! [ -f ./plot_dens_metal_mass_fraction_only_halo_matches_comparison.png ]
+then
+    echo ""
+    echo "(Matched) Density Redshift Gas Line Plot X=density Y=log_10(M_Z/M) Weighting=Mass"
+    gas-line "modified_present_day_snap.hdf5;COLIBRE_DATA_PIPLINE__COMPARISON_SNAPSHOTS" "$COLIBRE_DATA_PIPLINE__COMPARISON_ALL_LABELS" "plot_dens_metal_mass_fraction_only_halo_matches_comparison.png" "densities/#<$critical_gas_density>#" "" "metal_mass_fractions" "" --x-axis-name "$\rho$/<$\rho$>" --y-axis-name "\$M_Z/M\$" --log-x-axis --log-y-axis --y-axis-weight-field "masses" --min-y-field-value 0.0 --limit-fields last_halo_masses --limit-units Msun --limits-min 0 -e
+fi
+if ! [ -f ./plot_dens_metal_mass_fraction_no_dwarfs_comparison.png ]
+then
+    echo ""
+    echo "(M > 10**10) Density Redshift Gas Line Plot X=density Y=log_10(M_Z/M) Weighting=Mass"
+    gas-line "modified_present_day_snap.hdf5;COLIBRE_DATA_PIPLINE__COMPARISON_SNAPSHOTS" "$COLIBRE_DATA_PIPLINE__COMPARISON_ALL_LABELS" "plot_dens_metal_mass_fraction_no_dwarfs_comparison.png" "densities/#<$critical_gas_density>#" "" "metal_mass_fractions" "" --x-axis-name "$\rho$/<$\rho$>" --y-axis-name "\$M_Z/M\$" --log-x-axis --log-y-axis --y-axis-weight-field "masses" --min-y-field-value 0.0 --limit-fields last_halo_masses --limit-units Msun --limits-min 10000000000 -e
+fi
+
 
 
 
@@ -172,6 +313,15 @@ search_result=( map_mean_mass_weighted_metalicity*.png )
 sed -i "s@{mmwm_map_file}@${search_result[0]}@" ./view.html
 search_result=( map_mean_metal_weighted_redshift*.png )
 sed -i "s@{mmwr_map_file}@${search_result[0]}@" ./view.html
+search_result=( map_last_enrichment_halo_mass*.png )
+sed -i "s@{lhm_map_file}@${search_result[0]}@" ./view.html
+
+search_result=( map_low_density_last_enrichment_halo_mass*.png )
+sed -i "s@{ldlhm_map_file}@${search_result[0]}@" ./view.html
+search_result=( map_mid_density_last_enrichment_halo_mass*.png )
+sed -i "s@{mdlhm_map_file}@${search_result[0]}@" ./view.html
+search_result=( map_high_density_last_enrichment_halo_mass*.png )
+sed -i "s@{hdlhm_map_file}@${search_result[0]}@" ./view.html
 
 
 
