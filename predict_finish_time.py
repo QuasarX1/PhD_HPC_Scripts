@@ -1,6 +1,6 @@
 AUTHOR = "Christopher Rowe"
-VERSION = "1.1.0"
-DATE = "13/02/2023"
+VERSION = "1.1.1"
+DATE = "27/03/2023"
 DESCRIPTION = "Predicts the finish time of a simulation."
 
 import datetime
@@ -8,13 +8,10 @@ import glob
 from matplotlib import pyplot as plt
 import numpy as np
 import os
+from QuasarCode.IO.Text.console import print_info, print_verbose_info, print_warning, print_verbose_warning, print_verbose_error, print_debug
+from QuasarCode.Tools import ScriptWrapper
 from sympy import var, Eq, solve, core
-import sys
 from typing import List
-
-sys.path.append(__file__.rsplit(os.path.pathsep, 1)[0])
-from console_log_printing import print_info, print_verbose_info, print_warning, print_verbose_warning, print_verbose_error, print_debug
-from script_wrapper import ScriptWrapper
 
 FILE_PATERN = "timesteps_*.txt"
 FILE_LINE_DATA_START = 14

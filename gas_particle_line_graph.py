@@ -1,6 +1,6 @@
 AUTHOR = "Christopher Rowe"
-VERSION = "1.3.0"
-DATE = "16/03/2023"
+VERSION = "1.3.1"
+DATE = "27/03/2023"
 DESCRIPTION = "Creates line graphs (with errors) for binned data from SWIFT gas particles."
 
 from argparse import ArgumentError
@@ -9,17 +9,17 @@ from matplotlib.colors import LogNorm, ListedColormap
 from matplotlib.patches import Polygon
 import numpy as np
 import os
+from QuasarCode import source_file_relitive_add_to_path
+from QuasarCode.IO.Text.console import print_info, print_verbose_info, print_warning, print_verbose_warning, print_error, print_verbose_error, print_debug
+from QuasarCode.Tools import ScriptWrapper
 from scipy.interpolate import Rbf
 import swiftsimio as sw
 import sys
 from typing import List
 from unyt import Mpc, unyt_array as u_arr
 
-sys.path.append(__file__.rsplit(os.path.pathsep, 1)[0])
+source_file_relitive_add_to_path(__file__)
 from box_region import BoxRegion
-import console_log_printing as clp
-from console_log_printing import print_info, print_verbose_info, print_warning, print_verbose_warning, print_error, print_verbose_error, print_debug
-from script_wrapper import ScriptWrapper
 from swift_data_expression import parse_string as make_attribute
 
 

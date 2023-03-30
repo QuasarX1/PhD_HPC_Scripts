@@ -1,26 +1,24 @@
 AUTHOR = "Christopher Rowe"
-VERSION = "5.2.1"
-DATE = "22/03/2023"
+VERSION = "5.2.2"
+DATE = "27/03/2023"
 DESCRIPTION = "Identifies the last halo a gas particle was found in and records the mass of the largest halo in the structure."
 
 import h5py
 import numpy as np
 import os
 import pickle
+from QuasarCode import Settings
+from QuasarCode.IO.Text.console import print_info, print_verbose_info, print_warning, print_verbose_warning, print_error, print_verbose_error, print_debug
+from QuasarCode.Tools import ScriptWrapper
 import swiftsimio as sw
-import sys
 from time import time
 import velociraptor as vr
-
-sys.path.append(__file__.rsplit(os.path.pathsep, 1)[0])
-from console_log_printing import get_debug, print_info, print_verbose_info, print_warning, print_verbose_warning, print_error, print_verbose_error, print_debug
-from script_wrapper import ScriptWrapper
 
 
 
 def __main(snap_numbers, snap_directory, snap_file_template, cat_directory, cat_file_template, groups_directory, groups_file_template):
 
-    __DEBUG = get_debug()
+    __DEBUG = Settings.debug
 
     snapshot_file_path_template = os.path.join(snap_directory, snap_file_template)
     catalogue_file_path_template = os.path.join(cat_directory, cat_file_template)

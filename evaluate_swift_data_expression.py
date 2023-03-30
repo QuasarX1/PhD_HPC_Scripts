@@ -1,14 +1,13 @@
 AUTHOR = "Christopher Rowe"
-VERSION = "2.0.0"
-DATE = "06/02/2023"
+VERSION = "2.0.1"
+DATE = "27/03/2023"
 DESCRIPTION = "Run an expression against a swift snapshot file."
 
-import os
+from QuasarCode import source_file_relitive_add_to_path
+from QuasarCode.Tools import ScriptWrapper
 import swiftsimio as sw
-import sys
 
-sys.path.append(__file__.rsplit(os.path.pathsep, 1)[0])
-from script_wrapper import ScriptWrapper
+source_file_relitive_add_to_path(__file__)
 from swift_data_expression import parse_string
 
 def __main(file: str, expression: str, print_attrs: bool):

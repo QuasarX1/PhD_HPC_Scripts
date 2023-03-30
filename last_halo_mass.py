@@ -1,7 +1,9 @@
 AUTHOR = "Christopher Rowe"
-VERSION = "3.0.0"
-DATE = "21/03/2023"
+VERSION = "3.0.1"
+DATE = "27/03/2023"
 DESCRIPTION = "Creates a gas temperature-density diagram coloured by the mass of the last encountered halo."
+
+raise RuntimeError("This has been depreciated.")
 
 
 

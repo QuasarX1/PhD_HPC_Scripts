@@ -1,6 +1,6 @@
 AUTHOR = "Christopher Rowe"
-VERSION = "3.1.0"
-DATE = "15/03/2023"
+VERSION = "3.1.1"
+DATE = "27/03/2023"
 DESCRIPTION = "Creates a temprature vs. density diagram from SWIFT particle data."
 
 from argparse import ArgumentError
@@ -8,10 +8,12 @@ from matplotlib import pyplot as plt
 from matplotlib.colors import LogNorm, ListedColormap
 import numpy as np
 import os
+from QuasarCode import source_file_relitive_add_to_path
+from QuasarCode.IO.Text.console import print_info, print_verbose_info, print_warning, print_verbose_warning, print_error, print_verbose_error, print_debug
+from QuasarCode.Tools import ScriptWrapper
 from scipy.interpolate import Rbf
 import swiftsimio as sw
-import sys
-from typing import List
+from typing import List, Union
 from unyt import Mpc, unyt_quantity, unyt_array as u_arr
 
 TOL_AVAILABLE = False
@@ -20,15 +22,14 @@ try:
     TOL_AVAILABLE = True
 except: pass
 
-sys.path.append(__file__.rsplit(os.path.pathsep, 1)[0])
+source_file_relitive_add_to_path(__file__)
 from box_region import BoxRegion
-import console_log_printing as clp
-from console_log_printing import print_info, print_verbose_info, print_warning, print_verbose_warning, print_error, print_verbose_error, print_debug
 from get_gas_crit_density import critical_gas_density
-from script_wrapper import ScriptWrapper
 from swift_data_expression import parse_string
+from swift_particle_filtering import ParticleFilter
+from swift_parttype_enum import PartType
 
-def make_diagram(particle_data, output_file_path, colour_variable_name = "gas.masses", colour_unit = "Msun", colour_name = None, fraction_colour = False, fraction_mean_colour = False, log_colour = False, colour_weight = "gas.masses", contour_variable_name = None, contour_unit = None, box_region = BoxRegion(), min_colour_value = None, max_colour_value = None, keep_outliers = False, limit_fields: List[str] = None, limit_units: List[str] = None, limits_min: List[float] = None, limits_max: List[float] = None, colour_map = None):
+def make_diagram(particle_data, output_file_path, colour_variable_name = "gas.masses", colour_unit = "Msun", colour_name = None, fraction_colour = False, fraction_mean_colour = False, log_colour = False, colour_weight = "gas.masses", contour_variable_name = None, contour_unit = None, box_region = BoxRegion(), min_colour_value = None, max_colour_value = None, keep_outliers = False, limit_fields: Union[None, str, List[str]] = None, limit_units: Union[None, str, List[str]] = None, limits_min: Union[None, float, List[float]] = None, limits_max: Union[None, float, List[float]] = None, colour_map = None):
     print_debug(f"make_diagram arguments: {particle_data} {output_file_path} {colour_variable_name} {contour_variable_name} {box_region.x_min} {box_region.x_max} {box_region.y_min} {box_region.y_max} {box_region.z_min} {box_region.z_max} {min_colour_value} {max_colour_value} {keep_outliers} {limit_fields} {limit_units} {limits_min} {limits_max} {colour_map}")
     
     coords = np.array(particle_data.gas.coordinates)
@@ -36,30 +37,15 @@ def make_diagram(particle_data, output_file_path, colour_variable_name = "gas.ma
     print_verbose_info(f"Final bounds: {box_region.x_min}-{box_region.x_max}, {box_region.y_min}-{box_region.y_max}, {box_region.z_min}-{box_region.z_max}")
     array_filter = box_region.make_array_filter(coords)
 
-    manual_filter = np.full_like(array_filter, True)
-    if limit_fields is not None:
-        if isinstance(limit_fields, str):
-            limit_fields = [limit_fields]
-            limit_units = [limit_units]
-            if limits_min is not None:
-                limits_min = [limits_min]
-            if limits_max is not None:
-                limits_max = [limits_max]
-
-        for i, field in enumerate(limit_fields):
-#            field_value = parse_string(field, particle_data)[array_filter].to(limit_units[i])
-            field_value = parse_string(field, particle_data).to(limit_units[i])
-            if limits_min is not None and limits_min[i] != "":
-                manual_filter &= field_value >= limits_min[i]
-            if limits_max is not None and limits_max[i] != "":
-                manual_filter &= field_value <= limits_max[i]
+    particle_filter = ParticleFilter(particle_data, limit_fields, limit_units, limits_min, limits_max) if ParticleFilter.check_limits_present(limit_fields) else ParticleFilter.passthrough_filter(particle_data, PartType.gas)
+    particle_filter.update(array_filter)
 
     colour_weights = None
     colour_filter = None
     divide_agg_colour = fraction_colour or fraction_mean_colour
     colour_field_divisor_value = None
     if colour_variable_name is not None:
-        colour_weights = parse_string(colour_variable_name, particle_data)[array_filter & manual_filter].to(colour_unit)
+        colour_weights = parse_string(colour_variable_name, particle_data)[particle_filter.numpy_filter].to(colour_unit)
 
         if keep_outliers:
             if min_colour_value is not None:
@@ -69,10 +55,6 @@ def make_diagram(particle_data, output_file_path, colour_variable_name = "gas.ma
         else:
             colour_filter = (colour_weights >= (min_colour_value if min_colour_value is not None else -np.Infinity)) & (colour_weights <= (max_colour_value if max_colour_value is not None else np.Infinity))
             colour_weights = colour_weights[colour_filter]
-        print(colour_weights.min())
-        print(colour_weights.max())
-        print(colour_weights.mean())
-        #exit()
     if colour_filter is None:
         colour_filter = np.full_like(colour_weights, True)
 
@@ -81,29 +63,24 @@ def make_diagram(particle_data, output_file_path, colour_variable_name = "gas.ma
     elif fraction_mean_colour:
         colour_field_divisor_value = np.mean(colour_weights)
 
-    combined_data_filter = (array_filter & manual_filter)
-    combined_data_filter[np.where(combined_data_filter)[0][colour_filter == False]] = False
+    particle_filter.update(colour_filter)
 
     contour_values = None
     if contour_variable_name is not None:
         print_verbose_info("Reading contour data.")
-#        contour_values = parse_string(contour_variable_name, particle_data)[array_filter][manual_filter][colour_filter].to(contour_unit)
-        contour_values = parse_string(contour_variable_name, particle_data)[combined_data_filter].to(contour_unit)
+        contour_values = parse_string(contour_variable_name, particle_data)[particle_filter.numpy_filter].to(contour_unit)
 
     print_verbose_info("Reading in data.")
-#    x = parse_string("gas.densities", particle_data)[array_filter][manual_filter][colour_filter]
-    x = parse_string("gas.densities", particle_data)[combined_data_filter]
+    x = parse_string("gas.densities", particle_data)[particle_filter.numpy_filter]
     x = x / critical_gas_density(particle_data, x.units)
     #x = x / unyt_quantity.from_astropy(particle_data.metadata.cosmology.Ob(particle_data.metadata.z) * particle_data.metadata.cosmology.critical_density(particle_data.metadata.z)).to(x.units)
     #x = x / critical_gas_density(particle_data, x.units)
     #x = np.log10(x / np.mean(np.array(x)))
     #x = np.log10(np.array(x) / np.mean(np.array(x)))
     x = np.log10(np.array(x))
-#    t = np.log10(particle_data.gas.temperatures[array_filter][manual_filter][colour_filter].to("K"))
-    t = np.log10(particle_data.gas.temperatures[combined_data_filter].to("K"))
+    t = np.log10(particle_data.gas.temperatures[particle_filter.numpy_filter].to("K"))
     if colour_variable_name is not None:
-#        w = parse_string(colour_weight, particle_data)[array_filter][manual_filter][colour_filter]
-        w = parse_string(colour_weight, particle_data)[combined_data_filter]
+        w = parse_string(colour_weight, particle_data)[particle_filter.numpy_filter]
 
     print_verbose_info("Making plot.")
     stylesheet_directory = __file__.rsplit(os.path.sep, 1)[0]
@@ -193,7 +170,6 @@ def make_diagram(particle_data, output_file_path, colour_variable_name = "gas.ma
 
     
 
-#TODO: implement better filter params
 def __main(data, output_file, colour, colour_unit, colour_name, fraction_colour, fraction_mean_colour, log_colour, colour_weight,
            contour, contour_unit, colour_min, colour_max, keep_outliers, limit_fields, limit_units, limits_min, limits_max, colour_map, **kwargs):
     box_region_object = BoxRegion(**BoxRegion.filter_command_params(**kwargs))
@@ -264,15 +240,7 @@ if __name__ == "__main__":
                                                                                     False, False, float, None],
                    ["keep-outliers",        None, "Force points outside the colour range\nspecified to either the upper or lower\nbound (whichever appropriate).",
                                                                                     False, True,  None,  None],
-
-                   ["limit-fields",         None, "Names (or expressions with no spaces) as a semicolon seperated list of the data set to be used for filtering the list of particles. Only supports * and / operators, and permits int and float constants.",
-                                                                                    False, False, ScriptWrapper.make_list_converter(";"), None],
-                   ["limit-units",          None, "Unit expression for the limits specified. Uses a semicolon seperated list.",
-                                                                                    False, False, ScriptWrapper.make_list_converter(";"), None],
-                   ["limits-min",           None, "",
-                                                                                    False, False, ScriptWrapper.make_list_converter(";", float), None],
-                   ["limits-max",           None, "",
-                                                                                    False, False, ScriptWrapper.make_list_converter(";", float), None],
+                    *ParticleFilter.get_command_params(),
                    ["colour-map",           None, "Name of the colour map to use. Supports the avalible matplotlib colourmaps" + (", as well as those designed by Paul Tol (https://personal.sron.nl/~pault/).\nTo use a custom map, specify the colours in the format \"#RRGGBB\" as a semicolon seperated list (must have at least 2 values)." if TOL_AVAILABLE else ".\nTo add support for Paul Tol's colours, download the python file from https://personal.sron.nl/~pault/ and install using \"add-py tol_colors\".") + "\nDefaults to whatever is set by the stylesheet - usually \"viridis\".",
                                                                                     False, False, ScriptWrapper.make_list_converter(";"), None]
                   ]

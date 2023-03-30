@@ -2,8 +2,8 @@
 File: save_swift_snap_field.py
 
 Author: Christopher Rowe
-Vesion: 1.0.0
-Date:   21/03/2023
+Vesion: 1.1.0
+Date:   29/03/2023
 
 Save new fields to disk.
 
@@ -15,9 +15,9 @@ Dependancies:
 
     h5py
     numpy
+    QuasarCode
     sph_map.py (local file)
     swift_data_expression.py (local file)
-    os
     swiftsimio
     sys
     typing
@@ -25,16 +25,23 @@ Dependancies:
 
 import h5py
 import numpy as np
-import os
+from QuasarCode import source_file_relitive_add_to_path
 import swiftsimio as sw
-import sys
 from typing import Union, List
 
-sys.path.append(__file__.rsplit(os.path.pathsep, 1)[0])
+source_file_relitive_add_to_path(__file__)
 from sph_map import PartType
 from swift_data_expression import parse_string
 
-def save_particle_fields(field_name: Union[str, List[str]], description: Union[str, List[str]], part_type: Union[PartType, List[PartType]], current_file: sw.SWIFTDataset, new_file: Union[str, None]):
+def get_cgs_conversions(field_name: str, part_type: PartType, current_file: sw.SWIFTDataset) -> List[str]:
+    value = None
+    with h5py.File(current_file.metadata.filename, "r") as file:
+        value = [file[f"/PartType{part_type.value}/" + field_name].attrs["Conversion factor to CGS (not including cosmological corrections)"],
+                 file[f"/PartType{part_type.value}/" + field_name].attrs["Conversion factor to physical CGS (including cosmological corrections)"]
+                ]
+    return value
+
+def save_particle_fields(field_name: Union[str, List[str]], description: Union[str, List[str]], part_type: Union[PartType, List[PartType]], current_file: sw.SWIFTDataset, new_file: Union[str, None], template_field: Union[str, List[str]] = "Masses"):
     """
     function save_particle_field
 
@@ -53,6 +60,8 @@ def save_particle_fields(field_name: Union[str, List[str]], description: Union[s
         description = [description]
     if isinstance(part_type, PartType):
         part_type = [part_type] * len(field_name)
+    if isinstance(template_field, str):
+        template_field = [template_field] * len(field_name)
 
     if new_file is not None and new_file != "":
         with open(current_file.metadata.filename, "rb") as file:
@@ -67,7 +76,8 @@ def save_particle_fields(field_name: Union[str, List[str]], description: Union[s
             #new_field = "/" + ("" if part_type is None else f"PartType{part_type[i].value}") + "/" + field_name
             new_field = f"/PartType{part_type[i].value}/" + field_name[i]
             
-            file.copy(f"/PartType{part_type[i].value}/" + "Masses", new_field)
+#            file.copy(f"/PartType{part_type[i].value}/" + "Masses", new_field)
+            file.copy(f"/PartType{part_type[i].value}/" + template_field[i], new_field)
 
             file[new_field][:] = parse_string(field_name[i], part_type[i].get_dataset(current_file))
             string_type = h5py.string_dtype("ascii", len(description[i]))

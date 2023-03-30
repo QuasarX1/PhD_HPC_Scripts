@@ -13,6 +13,7 @@ alias add-py="python $scripts_directory/install_py_file.py install"
 
 alias cat-z="$QX1_PYTHON $scripts_directory/get_redshift.py"
 alias create-new-z0-data="$QX1_PYTHON $scripts_directory/create_additional_present_day_fields.py"
+alias density-hist="$QX1_PYTHON $scripts_directory/density_histogram.py"
 alias eval-swift-data="$QX1_PYTHON $scripts_directory/evaluate_swift_data_expression.py"
 alias finish-time="$QX1_PYTHON $scripts_directory/predict_finish_time.py"
 alias gas-crit-density="$QX1_PYTHON $scripts_directory/get_gas_crit_density.py"
@@ -45,6 +46,7 @@ alias qx1-help="echo 'Avalible Commands:
     SWIFT Data Python Scripts (use <command> -h for more infomation):
         cat-z
         create-new-z0-data
+        density-hist
         eval-swift-data
         finish-time
         gas-crit-density

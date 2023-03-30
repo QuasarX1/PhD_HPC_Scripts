@@ -1,14 +1,10 @@
 AUTHOR = "Christopher Rowe"
-VERSION = "1.0.0"
-DATE = "12/01/2023"
+VERSION = "1.0.1"
+DATE = "27/03/2023"
 DESCRIPTION = "Gets the redshift for the specified SWIFT snapshot."
 
-import os
+from QuasarCode.Tools import ScriptWrapper
 import swiftsimio as sw
-import sys
-
-sys.path.append(__file__.rsplit(os.path.pathsep, 1)[0])
-from script_wrapper import ScriptWrapper
 
 def __main(file):
     print(sw.load(file).metadata.z)

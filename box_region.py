@@ -2,8 +2,8 @@
 File: box_region.py
 
 Author: Christopher Rowe
-Vesion: 1.5.2
-Date:   21/03/2023
+Vesion: 1.5.3
+Date:   27/03/2023
 
 Convinence functions for handeling spatial regions within a cosmological box.
 
@@ -14,16 +14,15 @@ Public API:
 
 Dependancies:
 
-    console_log_printing (local file)
+    QuasarCode
     numpy
-    sys
-    os
+    swiftsimio (optional)
     typing
+    unyt (optional)
 """
 
 import numpy as np
-import sys
-import os
+from QuasarCode.IO.Text.console import print_info, print_verbose_info, print_warning, print_verbose_warning, print_error, print_verbose_error, print_debug
 from typing import Union, List
 
 SWIFTSIMIO_AVALIBLE = False
@@ -33,12 +32,9 @@ try:
     SWIFTSIMIO_AVALIBLE = True
 except ImportError: pass
 
-sys.path.append(__file__.rsplit(os.path.pathsep, 1)[0])
-from console_log_printing import print_info, print_verbose_info, print_warning, print_verbose_warning, print_error, print_verbose_error, print_debug
-
 
 class BoxRegion(object):
-    def __init__(self, centre_x_position = None, centre_y_position = None, centre_z_position = None, side_length = None, x_min = None, x_max = None, y_min = None, y_max = None, z_min = None, z_max = None, x_side_length = None, y_side_length = None, z_side_length = None):
+    def __init__(self, centre_x_position = None, centre_y_position = None, centre_z_position = None, side_length = None, x_min = None, x_max = None, y_min = None, y_max = None, z_min = None, z_max = None, x_side_length = None, y_side_length = None, z_side_length = None, **kwargs):
         if x_side_length is None:
             x_side_length = side_length
         if y_side_length is None:

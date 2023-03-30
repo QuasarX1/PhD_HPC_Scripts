@@ -1,15 +1,11 @@
 AUTHOR = "Christopher Rowe"
-VERSION = "1.0.0"
-DATE = "30/01/2023"
+VERSION = "1.0.1"
+DATE = "27/03/2023"
 DESCRIPTION = "Gets \u03A9_b * \u03C1_crit(z) for the specified SWIFT snapshot."
 
-import os
+from QuasarCode.Tools import ScriptWrapper
 import swiftsimio as sw
-import sys
 from unyt import unyt_quantity
-
-sys.path.append(__file__.rsplit(os.path.pathsep, 1)[0])
-from script_wrapper import ScriptWrapper
 
 def critical_gas_density(data, unit = None):
     v = unyt_quantity.from_astropy(data.metadata.cosmology.Ob(data.metadata.z) * data.metadata.cosmology.critical_density(data.metadata.z))

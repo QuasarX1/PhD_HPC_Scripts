@@ -1,17 +1,17 @@
 AUTHOR = "Christopher Rowe"
-VERSION = "1.0.0"
-DATE = "22/03/2023"
+VERSION = "1.1.0"
+DATE = "29/03/2023"
 DESCRIPTION = "Inserts the last halo mass data into a copy of the latest snapshot."
 
-import os
 import pickle
+from QuasarCode import source_file_relitive_add_to_path
+from QuasarCode.IO.Text.console import print_info, print_debug
+from QuasarCode.Tools import ScriptWrapper
 import swiftsimio as sw
-import sys
+import unyt
 
-sys.path.append(__file__.rsplit(os.path.pathsep, 1)[0])
-from console_log_printing import print_info, print_debug
-from save_swift_snap_field import save_particle_fields, PartType
-from script_wrapper import ScriptWrapper
+source_file_relitive_add_to_path(__file__)
+from save_swift_snap_field import save_particle_fields, get_cgs_conversions, PartType
 
 def __main(data):
     snap_data_present_day = sw.load(data)
@@ -22,6 +22,9 @@ def __main(data):
         final_halo_ids = pickle.load(file)
     with open("gas_particle_ejection_tracking__halo_masses.pickle", "rb") as file:
         final_halo_masses = pickle.load(file)
+
+    #TODO: find fields of indexes to set as template metadata fields for other datasets
+    final_halo_masses = final_halo_masses * unyt.physical_constants.Msun_cgs / get_cgs_conversions("Masses", PartType.gas, snap_data_present_day)[0]
 
     snap_data_present_day.gas.last_halo_snap_number_index = final_halo_snap_number_index
     snap_data_present_day.gas.last_halo_ids = final_halo_ids
