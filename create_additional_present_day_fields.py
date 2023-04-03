@@ -1,8 +1,9 @@
 AUTHOR = "Christopher Rowe"
-VERSION = "1.1.0"
-DATE = "29/03/2023"
+VERSION = "1.2.0"
+DATE = "03/04/2023"
 DESCRIPTION = "Inserts the last halo mass data into a copy of the latest snapshot."
 
+import numpy as np
 import pickle
 from QuasarCode import source_file_relitive_add_to_path
 from QuasarCode.IO.Text.console import print_info, print_debug
@@ -16,26 +17,32 @@ from save_swift_snap_field import save_particle_fields, get_cgs_conversions, Par
 def __main(data):
     snap_data_present_day = sw.load(data)
 
-    with open("gas_particle_ejection_tracking__halo_snapshot_numbers.pickle", "rb") as file:
+    with open("gas_particle_ejection_tracking__halo_snapshot_number_indexes.pickle", "rb") as file:
         final_halo_snap_number_index = pickle.load(file)
+    with open("gas_particle_ejection_tracking__halo_snapshot_numbers.pickle", "rb") as file:
+        final_halo_snap_numbers = pickle.load(file)
     with open("gas_particle_ejection_tracking__halo_ids_in_snapshot.pickle", "rb") as file:
         final_halo_ids = pickle.load(file)
     with open("gas_particle_ejection_tracking__halo_masses.pickle", "rb") as file:
         final_halo_masses = pickle.load(file)
 
-    #TODO: find fields of indexes to set as template metadata fields for other datasets
+    final_halo_snap_numbers = np.array([int(s) for s in final_halo_snap_numbers], dtype = np.int16)
+
     final_halo_masses = final_halo_masses * unyt.physical_constants.Msun_cgs / get_cgs_conversions("Masses", PartType.gas, snap_data_present_day)[0]
 
     snap_data_present_day.gas.last_halo_snap_number_index = final_halo_snap_number_index
+    snap_data_present_day.gas.last_halo_snap_number = final_halo_snap_numbers
     snap_data_present_day.gas.last_halo_ids = final_halo_ids
     snap_data_present_day.gas.last_halo_masses = final_halo_masses
-    save_particle_fields(field_name = ["last_halo_snap_number_index", "last_halo_ids", "last_halo_masses"],
+    save_particle_fields(field_name = ["last_halo_snap_number_index", "last_halo_snap_number", "last_halo_ids", "last_halo_masses"],
                          description = ["The snapshot index of the last VELOCIraptor halo interacted with. Defaluts to -1 if no halo is found.",
+                                        "The snapshot number of the last VELOCIraptor halo interacted with. Defaluts to -999 if no halo is found.",
                                         "The id of the last VELOCIraptor halo interacted with. Defaluts to -1 if no halo is found.",
                                         "The mass of the last VELOCIraptor halo interacted with. Defaluts to -1 if no halo is found."],
                          part_type = PartType.gas,
                          current_file = snap_data_present_day,
-                         new_file = "modified_present_day_snap.hdf5")
+                         new_file = "modified_present_day_snap.hdf5",
+                         template_field = ["ParticleIDs", "ParticleIDs", "ParticleIDs", "Masses"])
 
 if __name__ == "__main__":
     args_info = [
@@ -48,7 +55,7 @@ if __name__ == "__main__":
                            VERSION,
                            DATE,
                            DESCRIPTION,
-                           ["console_log_printing (local file)", "os", "pickle", "save_swift_snap_field (local file)", "script_wrapper (local file)", "swiftsimio", "sys"],
+                           ["numpy", "pickle", "QuasarCode", "save_swift_snap_field (local file)", "swiftsimio", "unyt"],
                            ["/storage/simulations/COLIBRE_ZOOMS/COLIBRE/five_spheres_20211006/volume04/l0/snapshots/snapshot_0007.hdf5"],
                            args_info,
                            kwargs_info)

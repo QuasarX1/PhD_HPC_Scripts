@@ -1,6 +1,6 @@
 AUTHOR = "Christopher Rowe"
-VERSION = "3.1.1"
-DATE = "27/03/2023"
+VERSION = "3.2.1"
+DATE = "03/04/2023"
 DESCRIPTION = "Creates a temprature vs. density diagram from SWIFT particle data."
 
 from argparse import ArgumentError
@@ -29,16 +29,16 @@ from swift_data_expression import parse_string
 from swift_particle_filtering import ParticleFilter
 from swift_parttype_enum import PartType
 
-def make_diagram(particle_data, output_file_path, colour_variable_name = "gas.masses", colour_unit = "Msun", colour_name = None, fraction_colour = False, fraction_mean_colour = False, log_colour = False, colour_weight = "gas.masses", contour_variable_name = None, contour_unit = None, box_region = BoxRegion(), min_colour_value = None, max_colour_value = None, keep_outliers = False, limit_fields: Union[None, str, List[str]] = None, limit_units: Union[None, str, List[str]] = None, limits_min: Union[None, float, List[float]] = None, limits_max: Union[None, float, List[float]] = None, colour_map = None):
+def make_diagram(particle_data, output_file_path, colour_variable_name = "gas.masses", colour_unit = "Msun", colour_name = None, fraction_colour = False, fraction_mean_colour = False, log_colour = False, colour_weight = "gas.masses", contour_variable_name = None, contour_unit = None, box_region = BoxRegion(), min_colour_value = None, max_colour_value = None, keep_outliers = False, limit_fields: Union[None, str, List[str]] = None, limit_units: Union[None, str, List[str]] = None, limits_min: Union[None, float, List[float]] = None, limits_max: Union[None, float, List[float]] = None, exclude_limits_from_contour: bool = False, colour_map = None):
     print_debug(f"make_diagram arguments: {particle_data} {output_file_path} {colour_variable_name} {contour_variable_name} {box_region.x_min} {box_region.x_max} {box_region.y_min} {box_region.y_max} {box_region.z_min} {box_region.z_max} {min_colour_value} {max_colour_value} {keep_outliers} {limit_fields} {limit_units} {limits_min} {limits_max} {colour_map}")
     
     coords = np.array(particle_data.gas.coordinates)
     box_region.complete_bounds_from_coords(coords)
     print_verbose_info(f"Final bounds: {box_region.x_min}-{box_region.x_max}, {box_region.y_min}-{box_region.y_max}, {box_region.z_min}-{box_region.z_max}")
-    array_filter = box_region.make_array_filter(coords)
+    spatial_filter = box_region.make_array_filter(coords)
 
     particle_filter = ParticleFilter(particle_data, limit_fields, limit_units, limits_min, limits_max) if ParticleFilter.check_limits_present(limit_fields) else ParticleFilter.passthrough_filter(particle_data, PartType.gas)
-    particle_filter.update(array_filter)
+    particle_filter.update(spatial_filter)
 
     colour_weights = None
     colour_filter = None
@@ -68,7 +68,14 @@ def make_diagram(particle_data, output_file_path, colour_variable_name = "gas.ma
     contour_values = None
     if contour_variable_name is not None:
         print_verbose_info("Reading contour data.")
-        contour_values = parse_string(contour_variable_name, particle_data)[particle_filter.numpy_filter].to(contour_unit)
+        if exclude_limits_from_contour:
+            contour_values = parse_string(contour_variable_name, particle_data)[spatial_filter].to(contour_unit)
+            x_no_manual_filters = parse_string("gas.densities", particle_data)[spatial_filter]
+            x_no_manual_filters = x_no_manual_filters / critical_gas_density(particle_data, x_no_manual_filters.units)
+            x_no_manual_filters = np.log10(np.array(x_no_manual_filters))
+            t_no_manual_filters = np.log10(particle_data.gas.temperatures[spatial_filter].to("K"))
+        else:
+            contour_values = parse_string(contour_variable_name, particle_data)[particle_filter.numpy_filter].to(contour_unit)
 
     print_verbose_info("Reading in data.")
     x = parse_string("gas.densities", particle_data)[particle_filter.numpy_filter]
@@ -142,7 +149,10 @@ def make_diagram(particle_data, output_file_path, colour_variable_name = "gas.ma
 
     if contour_variable_name is not None:
         nBins = 50
-        h, xedges, yedges = np.histogram2d(x, t, nBins, weights = contour_values)
+        if exclude_limits_from_contour:
+            h, xedges, yedges = np.histogram2d(x_no_manual_filters, t_no_manual_filters, nBins, weights = contour_values)
+        else:
+            h, xedges, yedges = np.histogram2d(x, t, nBins, weights = contour_values)
         total_contour_value = np.sum(contour_values)
         h /= total_contour_value
         check_values = h.reshape(((len(xedges) - 1) * (len(yedges) - 1),))
@@ -171,7 +181,7 @@ def make_diagram(particle_data, output_file_path, colour_variable_name = "gas.ma
     
 
 def __main(data, output_file, colour, colour_unit, colour_name, fraction_colour, fraction_mean_colour, log_colour, colour_weight,
-           contour, contour_unit, colour_min, colour_max, keep_outliers, limit_fields, limit_units, limits_min, limits_max, colour_map, **kwargs):
+           contour, contour_unit, colour_min, colour_max, keep_outliers, limit_fields, limit_units, limits_min, limits_max, exclude_limits_from_contour, colour_map, **kwargs):
     box_region_object = BoxRegion(**BoxRegion.filter_command_params(**kwargs))
 
     print_debug("Paramiters:\ndata: {}\noutput_file: {}\ncolour: {}\ncolour_unit: {}\ncolour_name: {}\nfraction_colour: {}\nfraction_mean_colour: {}\nlog_colour: {}\ncolour_weight: {}\ncontour: {}\ncontour_unit: {}\ncentre_x_position: {}\ncentre_y_position: {}\ncentre_z_position: {}\nside_length: {}\nx_min: {}\nx_max: {}\ny_min: {}\ny_max: {}\nz_min: {}\nz_max: {}\ncolour_min: {}\ncolour_max: {}\nkeep_outliers: {}".format(
@@ -205,6 +215,7 @@ def __main(data, output_file, colour, colour_unit, colour_name, fraction_colour,
     if limit_units is not None: kwargs["limit_units"] = limit_units
     if limits_min is not None: kwargs["limits_min"] = limits_min
     if limits_max is not None: kwargs["limits_max"] = limits_max
+    if exclude_limits_from_contour is not None: kwargs["exclude_limits_from_contour"] = exclude_limits_from_contour
 
     if colour_map is not None: kwargs["colour_map"] = colour_map
 
@@ -241,6 +252,8 @@ if __name__ == "__main__":
                    ["keep-outliers",        None, "Force points outside the colour range\nspecified to either the upper or lower\nbound (whichever appropriate).",
                                                                                     False, True,  None,  None],
                     *ParticleFilter.get_command_params(),
+                   ["exclude-limits-from-contour", None, "Specified limits should NOT apply to the contoured data.",
+                                                                                    False, True, None, None],
                    ["colour-map",           None, "Name of the colour map to use. Supports the avalible matplotlib colourmaps" + (", as well as those designed by Paul Tol (https://personal.sron.nl/~pault/).\nTo use a custom map, specify the colours in the format \"#RRGGBB\" as a semicolon seperated list (must have at least 2 values)." if TOL_AVAILABLE else ".\nTo add support for Paul Tol's colours, download the python file from https://personal.sron.nl/~pault/ and install using \"add-py tol_colors\".") + "\nDefaults to whatever is set by the stylesheet - usually \"viridis\".",
                                                                                     False, False, ScriptWrapper.make_list_converter(";"), None]
                   ]

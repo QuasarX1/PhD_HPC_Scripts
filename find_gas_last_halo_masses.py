@@ -1,6 +1,6 @@
 AUTHOR = "Christopher Rowe"
-VERSION = "5.2.2"
-DATE = "27/03/2023"
+VERSION = "5.3.2"
+DATE = "03/04/2023"
 DESCRIPTION = "Identifies the last halo a gas particle was found in and records the mass of the largest halo in the structure."
 
 import h5py
@@ -232,6 +232,7 @@ def __main(snap_numbers, snap_directory, snap_file_template, cat_directory, cat_
 
     # Return all data to the snapshot data order
     final_halo_snap_number_index = final_halo_snap_number_index[indexes_to_unsort__gas_ids_present_day]
+    final_halo_snap_numbers = np.array([snap_numbers[i] if i != -1 else "-999" for i in final_halo_snap_number_index], dtype = str)
     final_halo_ids = final_halo_ids[indexes_to_unsort__gas_ids_present_day]
     print(final_halo_masses.shape)
     final_halo_masses = final_halo_masses[indexes_to_unsort__gas_ids_present_day]
@@ -239,8 +240,10 @@ def __main(snap_numbers, snap_directory, snap_file_template, cat_directory, cat_
 
     print_verbose_info(f"All data retrived. Saving to files.")
 
-    with open("gas_particle_ejection_tracking__halo_snapshot_numbers.pickle", "wb") as file:
+    with open("gas_particle_ejection_tracking__halo_snapshot_number_indexes.pickle", "wb") as file:
         pickle.dump(final_halo_snap_number_index, file)
+    with open("gas_particle_ejection_tracking__halo_snapshot_numbers.pickle", "wb") as file:
+        pickle.dump(final_halo_snap_numbers, file)
     with open("gas_particle_ejection_tracking__halo_ids_in_snapshot.pickle", "wb") as file:
         pickle.dump(final_halo_ids, file)
     with open("gas_particle_ejection_tracking__halo_masses.pickle", "wb") as file:
