@@ -48,6 +48,8 @@ cd $COLIBRE_DATA_PIPLINE__PIPELINE_OUTPUT_DIRECTORY
 # Critical Gas Density
 critical_gas_density=$(gas-crit-density "$present_day_data" -u "Msun/Mpc**3")
 
+# Make modified snapshot
+
 if ! [ -f ./gas_particle_ejection_tracking__halo_masses.pickle ]
 then
     echo ""
@@ -63,12 +65,16 @@ then
     echo ""
     echo "Creating Updated Snapshot"
     create-new-z0-data "$present_day_data" -v -d
+
+    echo ""
+    echo "Tracking Haloes To Present Day"
+    get-matched-present-day-haloes modified_present_day_snap.hdf5 "$COLIBRE_DATA_PIPLINE__LAST_SNAPSHOT" "$COLIBRE_DATA_PIPLINE__CATALOGUE_DIRECTORY" "$COLIBRE_DATA_PIPLINE__CATALOGUE_FILE_TEMPLATE" "$COLIBRE_DATA_PIPLINE__CATALOGUE_DIRECTORY" "$COLIBRE_DATA_PIPLINE__CATALOGUE_GROUPS_FILE_TEMPLATE" -v -d
 else
     echo ""
     echo "Found updated snapshot. Remove or rename this data to re-generate."
 fi
 
-
+exit
 
 # Maps
 

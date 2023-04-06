@@ -1,6 +1,6 @@
 AUTHOR = "Christopher Rowe"
-VERSION = "1.2.0"
-DATE = "03/04/2023"
+VERSION = "1.2.1"
+DATE = "05/04/2023"
 DESCRIPTION = "Inserts the last halo mass data into a copy of the latest snapshot."
 
 import numpy as np
@@ -12,7 +12,7 @@ import swiftsimio as sw
 import unyt
 
 source_file_relitive_add_to_path(__file__)
-from save_swift_snap_field import save_particle_fields, get_cgs_conversions, PartType
+from save_swift_snap_field import save_particle_fields, get_cgs_conversions, PartType, SIGNED_INT_64
 
 def __main(data):
     snap_data_present_day = sw.load(data)
@@ -42,7 +42,8 @@ def __main(data):
                          part_type = PartType.gas,
                          current_file = snap_data_present_day,
                          new_file = "modified_present_day_snap.hdf5",
-                         template_field = ["ParticleIDs", "ParticleIDs", "ParticleIDs", "Masses"])
+                         template_field = ["ParticleIDs", "ParticleIDs", "ParticleIDs", "Masses"],
+                         datatype_override = [SIGNED_INT_64, SIGNED_INT_64, SIGNED_INT_64, ""])
 
 if __name__ == "__main__":
     args_info = [

@@ -234,9 +234,7 @@ def __main(snap_numbers, snap_directory, snap_file_template, cat_directory, cat_
     final_halo_snap_number_index = final_halo_snap_number_index[indexes_to_unsort__gas_ids_present_day]
     final_halo_snap_numbers = np.array([snap_numbers[i] if i != -1 else "-999" for i in final_halo_snap_number_index], dtype = str)
     final_halo_ids = final_halo_ids[indexes_to_unsort__gas_ids_present_day]
-    print(final_halo_masses.shape)
     final_halo_masses = final_halo_masses[indexes_to_unsort__gas_ids_present_day]
-    print(final_halo_masses.shape)
 
     print_verbose_info(f"All data retrived. Saving to files.")
 

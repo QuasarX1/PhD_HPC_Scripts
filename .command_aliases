@@ -21,6 +21,7 @@ alias gas-line="$QX1_PYTHON $scripts_directory/gas_particle_line_graph.py"
 alias gal-mass-dist="$QX1_PYTHON $scripts_directory/galaxy_mass_profiles.py"
 alias gal-masses="$QX1_PYTHON $scripts_directory/galaxy_mass_frequency.py"
 alias get-past-halo-masses="$QX1_PYTHON $scripts_directory/find_gas_last_halo_masses.py"
+alias get-matched-present-day-haloes="$QX1_PYTHON $scripts_directory/find_present_day_halo_counterparts.py"
 alias graph-past-halo-masses="$QX1_PYTHON $scripts_directory/last_halo_mass.py"
 alias halo-n-part="$QX1_PYTHON $scripts_directory/n_halo_particles.py"
 alias img_data="$QX1_PYTHON $scripts_directory/img_data.py"
@@ -54,6 +55,7 @@ alias qx1-help="echo 'Avalible Commands:
         gal-mass-dist
         gal-masses
         get-past-halo-masses
+        get-matched-present-day-haloes
         graph-past-halo-masses
         halo-n-part
         img_data
