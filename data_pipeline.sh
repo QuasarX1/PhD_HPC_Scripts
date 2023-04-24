@@ -90,8 +90,6 @@ else
     echo "Found saved gas ejection data. Remove or rename this data to re-generate."
 fi
 
-exit
-
 
 
 # Maps
