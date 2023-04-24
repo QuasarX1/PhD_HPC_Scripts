@@ -28,6 +28,7 @@ from get_gas_crit_density import critical_gas_density
 from swift_data_expression import parse_string
 from swift_particle_filtering import ParticleFilter
 from swift_parttype_enum import PartType
+from unit_string_formatter import format_unit_string
 
 def make_diagram(particle_data, output_file_path, colour_variable_name = "gas.masses", colour_unit = "Msun", colour_name = None, fraction_colour = False, fraction_mean_colour = False, log_colour = False, colour_weight = "gas.masses", contour_variable_name = None, contour_unit = None, box_region = BoxRegion(), min_colour_value = None, max_colour_value = None, keep_outliers = False, limit_fields: Union[None, str, List[str]] = None, limit_units: Union[None, str, List[str]] = None, limits_min: Union[None, float, List[float]] = None, limits_max: Union[None, float, List[float]] = None, exclude_limits_from_contour: bool = False, colour_map = None):
     print_debug(f"make_diagram arguments: {particle_data} {output_file_path} {colour_variable_name} {contour_variable_name} {box_region.x_min} {box_region.x_max} {box_region.y_min} {box_region.y_max} {box_region.z_min} {box_region.z_max} {min_colour_value} {max_colour_value} {keep_outliers} {limit_fields} {limit_units} {limits_min} {limits_max} {colour_map}")
@@ -140,7 +141,8 @@ def make_diagram(particle_data, output_file_path, colour_variable_name = "gas.ma
             colourbar_label = ("${\\rm log_{10}}$ " if log_colour else "") + f"{colour_name}" + (f"/$\Sigma$({colour_name})" if fraction_colour else f"/<{colour_name}>" if fraction_mean_colour else "")
         
         if not divide_agg_colour:
-            colourbar_label += ((" (${\\rm " + str(colour_weights[0].units.expr).replace("**", "^").replace("sun", "_{\odot}") + "}$)") if str(colour_weights[0].units.expr) != "1" else (" (dimensionless)" if not log_colour else ""))
+#            colourbar_label += ((" (${\\rm " + str(colour_weights[0].units.expr).replace("**", "^").replace("sun", "_{\odot}") + "}$)") if str(colour_weights[0].units.expr) != "1" else (" (dimensionless)" if not log_colour else ""))
+            colourbar_label += ((" (${\\rm " + format_unit_string(str(colour_weights[0].units.expr)).replace("**", "^").replace("sun", "_{\odot}") + "}$)") if str(colour_weights[0].units.expr) != "1" else (" (dimensionless)" if not log_colour else ""))
 
         #colourbar_label = (("" if not log_colour else "${\\rm log_{10}}$ ") + (colour_variable_name.replace("_", " ") if colour_name is None or colour_name == "" else colour_name)) + ((" (${\\rm " + str(colour_weights[0].units.expr).replace("**", "^").replace("sun", "_{\odot}") + "}$)") if str(colour_weights[0].units.expr) != "1" else (" (dimensionless)" if not log_colour else ""))
         

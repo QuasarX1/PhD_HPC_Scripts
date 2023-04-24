@@ -47,9 +47,25 @@ def __main(data: str, present_day_snap_number: str, cat_directory: str, cat_file
 
     # Loop over each halo in each snapshot and get the ID of its most bound particle
     print_verbose_info("Identifying most bound particles at tracked snapshot.")
-    most_bound_particle_ids = np.empty(halo_ids.shape)
+
+    if os.path.exists("./present_day_haloes__mbpid.checkpoint.pickle"):
+        print_verbose_info("Continuing most bound particle ID search from checkpoint.")
+        with open("./present_day_haloes__mbpid.checkpoint.pickle", "rb") as file:
+            last_complete_snap_num, most_bound_particle_ids = pickle.load(file)
+            last_complete_snap_num = int(last_complete_snap_num)
+        print_verbose_info(f"Last snapshot completed was {last_complete_snap_num}.")
+    else:
+        print_verbose_info("No most bound particle checkpoint - starting from the begining.")
+        last_complete_snap_num = -1
+        most_bound_particle_ids = np.empty(halo_ids.shape)
+
     for i, snap_number in enumerate(unique_snap_numbers):
-        print_verbose_info(f"Doing snapshot {snap_number}")
+        if int(snap_number) <= last_complete_snap_num:
+            print_verbose_info(f"Snapshot {snap_number} encompased by checkpoint")
+            continue
+        else:
+            print_verbose_info(f"Doing snapshot {snap_number}")
+
         snapshot_filter = snapshot_numbers == snap_number
         unique_halos = np.unique(halo_ids[snapshot_filter])
     
@@ -59,6 +75,10 @@ def __main(data: str, present_day_snap_number: str, cat_directory: str, cat_file
             halo_filter = snapshot_filter & (halo_ids == halo_id)
             
             most_bound_particle_ids[halo_filter] = catalogue.ids.id_mbp[catalogue.ids.id == halo_id][0]
+
+        with open("./present_day_haloes__mbpid.checkpoint.pickle", "wb") as file:
+            pickle.dump([snap_number, most_bound_particle_ids], file)
+        last_complete_snap_num = int(snap_number)
             
 
 
@@ -103,10 +123,38 @@ def __main(data: str, present_day_snap_number: str, cat_directory: str, cat_file
     print_verbose_info("Identifying present day haloes.")
 
     unique_ids = np.unique(most_bound_particle_ids)
-    
-    number_not_traced = 0
-    matched_present_day_halo_ids = np.empty(halo_ids.shape)
-    for unique_id in unique_ids:
+
+    n_checkpoints = 1000
+    checkpoint_step = int(len(unique_ids) / n_checkpoints)
+    if os.path.exists("./present_day_haloes__present_hid.checkpoint.pickle"):
+        print_verbose_info("Found hid snapshot.")
+        with open("./present_day_haloes__present_hid.checkpoint.pickle", "rb") as file:
+            #checkpoints_reached, number_not_traced, matched_present_day_halo_ids = pickle.load(file)
+            checkpointed_n_checkpoints, checkpointed_checkpoints_reached, number_not_traced, matched_present_day_halo_ids = pickle.load(file)
+            checkpointed_checkpoint_step = int(len(unique_ids) / checkpointed_n_checkpoints)
+            # Find the latest full checkpoint completed using the current checkpoint intervals
+            checkpoints_reached = (checkpointed_checkpoints_reached * checkpointed_checkpoint_step) // checkpoint_step
+            checkpoints_reached += 1
+        print_verbose_info(f"Continuing from index {checkpoints_reached * checkpoint_step} of {len(unique_ids) - 1}.")
+    else:
+        print_verbose_info("No halo id checkpoint - starting from the begining.")
+        number_not_traced = 0
+        matched_present_day_halo_ids = np.empty(halo_ids.shape)
+        checkpoints_reached = 0
+        
+    for i, unique_id in enumerate(unique_ids):
+        if i // checkpoint_step != checkpoints_reached:
+            # Either likley covered by a checkpoint or ready to create a new checkpoint
+            if i // checkpoint_step < checkpoints_reached:
+                # Likley covered by loaded checkpoint - ensure this in the case where the checkpoint frequency has been changed
+                if n_checkpoints == checkpointed_n_checkpoints or i // checkpointed_checkpoint_step < checkpointed_checkpoints_reached:
+                    continue
+            else:
+                print_verbose_info(f"Making latest halo ID checkpoint at { checkpoints_reached + 1 } / { n_checkpoints }")
+                with open("./present_day_haloes__present_hid.checkpoint.pickle", "wb") as file:
+                    pickle.dump([n_checkpoints, checkpoints_reached, number_not_traced, matched_present_day_halo_ids], file)
+                checkpoints_reached += 1
+
         try:
             matched_present_day_halo_ids[most_bound_particle_ids == unique_id] = halo_id_by_bound_particle[bound_particle_ids == unique_id][0]
         except IndexError as e:
@@ -115,6 +163,7 @@ def __main(data: str, present_day_snap_number: str, cat_directory: str, cat_file
             print_warning(f"Unable to identify the halo containing particle {unique_id}.\n{n_affected} particles affected.")
             matched_present_day_halo_ids[most_bound_particle_ids == unique_id] = -1
             number_not_traced = number_not_traced + n_affected
+            
     print_info("{:.3f}% of the tracked particles have an identifiable halo at present day.\n{} were not accounted for.".format((1 - (number_not_traced / matched_present_day_halo_ids.shape[0])) * 100, number_not_traced))
 
     print_verbose_info("Aligning data with all particles in present day snapshot.")

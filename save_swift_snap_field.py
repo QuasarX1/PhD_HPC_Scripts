@@ -2,8 +2,8 @@
 File: save_swift_snap_field.py
 
 Author: Christopher Rowe
-Vesion: 1.2.0
-Date:   05/04/2023
+Vesion: 1.2.1
+Date:   24/04/2023
 
 Save new fields to disk.
 
@@ -42,7 +42,9 @@ SIGNED_INT_32 = "i4"
 UNSIGNED_INT_64 = "u8"
 SIGNED_INT_64 = "i8"
 
-def get_cgs_conversions(field_name: str, part_type: PartType, current_file: sw.SWIFTDataset) -> List[str]:
+SIGNED_FLOAT_64 = np.float64#"H5T_IEEE_F64LE"
+
+def get_cgs_conversions(field_name: str, part_type: PartType, current_file: sw.SWIFTDataset) -> List[float]:
     value = None
     with h5py.File(current_file.metadata.filename, "r") as file:
         value = [file[f"/PartType{part_type.value}/" + field_name].attrs["Conversion factor to CGS (not including cosmological corrections)"],

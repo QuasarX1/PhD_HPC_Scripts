@@ -14,6 +14,7 @@ alias add-py="python $scripts_directory/install_py_file.py install"
 alias cat-z="$QX1_PYTHON $scripts_directory/get_redshift.py"
 alias create-new-z0-data="$QX1_PYTHON $scripts_directory/create_additional_present_day_fields.py"
 alias density-hist="$QX1_PYTHON $scripts_directory/density_histogram.py"
+alias ejection-radius-hist="$QX1_PYTHON $scripts_directory/ejection_radius_histogram.py"
 alias eval-swift-data="$QX1_PYTHON $scripts_directory/evaluate_swift_data_expression.py"
 alias finish-time="$QX1_PYTHON $scripts_directory/predict_finish_time.py"
 alias gas-crit-density="$QX1_PYTHON $scripts_directory/get_gas_crit_density.py"
@@ -21,6 +22,7 @@ alias gas-line="$QX1_PYTHON $scripts_directory/gas_particle_line_graph.py"
 alias gal-mass-dist="$QX1_PYTHON $scripts_directory/galaxy_mass_profiles.py"
 alias gal-masses="$QX1_PYTHON $scripts_directory/galaxy_mass_frequency.py"
 alias get-past-halo-masses="$QX1_PYTHON $scripts_directory/find_gas_last_halo_masses.py"
+alias get-matched-halo-particle-ejection="$QX1_PYTHON $scripts_directory/calculate_ejection_distance.py"
 alias get-matched-present-day-haloes="$QX1_PYTHON $scripts_directory/find_present_day_halo_counterparts.py"
 alias graph-past-halo-masses="$QX1_PYTHON $scripts_directory/last_halo_mass.py"
 alias halo-n-part="$QX1_PYTHON $scripts_directory/n_halo_particles.py"
@@ -37,8 +39,8 @@ alias qx1-help="echo 'Avalible Commands:
         help-qx1
 
     Shell Scripts:
-        pipeline-qx1 <config-file>
-        pipeline-qx1-local <config-file>
+        pipeline-qx1 <config-file> [wallclock-time]
+        pipeline-qx1-local <config-file> [number-output-lines]
         pipeline-qx1-new-config
 
     Python Tools:
@@ -48,6 +50,7 @@ alias qx1-help="echo 'Avalible Commands:
         cat-z
         create-new-z0-data
         density-hist
+        ejection-radius-hist
         eval-swift-data
         finish-time
         gas-crit-density
@@ -55,6 +58,7 @@ alias qx1-help="echo 'Avalible Commands:
         gal-mass-dist
         gal-masses
         get-past-halo-masses
+        get-matched-halo-particle-ejection
         get-matched-present-day-haloes
         graph-past-halo-masses
         halo-n-part

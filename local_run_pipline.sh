@@ -17,4 +17,6 @@ else
     n_watch_lines=40
 fi
 
+echo "Use \`watch tail \"$(readlink -f "$out_file")\" -n $n_watch_lines\` to view live output."
+
 watch tail "$out_file" -n $n_watch_lines
