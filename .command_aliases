@@ -13,6 +13,7 @@ alias add-py="python $scripts_directory/install_py_file.py install"
 
 alias cat-z="$QX1_PYTHON $scripts_directory/get_redshift.py"
 alias create-new-z0-data="$QX1_PYTHON $scripts_directory/create_additional_present_day_fields.py"
+alias cumulitive-metal-contribution="$QX1_PYTHON $scripts_directory/plot_cumulitive_metal_contribution_mass.py"
 alias density-hist="$QX1_PYTHON $scripts_directory/density_histogram.py"
 alias ejection-radius-hist="$QX1_PYTHON $scripts_directory/ejection_radius_histogram.py"
 alias eval-swift-data="$QX1_PYTHON $scripts_directory/evaluate_swift_data_expression.py"
@@ -28,6 +29,7 @@ alias graph-past-halo-masses="$QX1_PYTHON $scripts_directory/last_halo_mass.py"
 alias halo-n-part="$QX1_PYTHON $scripts_directory/n_halo_particles.py"
 alias img_data="$QX1_PYTHON $scripts_directory/img_data.py"
 alias img_data_mpi="$scripts_directory/img_data_mpi.sh"
+alias metal-halo-breakdown="$QX1_PYTHON $scripts_directory/plot_metal_mass_by_bin.py"
 alias sph-map="$QX1_PYTHON $scripts_directory/sph_map.py"
 alias t-d="$QX1_PYTHON $scripts_directory/temp_density_diagram.py"
 
@@ -49,6 +51,7 @@ alias qx1-help="echo 'Avalible Commands:
     SWIFT Data Python Scripts (use <command> -h for more infomation):
         cat-z
         create-new-z0-data
+        cumulitive-metal-contribution
         density-hist
         ejection-radius-hist
         eval-swift-data
@@ -64,6 +67,7 @@ alias qx1-help="echo 'Avalible Commands:
         halo-n-part
         img_data
         img_data_mpi
+        metal-halo-breakdown
         sph-map
         t-d
 '"

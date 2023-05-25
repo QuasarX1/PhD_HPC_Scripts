@@ -58,6 +58,8 @@ def __main(data: str, present_day_snap_number: str, cat_directory: str, cat_file
     box_size = unyt_array(snap_data.metadata.header["BoxSize"], "Mpc")
     half_box_size = box_size / 2
 
+    print_debug(np.abs(halo_ejection_vectors[:, :]) > np.tile(half_box_size, (halo_ejection_vectors.shape[0], 1)))
+
     halo_ejection_vectors = np.where(np.abs(halo_ejection_vectors[:, :]) > np.tile(half_box_size, (halo_ejection_vectors.shape[0], 1)),
                                      halo_ejection_vectors[:, :] - ((halo_ejection_vectors[:, :] / np.abs(halo_ejection_vectors[:, :])) * np.tile(box_size, (halo_ejection_vectors.shape[0], 1))),
                                      halo_ejection_vectors)
