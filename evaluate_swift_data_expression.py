@@ -4,7 +4,7 @@ DATE = "03/04/2023"
 DESCRIPTION = "Run an expression against a swift snapshot file."
 
 import numpy as np
-from QuasarCode import console, source_file_relitive_add_to_path
+from QuasarCode import Console, source_file_relitive_add_to_path
 from QuasarCode.Tools import ScriptWrapper
 import swiftsimio as sw
 
@@ -18,12 +18,36 @@ def __main(file: str, expression: str, print_attrs: bool, print_range_stats: boo
         try:
             result = result.to(unit)
         except:
-            console.print_warning(f"Unable to convert this expression to unit {unit}.")
+            Console.print_warning(f"Unable to convert this expression to unit {unit}.")
     print(result)
     if print_attrs:
-        console.print_info(dir(result))
+        Console.print_info(dir(result))
     if print_range_stats:
-        console.print_info(f"Minimum: {result[:].min()}\nMaximum: {result[:].max()}\nMean:    {result[:].mean()}\nMedian:  {np.median(result[:])}")
+        min = None
+        try:
+            min = result[:].min()
+        except Exception as e:
+            min = "ERROR!"
+            Console.print_debug(e)
+        max = None
+        try:
+            max = result[:].max()
+        except Exception as e:
+            max = "ERROR!"
+            Console.print_debug(e)
+        mean = None
+        try:
+            mean = result[:].mean()
+        except Exception as e:
+            mean = "ERROR!"
+            Console.print_debug(e)
+        median = None
+        try:
+            median = np.median(result[:])
+        except Exception as e:
+            median = "ERROR!"
+            Console.print_debug(e)
+        Console.print_info(f"Minimum: {min}\nMaximum: {max}\nMean: {mean}\nMedian: {median}")
 
 if __name__ == "__main__":
     args_info = [["file", "SWIFT snapshot file.", None],

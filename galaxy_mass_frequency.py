@@ -7,12 +7,16 @@ import h5py
 from matplotlib import pyplot as plt
 import numpy as np
 import os
-from QuasarCode.IO.Text.console import print_info, print_verbose_info, print_debug
+#from QuasarCode.IO.Text.console import Console.print_info, Console.print_verbose_info, Console.print_debug
+from QuasarCode import Console, source_file_relitive_add_to_path
 from QuasarCode.Tools import ScriptWrapper
 import swiftsimio as sw
 import sys
 from time import time
 import velociraptor as vr
+
+source_file_relitive_add_to_path(__file__)
+from velociraptor_multi_load import Multifile_VR_Catalogue
 
 
 
@@ -23,11 +27,11 @@ def __main(snap_number, snap_directory, snap_file_template, cat_directory, cat_f
     
     snap_data = sw.load(snapshot_file_path_template.format(snap_number))
     
-    print_verbose_info("Loading star particle data from snapshot.")
+    Console.print_verbose_info("Loading star particle data from snapshot.")
     star_particle_ids = snap_data.stars.particle_ids
     star_particle_masses = snap_data.stars.masses.to("Msun")
     star_particle_positions = snap_data.stars.coordinates.to("Mpc")
-    print_info(f"Got {len(star_particle_ids)} star particles from snapshot {snap_number}.")
+    Console.print_info(f"Got {len(star_particle_ids)} star particles from snapshot {snap_number}.")
 
     catalogue_filepath = catalogue_file_path_template.format(snap_number)
     groups_filepath = group_file_path_template.format(snap_number)
@@ -36,14 +40,21 @@ def __main(snap_number, snap_directory, snap_file_template, cat_directory, cat_f
     bound_parttypes_filepath = groups_filepath.replace("catalog_groups", "catalog_parttypes")
     unbound_parttypes_filepath = groups_filepath.replace("catalog_groups", "catalog_parttypes.unbound")
 
-    print_verbose_info("Loading catalogue data.")
-    catalogue_data = vr.load(catalogue_filepath)
-    halo_ids = np.array(catalogue_data.ids.id, dtype = np.int64)
-    halo_masses = np.array(catalogue_data.masses.mass_200crit.to("Msun"), dtype = np.float64)
-    halo_centre_x_coords = catalogue_data.positions.xc.to("Mpc")
-    halo_centre_y_coords = catalogue_data.positions.yc.to("Mpc")
-    halo_centre_z_coords = catalogue_data.positions.zc.to("Mpc")
-    halo_r_200 = catalogue_data.radii.r_200crit.to("Mpc")
+    Console.print_verbose_info("Loading catalogue data.")
+#    catalogue_data = vr.load(catalogue_filepath)
+#    halo_ids = np.array(catalogue_data.ids.id, dtype = np.int64)
+#    #halo_masses = np.array(catalogue_data.masses.mass_200crit.to("Msun"), dtype = np.float64)
+#    #halo_centre_x_coords = catalogue_data.positions.xc.to("Mpc")
+#    #halo_centre_y_coords = catalogue_data.positions.yc.to("Mpc")
+#    #halo_centre_z_coords = catalogue_data.positions.zc.to("Mpc")
+#    #halo_r_200 = catalogue_data.radii.r_200crit.to("Mpc")
+    catalogue_data = Multifile_VR_Catalogue(cat_directory, cat_file_template.split(".")[0])
+    halo_ids = np.array(catalogue_data.ids.id.value, dtype = np.int64)
+    #halo_masses = np.array(catalogue_data.masses.mass_200crit.value.to("Msun"), dtype = np.float64)
+    #halo_centre_x_coords = catalogue_data.positions.xc.value.to("Mpc")
+    #halo_centre_y_coords = catalogue_data.positions.yc.value.to("Mpc")
+    #halo_centre_z_coords = catalogue_data.positions.zc.value.to("Mpc")
+    #halo_r_200 = catalogue_data.radii.r_200crit.value.to("Mpc")
     
     # Open the catalogue particles files and read data
     with h5py.File(bound_particles_filepath, "r") as file:
@@ -68,12 +79,12 @@ def __main(snap_number, snap_directory, snap_file_template, cat_directory, cat_f
 
         group_size = np.array(file["Group_Size"], dtype = np.int64)
 
-    print_info(f"Got {n_halos} halos.")
+    Console.print_info(f"Got {n_halos} halos.")
         
 #    # Make a lookup to retrive indexed from halo IDs (prevents future searching)
 #    halo_index_lookup = { halo_id : halo_index for halo_index, halo_id in enumerate(halo_ids) }
     
-    print_verbose_info("Parsing catalogue particle data.")
+    Console.print_verbose_info("Parsing catalogue particle data.")
 
     # The final storage array contains both bound and unbound particles - calculate the offsets for each halo from the group_size data
     storage_offsets = np.zeros(n_halos, dtype = np.int64)
@@ -126,7 +137,7 @@ def __main(snap_number, snap_directory, snap_file_template, cat_directory, cat_f
                                                                          storage_offsets[halo_index] : storage_offsets[halo_index] + halo_read_lengths__bound[halo_index] + halo_read_lengths__unbound[halo_index]
                                                                      ] == 4).sum()
 
-    print_verbose_info("Filtering catalogue particles for the stars.")
+    Console.print_verbose_info("Filtering catalogue particles for the stars.")
         
     # Filter all read data to get only star particles
     halo_star_particles__filter = np.array(all_halo_particles__particle_types, dtype = np.int64) == 4#TODO: stars are type 4, right???
@@ -147,11 +158,11 @@ def __main(snap_number, snap_directory, snap_file_template, cat_directory, cat_f
 
 
 
-    print_verbose_info("Calculating galaxy properties.")
+    Console.print_verbose_info("Calculating galaxy properties.")
     halo_stellar_masses = np.full(n_halos, -1.0, dtype = np.float64)
     for halo_index in range(n_halos):
         if halo_n_stars[halo_index] > 0:
-            print_debug(f"\r{halo_index + 1} out of {n_halos}                ", end = "")
+            Console.print_debug(f"\r{halo_index + 1} out of {n_halos}                ", end = "")
             halo_id = halo_ids[halo_index]
             this_halo_particle_filter = all_halo_star_particles__halo_ids == halo_id
             
@@ -160,14 +171,14 @@ def __main(snap_number, snap_directory, snap_file_template, cat_directory, cat_f
             
             # Stellar Mass
             halo_stellar_masses[halo_index] = m_stars_halo.sum()
-    print_debug("")
+    Console.print_debug("")
 
     missing_data_filter = halo_stellar_masses != -1.0
     halo_stellar_masses = halo_stellar_masses[missing_data_filter]
     n_values = len(halo_stellar_masses)
-    print_info(f"Got data for {n_values} halos ({100 * n_values / n_halos:.2f}%).")
+    Console.print_info(f"Got data for {n_values} halos ({100 * n_values / n_halos:.2f}%).")
 
-    print_verbose_info("Plotting.")
+    Console.print_verbose_info("Plotting.")
     #hist, bin_edges = np.histogram(np.log10(halo_stellar_masses), int(np.sqrt(n_values)))
     #hist, bin_edges = np.histogram(np.log10(halo_stellar_masses), 50)
     hist, bin_edges = np.histogram(np.log10(halo_stellar_masses), 100)

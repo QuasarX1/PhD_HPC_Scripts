@@ -9,7 +9,8 @@ from matplotlib.colors import LogNorm, ListedColormap
 import numpy as np
 import os
 from QuasarCode import source_file_relitive_add_to_path
-from QuasarCode.IO.Text.console import print_info, print_verbose_info, print_warning, print_verbose_warning, print_error, print_verbose_error, print_debug
+#from QuasarCode.IO.Text.console import print_info, Console.print_verbose_info, Console.print_warning, print_verbose_warning, print_error, print_verbose_error, Console.print_debug
+from QuasarCode import Console
 from QuasarCode.Tools import ScriptWrapper
 from scipy.interpolate import Rbf
 import swiftsimio as sw
@@ -31,11 +32,11 @@ from swift_parttype_enum import PartType
 from unit_string_formatter import format_unit_string
 
 def make_diagram(particle_data, output_file_path, colour_variable_name = "gas.masses", colour_unit = "Msun", colour_name = None, fraction_colour = False, fraction_mean_colour = False, log_colour = False, colour_weight = "gas.masses", contour_variable_name = None, contour_unit = None, box_region = BoxRegion(), min_colour_value = None, max_colour_value = None, keep_outliers = False, limit_fields: Union[None, str, List[str]] = None, limit_units: Union[None, str, List[str]] = None, limits_min: Union[None, float, List[float]] = None, limits_max: Union[None, float, List[float]] = None, exclude_limits_from_contour: bool = False, colour_map = None):
-    print_debug(f"make_diagram arguments: {particle_data} {output_file_path} {colour_variable_name} {contour_variable_name} {box_region.x_min} {box_region.x_max} {box_region.y_min} {box_region.y_max} {box_region.z_min} {box_region.z_max} {min_colour_value} {max_colour_value} {keep_outliers} {limit_fields} {limit_units} {limits_min} {limits_max} {colour_map}")
+    Console.print_debug(f"make_diagram arguments: {particle_data} {output_file_path} {colour_variable_name} {contour_variable_name} {box_region.x_min} {box_region.x_max} {box_region.y_min} {box_region.y_max} {box_region.z_min} {box_region.z_max} {min_colour_value} {max_colour_value} {keep_outliers} {limit_fields} {limit_units} {limits_min} {limits_max} {colour_map}")
     
     coords = np.array(particle_data.gas.coordinates)
     box_region.complete_bounds_from_coords(coords)
-    print_verbose_info(f"Final bounds: {box_region.x_min}-{box_region.x_max}, {box_region.y_min}-{box_region.y_max}, {box_region.z_min}-{box_region.z_max}")
+    Console.print_verbose_info(f"Final bounds: {box_region.x_min}-{box_region.x_max}, {box_region.y_min}-{box_region.y_max}, {box_region.z_min}-{box_region.z_max}")
     spatial_filter = box_region.make_array_filter(coords)
 
     particle_filter = ParticleFilter(particle_data, limit_fields, limit_units, limits_min, limits_max) if ParticleFilter.check_limits_present(limit_fields) else ParticleFilter.passthrough_filter(particle_data, PartType.gas)
@@ -66,9 +67,14 @@ def make_diagram(particle_data, output_file_path, colour_variable_name = "gas.ma
 
     particle_filter.update(colour_filter)
 
+    Console.print_verbose_info(f"{len(particle_filter.numpy_filter)} particles selected.")
+    Console.print_debug(particle_filter.numpy_filter.sum())#TODO: WHY IS THIS WRONG?!?!?!
+    if len(particle_filter.numpy_filter) == 0:
+        raise ValueError("No data left after applying filter(s)!")
+
     contour_values = None
     if contour_variable_name is not None:
-        print_verbose_info("Reading contour data.")
+        Console.print_verbose_info("Reading contour data.")
         if exclude_limits_from_contour:
             contour_values = parse_string(contour_variable_name, particle_data)[spatial_filter].to(contour_unit)
             x_no_manual_filters = parse_string("gas.densities", particle_data)[spatial_filter]
@@ -78,7 +84,7 @@ def make_diagram(particle_data, output_file_path, colour_variable_name = "gas.ma
         else:
             contour_values = parse_string(contour_variable_name, particle_data)[particle_filter.numpy_filter].to(contour_unit)
 
-    print_verbose_info("Reading in data.")
+    Console.print_verbose_info("Reading in data.")
     x = parse_string("gas.densities", particle_data)[particle_filter.numpy_filter]
     x = x / critical_gas_density(particle_data, x.units)
     #x = x / unyt_quantity.from_astropy(particle_data.metadata.cosmology.Ob(particle_data.metadata.z) * particle_data.metadata.cosmology.critical_density(particle_data.metadata.z)).to(x.units)
@@ -90,7 +96,7 @@ def make_diagram(particle_data, output_file_path, colour_variable_name = "gas.ma
     if colour_variable_name is not None:
         w = parse_string(colour_weight, particle_data)[particle_filter.numpy_filter]
 
-    print_verbose_info("Making plot.")
+    Console.print_verbose_info("Making plot.")
     stylesheet_directory = __file__.rsplit(os.path.sep, 1)[0]
     normal_stylesheet = os.path.join(stylesheet_directory, "temp_diagram_stylesheet.mplstyle")
     plt.style.use(normal_stylesheet)
@@ -111,6 +117,8 @@ def make_diagram(particle_data, output_file_path, colour_variable_name = "gas.ma
     throwaway_fig = plt.figure()
     throwaway_ax = throwaway_fig.gca()
     raw_hex_out = throwaway_ax.hexbin(x, t, gridsize = 500, **kwargs)
+    Console.print_debug(x)
+    Console.print_debug(t)
     colour_percentiles = np.percentile(np.array(raw_hex_out.get_array()), [5, 95])
     plt.close(throwaway_fig)
 
@@ -124,7 +132,7 @@ def make_diagram(particle_data, output_file_path, colour_variable_name = "gas.ma
                                             'YlOrBr_discrete', 'YlOrBr',
                                             'WhOrBr', 'iridescent',
                                             'rainbow_PuRd', 'rainbow_PuBr', 'rainbow_WhRd', 'rainbow_WhBr', 'rainbow_discrete')):
-        print_warning(f"Paul Tol's colours are not avalible. This is likley required for colourmap: {colour_map} and this process may fail as a result!\nSee --help for instalation instructions.")
+        Console.print_warning(f"Paul Tol's colours are not avalible. This is likley required for colourmap: {colour_map} and this process may fail as a result!\nSee --help for instalation instructions.")
 
     hex_out = ax.hexbin(x, t, gridsize = 500, vmin = colour_percentiles[0], vmax = colour_percentiles[1], cmap = (tol_colors.tol_cmap(colour_map[0]) if len(colour_map) == 1 else tol_colors.LinearSegmentedColormap.from_list("custom-map", colour_map)) if TOL_AVAILABLE and (len(colour_map) > 1 or colour_map[0] in tol_colors.tol_cmap()) else colour_map[0], **kwargs)
 
@@ -132,7 +140,7 @@ def make_diagram(particle_data, output_file_path, colour_variable_name = "gas.ma
     ax.set_ylabel("${\\rm log_{10}}$ $T$ (${\\rm K}$)")
     
     if colour_variable_name is not None:
-        print_verbose_info("Making colourbar.")
+        Console.print_verbose_info("Making colourbar.")
         colourbar = fig.colorbar(hex_out)
         
         if colour_name is None:
@@ -146,7 +154,7 @@ def make_diagram(particle_data, output_file_path, colour_variable_name = "gas.ma
 
         #colourbar_label = (("" if not log_colour else "${\\rm log_{10}}$ ") + (colour_variable_name.replace("_", " ") if colour_name is None or colour_name == "" else colour_name)) + ((" (${\\rm " + str(colour_weights[0].units.expr).replace("**", "^").replace("sun", "_{\odot}") + "}$)") if str(colour_weights[0].units.expr) != "1" else (" (dimensionless)" if not log_colour else ""))
         
-        print_debug(f"Colourbar label: \"{colourbar_label}\"")
+        Console.print_debug(f"Colourbar label: \"{colourbar_label}\"")
         colourbar.set_label(colourbar_label)
 
     if contour_variable_name is not None:
@@ -162,10 +170,10 @@ def make_diagram(particle_data, output_file_path, colour_variable_name = "gas.ma
         
         
         #h_n, _, _ = np.histogram2d(x, t, nBins)
-        contours = ax.contour(xedges[:-1] + ((xedges[1] - xedges[0])/2),
-                              yedges[:-1] + ((yedges[1] - yedges[0])/2),
-                              h.T,
-                              levels = percentiles,
+        contours = ax.contour(np.array(xedges[:-1] + ((xedges[1] - xedges[0])/2), dtype = np.float64),
+                              np.array(yedges[:-1] + ((yedges[1] - yedges[0])/2), dtype = np.float64),
+                              np.array(h.T, dtype = np.float64),
+                              levels = np.array(percentiles, dtype = np.float64),
                               colors = "k",
                               alpha = 0.5,
                               linewidths = 1,#0.7,
@@ -176,9 +184,9 @@ def make_diagram(particle_data, output_file_path, colour_variable_name = "gas.ma
         #                   inline = True,
         #                   fontsize = 6)
 
-    print_verbose_info("Saving to file.")
+    Console.print_verbose_info("Saving to file.")
     fig.savefig(output_file_path)
-    print_verbose_info("File saved.")
+    Console.print_verbose_info("File saved.")
 
     
 
@@ -186,12 +194,12 @@ def __main(data, output_file, colour, colour_unit, colour_name, fraction_colour,
            contour, contour_unit, colour_min, colour_max, keep_outliers, limit_fields, limit_units, limits_min, limits_max, exclude_limits_from_contour, colour_map, **kwargs):
     box_region_object = BoxRegion(**BoxRegion.filter_command_params(**kwargs))
 
-    print_debug("Paramiters:\ndata: {}\noutput_file: {}\ncolour: {}\ncolour_unit: {}\ncolour_name: {}\nfraction_colour: {}\nfraction_mean_colour: {}\nlog_colour: {}\ncolour_weight: {}\ncontour: {}\ncontour_unit: {}\ncentre_x_position: {}\ncentre_y_position: {}\ncentre_z_position: {}\nside_length: {}\nx_min: {}\nx_max: {}\ny_min: {}\ny_max: {}\nz_min: {}\nz_max: {}\ncolour_min: {}\ncolour_max: {}\nkeep_outliers: {}".format(
+    Console.print_debug("Paramiters:\ndata: {}\noutput_file: {}\ncolour: {}\ncolour_unit: {}\ncolour_name: {}\nfraction_colour: {}\nfraction_mean_colour: {}\nlog_colour: {}\ncolour_weight: {}\ncontour: {}\ncontour_unit: {}\ncentre_x_position: {}\ncentre_y_position: {}\ncentre_z_position: {}\nside_length: {}\nx_min: {}\nx_max: {}\ny_min: {}\ny_max: {}\nz_min: {}\nz_max: {}\ncolour_min: {}\ncolour_max: {}\nkeep_outliers: {}".format(
          data, output_file, colour, colour_unit, colour_name, fraction_colour, fraction_mean_colour, log_colour, colour_weight,
          contour, contour_unit, *box_region_object.centre, box_region_object.side_length,
          box_region_object.x_min, box_region_object.x_max, box_region_object.y_min, box_region_object.y_max, box_region_object.z_min, box_region_object.z_max, colour_min, colour_max, keep_outliers))
     
-    print_verbose_info(f"Loading data file ({data}).")
+    Console.print_verbose_info(f"Loading data file ({data}).")
     if data is None:
         raise ArgumentError(None, "No data is provided. Data must be the first argument (other than the '-h' flag).")
     particle_data = sw.load(data)

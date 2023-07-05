@@ -23,7 +23,6 @@ Dependancies:
 
 import numpy as np
 from QuasarCode import source_file_relitive_add_to_path
-from QuasarCode.IO.Text.console import print_info, print_verbose_info, print_warning, print_verbose_warning, print_error, print_verbose_error, print_debug
 from QuasarCode.Tools import ScriptWrapper
 import swiftsimio as sw
 from typing import List, Union
@@ -95,7 +94,7 @@ class ParticleFilter(object):
             self.__n_items = self.__filter.sum()
         else:
             # New filter was valid, but would remove all items. Just overwrite internal filter.
-            self.self.__filter = np.full_like(self.__filter, False)
+            self.__filter = np.full_like(self.__filter, False)
             self.__n_items = 0
 
     @staticmethod

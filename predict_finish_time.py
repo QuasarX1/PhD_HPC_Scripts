@@ -8,7 +8,8 @@ import glob
 from matplotlib import pyplot as plt
 import numpy as np
 import os
-from QuasarCode.IO.Text.console import print_info, print_verbose_info, print_warning, print_verbose_warning, print_verbose_error, print_debug
+#from QuasarCode.IO.Text.console import Console.print_info, Console.print_verbose_info, Console.print_warning, Console.print_verbose_warning, Console.print_verbose_error, Console.print_debug
+from QuasarCode import Console
 from QuasarCode.Tools import ScriptWrapper
 from sympy import var, Eq, solve, core
 from typing import List
@@ -30,7 +31,7 @@ def get_fit_value(x, fit, **kwargs):
 def get_time_prediction(x, y, n, root_index, y_root = 0):
     fit = np.polyfit(x, y, n)
 
-    print_verbose_info(("Fit Params:" + "\n{}"*n).format(*fit))
+    Console.print_verbose_info(("Fit Params:" + "\n{}"*n).format(*fit))
 
     prediction_avalible = True
     x_var = var('x')
@@ -41,11 +42,11 @@ def get_time_prediction(x, y, n, root_index, y_root = 0):
         solutions = [solution for solution in solutions if isinstance(solution, core.numbers.Float) and float(solution) > 0]
         n_solutions = len(solutions)
         if n_solutions > 1:
-            print_verbose_warning("Multiple valid roots avalible -> {}".format(solutions))
+            Console.print_verbose_warning("Multiple valid roots avalible -> {}".format(solutions))
             if (root_index > 1 and root_index >= n_solutions) or (root_index < -2 and -root_index > n_solutions):
-                print_verbose_error("Index {} was out of range for number of roots {}.\nFalling back to default option.".format(root_index, n_solutions))
+                Console.print_verbose_error("Index {} was out of range for number of roots {}.\nFalling back to default option.".format(root_index, n_solutions))
                 root_index = 0
-            print_verbose_warning("Selecting root at index {}".format(root_index))
+            Console.print_verbose_warning("Selecting root at index {}".format(root_index))
         if n_solutions > 0:
             end_time = float(solutions[root_index])
         else:
@@ -92,9 +93,9 @@ def __main(expansion_factor: bool, redshift: bool, input_files: List[str], outpu
     all_multipliers = []
 
     for i, input_file in enumerate(input_files):
-        print_info(f"Doing file index {i}")
-        print_verbose_info(f"Label: {labels[i]}, Poly order: {poly_orders[i]}, Multiplier {multipliers[i]}")
-        print_verbose_info(f"File: {input_file}")
+        Console.print_info(f"Doing file index {i}")
+        Console.print_verbose_info(f"Label: {labels[i]}, Poly order: {poly_orders[i]}, Multiplier {multipliers[i]}")
+        Console.print_verbose_info(f"File: {input_file}")
         with open(input_file, "r") as file:
             lines = file.readlines()
 
@@ -116,7 +117,7 @@ def __main(expansion_factor: bool, redshift: bool, input_files: List[str], outpu
                 t.append(t_val)
             except: pass
 
-        print_debug(f"Got {len(a)} expansion factor values, {len(z)} redshift values and {len(t)} times.")
+        Console.print_debug(f"Got {len(a)} expansion factor values, {len(z)} redshift values and {len(t)} times.")
 
         multiplier = multipliers[i] if len(multipliers) > 1 else multipliers[0]
         t_csum = np.cumsum(np.array(t) * multiplier)
@@ -126,11 +127,11 @@ def __main(expansion_factor: bool, redshift: bool, input_files: List[str], outpu
         prediction_avalible, end_time, fit = get_time_prediction(x = t_csum, y = a if expansion_factor else z, y_root = 1 if expansion_factor else 0, n = poly_orders[i] if len(poly_orders) > 1 else poly_orders[0], root_index = root_indexes[i] if len(root_indexes) > 1 else root_indexes[0])
 
         if prediction_avalible:
-            print_info("Time until completion: {}".format(datetime.timedelta(milliseconds = end_time - t_csum[-1])))
-            print_info("Estimated date and time of completion: {}".format(datetime.datetime.now() + datetime.timedelta(milliseconds = end_time - t_csum[-1])))
-            print_info("Estimated total runtime: {}".format(datetime.timedelta(milliseconds = end_time)))
+            Console.print_info("Time until completion: {}".format(datetime.timedelta(milliseconds = end_time - t_csum[-1])))
+            Console.print_info("Estimated date and time of completion: {}".format(datetime.datetime.now() + datetime.timedelta(milliseconds = end_time - t_csum[-1])))
+            Console.print_info("Estimated total runtime: {}".format(datetime.timedelta(milliseconds = end_time)))
         else:
-            print_warning("No valid fit root found. Prediction not avalible.")
+            Console.print_warning("No valid fit root found. Prediction not avalible.")
 
         all_t_csum.append(t_csum)
         all_z.append(z)

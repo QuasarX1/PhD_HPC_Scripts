@@ -1,18 +1,20 @@
 AUTHOR = "Christopher Rowe"
-VERSION = "5.3.2"
-DATE = "03/04/2023"
+VERSION = "6.0.0"
+DATE = "14/06/2023"
 DESCRIPTION = "Identifies the last halo a gas particle was found in and records the mass of the largest halo in the structure."
 
 import h5py
 import numpy as np
 import os
 import pickle
-from QuasarCode import Settings
-from QuasarCode.IO.Text.console import print_info, print_verbose_info, print_warning, print_verbose_warning, print_error, print_verbose_error, print_debug
+from QuasarCode import Settings, Console, source_file_relitive_add_to_path
 from QuasarCode.Tools import ScriptWrapper
 import swiftsimio as sw
 from time import time
 import velociraptor as vr
+
+source_file_relitive_add_to_path(__file__)
+from velociraptor_multi_load import Multifile_VR_Catalogue
 
 
 
@@ -21,10 +23,10 @@ def __main(snap_numbers, snap_directory, snap_file_template, cat_directory, cat_
     __DEBUG = Settings.debug
 
     snapshot_file_path_template = os.path.join(snap_directory, snap_file_template)
-    catalogue_file_path_template = os.path.join(cat_directory, cat_file_template)
-    group_file_path_template = os.path.join(groups_directory, groups_file_template)
+#    catalogue_file_path_template = os.path.join(cat_directory, cat_file_template)
+#    group_file_path_template = os.path.join(groups_directory, groups_file_template)
 
-    print_debug("Reading z = 0 snapshot data.")
+    Console.print_debug("Reading z = 0 snapshot data.")
 
     # Load a list of the gas particle IDs at z=0
     snap_data_present_day = sw.load(snapshot_file_path_template.format(snap_numbers[-1]))
@@ -37,7 +39,7 @@ def __main(snap_numbers, snap_directory, snap_file_template, cat_directory, cat_
 
     n_gas_particles_z_0 = len(gas_ids_present_day)
 
-    print_info(f"Got {n_gas_particles_z_0} gas particles at z=0.")
+    Console.print_info(f"Got {n_gas_particles_z_0} gas particles at z=0.")
 
     # Maintain a filter list to avoid checking for particles already found
     ids_to_check = np.full(n_gas_particles_z_0, True)
@@ -54,52 +56,97 @@ def __main(snap_numbers, snap_directory, snap_file_template, cat_directory, cat_
         # If all the IDs have been found (unlikley), exis the loop
         if ids_to_check.sum() == 0: break
 
-        print_verbose_info(f"Searching snapshot {snap_numbers[i]}.")
+        Console.print_verbose_info(f"Searching snapshot {snap_numbers[i]}.")
 
         # Select the passed filepaths and create versions for other catalogue file types
-        catalogue_filepath = catalogue_file_path_template.format(snap_numbers[i])
-        groups_filepath = group_file_path_template.format(snap_numbers[i])
-        bound_particles_filepath = groups_filepath.replace("catalog_groups", "catalog_particles")
-        unbound_particles_filepath = groups_filepath.replace("catalog_groups", "catalog_particles.unbound")
-        bound_parttypes_filepath = groups_filepath.replace("catalog_groups", "catalog_parttypes")
-        unbound_parttypes_filepath = groups_filepath.replace("catalog_groups", "catalog_parttypes.unbound")
+#        catalogue_filepath = catalogue_file_path_template.format(snap_numbers[i])
+#        groups_filepath = group_file_path_template.format(snap_numbers[i])
+#        bound_particles_filepath = groups_filepath.replace("catalog_groups", "catalog_particles")
+#        unbound_particles_filepath = groups_filepath.replace("catalog_groups", "catalog_particles.unbound")
+#        bound_parttypes_filepath = groups_filepath.replace("catalog_groups", "catalog_parttypes")
+#        unbound_parttypes_filepath = groups_filepath.replace("catalog_groups", "catalog_parttypes.unbound")
 
         # Start the timer
         start_time = time()
         
         # Open the catalogue file and read data
-        catalogue_data = vr.load(catalogue_filepath)
-        halo_ids = np.array(catalogue_data.ids.id, dtype = np.int64)
-        halo_masses = np.array(catalogue_data.masses.mass_200crit.to("Msun"), dtype = np.float64)
+#        catalogue_data = vr.load(catalogue_filepath)
+#        halo_ids = np.array(catalogue_data.ids.id, dtype = np.int64)
+#        halo_masses = np.array(catalogue_data.masses.mass_200crit.to("Msun"), dtype = np.float64)
+
+        catalogue_data = Multifile_VR_Catalogue(cat_directory, cat_file_template.format(snap_numbers[i]).split(".")[0])
+        halo_ids = np.array(catalogue_data.ids.id.value, dtype = np.int64)
+        halo_masses = np.array(catalogue_data.masses.mass_200crit.value.to("Msun"), dtype = np.float64)
+        
+#        # Open the catalogue particles files and read data
+#        with h5py.File(bound_particles_filepath, "r") as file:
+#            bound_particle_ids = np.array(file["Particle_IDs"], dtype = np.int64)
+#        with h5py.File(unbound_particles_filepath, "r") as file:
+#            unbound_particle_ids = np.array(file["Particle_IDs"], dtype = np.int64)
+#
+#        # Open the catalogue particle types files and read data
+#        with h5py.File(bound_parttypes_filepath, "r") as file:
+#            bound_parttypes = np.array(file["Particle_types"], dtype = np.int16)
+#        with h5py.File(unbound_parttypes_filepath, "r") as file:
+#            unbound_parttypes = np.array(file["Particle_types"], dtype = np.int16)
+#
+#        # NOTE: this assumes there is only one of each file per snapshot!
+#        # Open the catalogue groups file and read data
+#        with h5py.File(groups_filepath, "r") as file:
+#            n_halos = file["Total_num_of_groups"][0]
+#
+#            parent_halo_ids = np.array(file["Parent_halo_ID"], dtype = np.int64)
+#
+#            offsets__bound = np.array(file["Offset"], dtype = np.int64)
+#            offsets__unbound = np.array(file["Offset_unbound"], dtype = np.int64)
+#
+#            group_size = np.array(file["Group_Size"], dtype = np.int64)
 
         # Open the catalogue particles files and read data
-        with h5py.File(bound_particles_filepath, "r") as file:
-            bound_particle_ids = np.array(file["Particle_IDs"], dtype = np.int64)
-        with h5py.File(unbound_particles_filepath, "r") as file:
-            unbound_particle_ids = np.array(file["Particle_IDs"], dtype = np.int64)
+        bound_particle_ids, bound_particle_number_by_file = catalogue_data.read_raw_file_data("catalog_particles",
+            [lambda file: np.array(file["Particle_IDs"], dtype = np.int64),
+             lambda file: np.array([file["Num_of_particles_in_groups"][0]], dtype = np.int64)])
+        unbound_particle_ids, unbound_particle_number_by_file = catalogue_data.read_raw_file_data("catalog_particles.unbound",
+            [lambda file: np.array(file["Particle_IDs"], dtype = np.int64),
+             lambda file: np.array([file["Num_of_particles_in_groups"][0]], dtype = np.int64)])
 
         # Open the catalogue particle types files and read data
-        with h5py.File(bound_parttypes_filepath, "r") as file:
-            bound_parttypes = np.array(file["Particle_types"], dtype = np.int16)
-        with h5py.File(unbound_parttypes_filepath, "r") as file:
-            unbound_parttypes = np.array(file["Particle_types"], dtype = np.int16)
-
-        # NOTE: this assumes there is only one of each file per snapshot!
+        bound_parttypes = catalogue_data.read_raw_file_data("catalog_parttypes",
+                                                            lambda file: np.array(file["Particle_types"], dtype = np.int16))
+        unbound_parttypes = catalogue_data.read_raw_file_data("catalog_parttypes.unbound",
+                                                              lambda file: np.array(file["Particle_types"], dtype = np.int16))
+        
         # Open the catalogue groups file and read data
-        with h5py.File(groups_filepath, "r") as file:
-            n_halos = file["Total_num_of_groups"][0]
+        n_halos_by_file, parent_halo_ids, offsets__bound, offsets__unbound, group_size = catalogue_data.read_raw_file_data("catalog_groups",
+            [lambda file: np.array([file["Num_of_groups"][0]], dtype = np.int64),
+             lambda file: np.array(file["Parent_halo_ID"], dtype = np.int64),
+             lambda file: np.array(file["Offset"], dtype = np.int64),
+             lambda file: np.array(file["Offset_unbound"], dtype = np.int64),
+             lambda file: np.array(file["Group_Size"], dtype = np.int64)])
+        
+        n_halos = n_halos_by_file.sum()
 
-            parent_halo_ids = np.array(file["Parent_halo_ID"], dtype = np.int64)
+        modified_offset_haloes = 0
+        next_offset_boost_bound = 0
+        next_offset_boost_unbound = 0
+        for file_index, n_halos_in_file in enumerate(n_halos_by_file):
+            data_slice = slice(modified_offset_haloes, modified_offset_haloes + n_halos_in_file)
 
-            offsets__bound = np.array(file["Offset"], dtype = np.int64)
-            offsets__unbound = np.array(file["Offset_unbound"], dtype = np.int64)
+            offsets__bound[data_slice] = offsets__bound[data_slice] + next_offset_boost_bound
+            offsets__unbound[data_slice] = offsets__unbound[data_slice] + next_offset_boost_unbound
 
-            group_size = np.array(file["Group_Size"], dtype = np.int64)
+            modified_offset_haloes += n_halos_in_file
+
+            #last_item = modified_offset_haloes - 1
+            #next_offset_boost_bound = offsets__bound[last_item] + bound_particle_number_by_file[file_index]
+            #next_offset_boost_unbound = offsets__unbound[last_item] + unbound_particle_number_by_file[file_index]
+            next_offset_boost_bound += bound_particle_number_by_file[file_index]
+            next_offset_boost_unbound += unbound_particle_number_by_file[file_index]
             
         # Stop the timer
         stop_time = time()
 
-        print_verbose_info("Reading catalogue data for snapshot {} took {} s for {} halos".format(i, stop_time - start_time, n_halos))
+        Console.print_verbose_info("Reading catalogue data for snapshot {} took {} s for {} halos".format(i, stop_time - start_time, n_halos))
 
 
 
@@ -147,7 +194,7 @@ def __main(snap_numbers, snap_directory, snap_file_template, cat_directory, cat_
         # Stop the timer
         stop_time = time()
 
-        print_verbose_info("Prep to collect data for snapshot {} took {} s".format(i, stop_time - start_time))
+        Console.print_verbose_info("Prep to collect data for snapshot {} took {} s".format(i, stop_time - start_time))
 
 
 
@@ -160,8 +207,10 @@ def __main(snap_numbers, snap_directory, snap_file_template, cat_directory, cat_
         all_halo_particles__halo_ids = np.empty(all_halo_particles__particle_ids.shape, dtype = np.int64)
         halo_masses = np.empty(all_halo_particles__particle_ids.shape, dtype = np.float64)
 
+        
+
         # Read in the data for each halo
-        for halo_index in range(n_halos):
+        for halo_index in range(n_halos):            
             all_halo_particles__particle_ids[
                 storage_offsets[halo_index] : storage_offsets[halo_index] + halo_read_lengths__bound[halo_index]
             ] = bound_particle_ids[
@@ -200,7 +249,7 @@ def __main(snap_numbers, snap_directory, snap_file_template, cat_directory, cat_
         # Stop the timer
         stop_time = time()
 
-        print_verbose_info("Filtering data for snapshot {} took {} s for {} gas particles".format(i, stop_time - start_time, len(all_halo_gas_particles__particle_ids)))
+        Console.print_verbose_info("Filtering data for snapshot {} took {} s for {} gas particles".format(i, stop_time - start_time, len(all_halo_gas_particles__particle_ids)))
 
 
 
@@ -224,9 +273,9 @@ def __main(snap_numbers, snap_directory, snap_file_template, cat_directory, cat_
         # Stop the timer
         stop_time = time()
 
-        print_verbose_info("Matching IDs for snapshot {} took {} s".format(i, stop_time - start_time))
+        Console.print_verbose_info("Matching IDs for snapshot {} took {} s".format(i, stop_time - start_time))
 
-        print_verbose_info("{} gas particles at z=0 still unaccounted for.".format(ids_to_check.sum()))
+        Console.print_verbose_info("{} gas particles at z=0 still unaccounted for.".format(ids_to_check.sum()))
 
 
 
@@ -236,7 +285,7 @@ def __main(snap_numbers, snap_directory, snap_file_template, cat_directory, cat_
     final_halo_ids = final_halo_ids[indexes_to_unsort__gas_ids_present_day]
     final_halo_masses = final_halo_masses[indexes_to_unsort__gas_ids_present_day]
 
-    print_verbose_info(f"All data retrived. Saving to files.")
+    Console.print_verbose_info(f"All data retrived. Saving to files.")
 
     with open("gas_particle_ejection_tracking__halo_snapshot_number_indexes.pickle", "wb") as file:
         pickle.dump(final_halo_snap_number_index, file)

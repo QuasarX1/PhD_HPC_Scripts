@@ -6,7 +6,6 @@ DESCRIPTION = "Creates a histogram for the ejection distance of gas particles fr
 from matplotlib import pyplot as plt
 import numpy as np
 from QuasarCode.Tools import DirectoryTools
-from QuasarCode.IO.Text.console import print_info, print_verbose_info, print_warning, print_verbose_warning, print_error, print_verbose_error, print_debug
 from QuasarCode.Tools import ScriptWrapper
 import swiftsimio as sw
 from typing import List

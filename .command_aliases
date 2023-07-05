@@ -31,6 +31,7 @@ alias halo-n-part="$QX1_PYTHON $scripts_directory/n_halo_particles.py"
 alias img_data="$QX1_PYTHON $scripts_directory/img_data.py"
 alias img_data_mpi="$scripts_directory/img_data_mpi.sh"
 alias metal-halo-breakdown="$QX1_PYTHON $scripts_directory/plot_metal_mass_by_bin.py"
+alias plot-bh-stellar-mass="$QX1_PYTHON $scripts_directory/plot_BH_mass_stellar_mass.py"
 alias sph-map="$QX1_PYTHON $scripts_directory/sph_map.py"
 alias t-d="$QX1_PYTHON $scripts_directory/temp_density_diagram.py"
 

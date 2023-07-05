@@ -10,7 +10,8 @@ from matplotlib.patches import Polygon
 import numpy as np
 import os
 from QuasarCode import source_file_relitive_add_to_path
-from QuasarCode.IO.Text.console import print_info, print_verbose_info, print_warning, print_verbose_warning, print_error, print_verbose_error, print_debug
+#from QuasarCode.IO.Text.console import print_info, Console.print_verbose_info, print_warning, print_verbose_warning, print_error, print_verbose_error, print_debug
+from QuasarCode import Console
 from QuasarCode.Tools import ScriptWrapper
 from scipy.interpolate import Rbf
 import swiftsimio as sw
@@ -46,7 +47,7 @@ def make_graph(particle_data_list, data_name_list, output_file_path, x_axis_fiel
     for i, data in enumerate(particle_data_list):
         coords = np.array(data.gas.coordinates)
         box_region.complete_bounds_from_coords(coords)
-        print_verbose_info(f"Final bounds: {box_region.x_min}-{box_region.x_min}, {box_region.y_min}-{box_region.y_max}, {box_region.z_min}-{box_region.z_max}")
+        Console.print_verbose_info(f"Final bounds: {box_region.x_min}-{box_region.x_min}, {box_region.y_min}-{box_region.y_max}, {box_region.z_min}-{box_region.z_max}")
         array_filter = box_region.make_array_filter(coords)
 
         manual_filter = np.full_like(array_filter, True)
@@ -68,7 +69,7 @@ def make_graph(particle_data_list, data_name_list, output_file_path, x_axis_fiel
                     manual_filter &= field_value <= limits_max[j]
 
         y_axis_filter = None
-        print_verbose_info("Reading Y-axis data.")
+        Console.print_verbose_info("Reading Y-axis data.")
         y_axis_data = make_attribute(y_axis_field[i] if len(y_axis_field) > 1 else y_axis_field[0], data.gas)[array_filter & manual_filter].to(y_axis_unit)
         if keep_outliers:
             if min_y_field_value is not None:
@@ -82,7 +83,7 @@ def make_graph(particle_data_list, data_name_list, output_file_path, x_axis_fiel
         combined_data_filter = (array_filter & manual_filter)
         combined_data_filter[np.where(combined_data_filter)[0][y_axis_filter == False]] = False
         
-        print_verbose_info("Reading in data.")
+        Console.print_verbose_info("Reading in data.")
         x_axis_data = make_attribute(x_axis_field[i] if len(x_axis_field) > 1 else x_axis_field[0], data.gas)[combined_data_filter].to(x_axis_unit)
         if fraction_x_axis:
             x_axis_data = np.array(x_axis_data) / np.mean(np.array(x_axis_data))
@@ -150,7 +151,7 @@ def make_graph(particle_data_list, data_name_list, output_file_path, x_axis_fiel
 def __main(data_list, data_name_list, output_file, x_axis_field: List[float], x_axis_unit, y_axis_field: List[float], y_axis_unit, x_axis_name, y_axis_name, fraction_x_axis, log_x_axis, log_y_axis, y_axis_weight_field, min_y_field_value, max_y_field_value, keep_outliers, show_errors, limit_fields, limit_units, limits_min, limits_max, **kwargs):
     box_region_object = BoxRegion(**kwargs)
     
-    print_verbose_info(f"Loading data files ({data_list}).")
+    Console.print_verbose_info(f"Loading data files ({data_list}).")
     if data_list is None or (isinstance(data_list, list) and len(data_list) == 0):
         raise ArgumentError(None, "No data is provided. Data must be the first argument (other than the '-h' flag).")
     particle_data_list = [sw.load(data) for data in data_list]

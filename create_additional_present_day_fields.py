@@ -6,7 +6,6 @@ DESCRIPTION = "Inserts the last halo mass data into a copy of the latest snapsho
 import numpy as np
 import pickle
 from QuasarCode import source_file_relitive_add_to_path
-from QuasarCode.IO.Text.console import print_info, print_debug
 from QuasarCode.Tools import ScriptWrapper
 import swiftsimio as sw
 import unyt

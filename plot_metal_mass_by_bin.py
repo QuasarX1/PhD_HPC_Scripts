@@ -9,7 +9,6 @@ import numpy as np
 import os
 import pickle
 from QuasarCode import source_file_relitive_add_to_path
-from QuasarCode.IO.Text.console import print_info, print_verbose_info, print_warning, print_debug
 from QuasarCode.Tools import ScriptWrapper
 import swiftsimio as sw
 import sys

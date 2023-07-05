@@ -17,6 +17,9 @@ just_above_zero=0.000000001
 scripts_directory=$(readlink -f "${1}")
 
 shopt -s expand_aliases
+# Load Prospero Python distro module
+module purge
+module load apps/python3/3.9.16
 source $scripts_directory/.command_aliases
 
 # Read the paramiters exported in the settings script file passes in
@@ -46,7 +49,7 @@ cd $COLIBRE_DATA_PIPLINE__PIPELINE_OUTPUT_DIRECTORY
 
 
 # Critical Gas Density
-critical_gas_density=$(gas-crit-density "$present_day_data" -u "Msun/Mpc**3")
+#critical_gas_density=$(gas-crit-density "$present_day_data" -u "Msun/Mpc**3")
 
 # Make modified snapshot
 
@@ -70,36 +73,36 @@ else
     echo "Found updated snapshot. Remove or rename this data to re-generate."
 fi
 
-if ! [ -f ./gas_particle_ejection_tracking__present_day_halo_id.pickle ]
-then
-    echo ""
-    echo "Tracking Haloes To Present Day"
-    get-matched-present-day-haloes modified_present_day_snap.hdf5 "$COLIBRE_DATA_PIPLINE__LAST_SNAPSHOT" "$COLIBRE_DATA_PIPLINE__CATALOGUE_DIRECTORY" "$COLIBRE_DATA_PIPLINE__CATALOGUE_FILE_TEMPLATE" "$COLIBRE_DATA_PIPLINE__CATALOGUE_DIRECTORY" "$COLIBRE_DATA_PIPLINE__CATALOGUE_GROUPS_FILE_TEMPLATE" -v -d
-else
-    echo ""
-    echo "Found forward tracked haloes. Remove or rename this data to re-generate."
-fi
+#if ! [ -f ./gas_particle_ejection_tracking__present_day_halo_id.pickle ]
+#then
+#    echo ""
+#    echo "Tracking Haloes To Present Day"
+#    get-matched-present-day-haloes modified_present_day_snap.hdf5 "$COLIBRE_DATA_PIPLINE__LAST_SNAPSHOT" "$COLIBRE_DATA_PIPLINE__CATALOGUE_DIRECTORY" "$COLIBRE_DATA_PIPLINE__CATALOGUE_FILE_TEMPLATE" "$COLIBRE_DATA_PIPLINE__CATALOGUE_DIRECTORY" "$COLIBRE_DATA_PIPLINE__CATALOGUE_GROUPS_FILE_TEMPLATE" -v -d
+#else
+#    echo ""
+#    echo "Found forward tracked haloes. Remove or rename this data to re-generate."
+#fi
 
-if ! [ -f ./gas_particle_ejection_tracking__present_day_ejection_distance.pickle ]
-then
-    echo ""
-    echo "Calculate Gas Ejection Displacement"
-    get-matched-halo-particle-ejection modified_present_day_snap.hdf5 "$COLIBRE_DATA_PIPLINE__LAST_SNAPSHOT" "$COLIBRE_DATA_PIPLINE__CATALOGUE_DIRECTORY" "$COLIBRE_DATA_PIPLINE__CATALOGUE_FILE_TEMPLATE" -v -d
-else
-    echo ""
-    echo "Found saved gas ejection data. Remove or rename this data to re-generate."
-fi
+# if ! [ -f ./gas_particle_ejection_tracking__present_day_ejection_distance.pickle ]
+# then
+#     echo ""
+#     echo "Calculate Gas Ejection Displacement"
+#     get-matched-halo-particle-ejection modified_present_day_snap.hdf5 "$COLIBRE_DATA_PIPLINE__LAST_SNAPSHOT" "$COLIBRE_DATA_PIPLINE__CATALOGUE_DIRECTORY" "$COLIBRE_DATA_PIPLINE__CATALOGUE_FILE_TEMPLATE" -v -d
+# else
+#     echo ""
+#     echo "Found saved gas ejection data. Remove or rename this data to re-generate."
+# fi
 
 
 
 # Maps
-
+#TODO: URGENT why is the box side length hard set to 25 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 # Surface Density Map
 if ! [ -f ./map_surface_density*.png ]
 then
     echo ""
     echo "Surface Density Map"
-    sph-map $present_day_data map_surface_density.png -t "\$\Sigma^{\rm gas}\$" --gas -x $COLIBRE_DATA_PIPLINE__SLICE_CENTRE_X -y $COLIBRE_DATA_PIPLINE__SLICE_CENTRE_Y -z "0" --projection -w $COLIBRE_DATA_PIPLINE__SLICE_WIDTH --centre-x-position $COLIBRE_DATA_PIPLINE__SLICE_CENTRE_X --centre-y-position $COLIBRE_DATA_PIPLINE__SLICE_CENTRE_Y --centre-z-position $COLIBRE_DATA_PIPLINE__SLICE_CENTRE_Z --side-length 25 --z-side-length $COLIBRE_DATA_PIPLINE__SLICE_DEPTH $COLIBRE_DATA_PIPLINE__MAP_COLOURMAP
+    sph-map $present_day_data map_surface_density.png -t "\$\Sigma^{\rm gas}\$" --gas -x $COLIBRE_DATA_PIPLINE__SLICE_CENTRE_X -y $COLIBRE_DATA_PIPLINE__SLICE_CENTRE_Y -z "0" --projection -w $COLIBRE_DATA_PIPLINE__SLICE_WIDTH --centre-x-position $COLIBRE_DATA_PIPLINE__SLICE_CENTRE_X --centre-y-position $COLIBRE_DATA_PIPLINE__SLICE_CENTRE_Y --centre-z-position $COLIBRE_DATA_PIPLINE__SLICE_CENTRE_Z --side-length $COLIBRE_DATA_PIPLINE__SLICE_WIDTH --z-side-length $COLIBRE_DATA_PIPLINE__SLICE_DEPTH $COLIBRE_DATA_PIPLINE__MAP_COLOURMAP
 fi
 
 # Metal Surface Density Map
@@ -108,7 +111,7 @@ if [ $(ls -1 ./map_mean_mass_weighted_metal_mass*.png 2>/dev/null | wc -l) -eq 0
 then
     echo ""
     echo "Metal Surface Density Map"
-    sph-map $present_day_data map_mean_mass_weighted_metal_mass.png -t "\$\Sigma^{\rm gas}_{\rm metal}\$" --gas -x $COLIBRE_DATA_PIPLINE__SLICE_CENTRE_X -y $COLIBRE_DATA_PIPLINE__SLICE_CENTRE_Y -z "0" --projection -w $COLIBRE_DATA_PIPLINE__SLICE_WIDTH -s gas.metal_mass_fractions*gas.masses -u "Msun" -c gas.masses --centre-x-position $COLIBRE_DATA_PIPLINE__SLICE_CENTRE_X --centre-y-position $COLIBRE_DATA_PIPLINE__SLICE_CENTRE_Y --centre-z-position $COLIBRE_DATA_PIPLINE__SLICE_CENTRE_Z --side-length 25 --z-side-length $COLIBRE_DATA_PIPLINE__SLICE_DEPTH $COLIBRE_DATA_PIPLINE__MAP_COLOURMAP
+    sph-map $present_day_data map_mean_mass_weighted_metal_mass.png -t "\$\Sigma^{\rm gas}_{\rm metal}\$" --gas -x $COLIBRE_DATA_PIPLINE__SLICE_CENTRE_X -y $COLIBRE_DATA_PIPLINE__SLICE_CENTRE_Y -z "0" --projection -w $COLIBRE_DATA_PIPLINE__SLICE_WIDTH -s gas.metal_mass_fractions*gas.masses -u "Msun" -c gas.masses --centre-x-position $COLIBRE_DATA_PIPLINE__SLICE_CENTRE_X --centre-y-position $COLIBRE_DATA_PIPLINE__SLICE_CENTRE_Y --centre-z-position $COLIBRE_DATA_PIPLINE__SLICE_CENTRE_Z --side-length $COLIBRE_DATA_PIPLINE__SLICE_WIDTH --z-side-length $COLIBRE_DATA_PIPLINE__SLICE_DEPTH $COLIBRE_DATA_PIPLINE__MAP_COLOURMAP
 fi
 
 # Metal Mass Fraction Map
@@ -116,7 +119,7 @@ if ! [ -f ./map_mean_mass_weighted_metal_mass_fraction*.png ]
 then
     echo ""
     echo "Metal Mass Fraction Map"
-    sph-map $present_day_data map_mean_mass_weighted_metal_mass_fraction.png -t "\$M_Z/M\$ \$\rm Z_{\odot}\$" --gas -x $COLIBRE_DATA_PIPLINE__SLICE_CENTRE_X -y $COLIBRE_DATA_PIPLINE__SLICE_CENTRE_Y -z "0" --projection -w $COLIBRE_DATA_PIPLINE__SLICE_WIDTH -s "gas.metal_mass_fractions/$Zsun" -u "" -p --log-pre-intergration -c gas.masses --centre-x-position $COLIBRE_DATA_PIPLINE__SLICE_CENTRE_X --centre-y-position $COLIBRE_DATA_PIPLINE__SLICE_CENTRE_Y --centre-z-position $COLIBRE_DATA_PIPLINE__SLICE_CENTRE_Z --side-length 25 --z-side-length $COLIBRE_DATA_PIPLINE__SLICE_DEPTH $COLIBRE_DATA_PIPLINE__MAP_COLOURMAP
+    sph-map $present_day_data map_mean_mass_weighted_metal_mass_fraction.png -t "\$M_Z/M\$ \$\rm Z_{\odot}\$" --gas -x $COLIBRE_DATA_PIPLINE__SLICE_CENTRE_X -y $COLIBRE_DATA_PIPLINE__SLICE_CENTRE_Y -z "0" --projection -w $COLIBRE_DATA_PIPLINE__SLICE_WIDTH -s "gas.metal_mass_fractions/$Zsun" -u "" -p --log-pre-intergration -c gas.masses --centre-x-position $COLIBRE_DATA_PIPLINE__SLICE_CENTRE_X --centre-y-position $COLIBRE_DATA_PIPLINE__SLICE_CENTRE_Y --centre-z-position $COLIBRE_DATA_PIPLINE__SLICE_CENTRE_Z --side-length $COLIBRE_DATA_PIPLINE__SLICE_WIDTH --z-side-length $COLIBRE_DATA_PIPLINE__SLICE_DEPTH $COLIBRE_DATA_PIPLINE__MAP_COLOURMAP
 fi
 
 # Mean Metal Mass Weighted Redshift Map
@@ -124,7 +127,7 @@ if ! [ -f ./map_mean_metal_weighted_redshift*.png ]
 then
     echo ""
     echo "Mean Metal Mass Weighted Redshift Map"
-    sph-map $present_day_data map_mean_metal_weighted_redshift.png -t "\$z_Z\$+1" --gas -x $COLIBRE_DATA_PIPLINE__SLICE_CENTRE_X -y $COLIBRE_DATA_PIPLINE__SLICE_CENTRE_Y -z "0" --projection -w $COLIBRE_DATA_PIPLINE__SLICE_WIDTH -s gas.mean_metal_weighted_redshifts+1 -u "" -p --log-pre-intergration --limit-fields gas.mean_metal_weighted_redshifts --limit-units "" --limits-min 0.0 -c gas.masses --exclude-limits-from-contour --centre-x-position $COLIBRE_DATA_PIPLINE__SLICE_CENTRE_X --centre-y-position $COLIBRE_DATA_PIPLINE__SLICE_CENTRE_Y --centre-z-position $COLIBRE_DATA_PIPLINE__SLICE_CENTRE_Z --side-length 25 --z-side-length $COLIBRE_DATA_PIPLINE__SLICE_DEPTH $COLIBRE_DATA_PIPLINE__MAP_COLOURMAP
+    sph-map $present_day_data map_mean_metal_weighted_redshift.png -t "\$z_Z\$+1" --gas -x $COLIBRE_DATA_PIPLINE__SLICE_CENTRE_X -y $COLIBRE_DATA_PIPLINE__SLICE_CENTRE_Y -z "0" --projection -w $COLIBRE_DATA_PIPLINE__SLICE_WIDTH -s gas.mean_metal_weighted_redshifts+1 -u "" -p --log-pre-intergration --limit-fields gas.mean_metal_weighted_redshifts --limit-units "" --limits-min 0.0 -c gas.masses --exclude-limits-from-contour --centre-x-position $COLIBRE_DATA_PIPLINE__SLICE_CENTRE_X --centre-y-position $COLIBRE_DATA_PIPLINE__SLICE_CENTRE_Y --centre-z-position $COLIBRE_DATA_PIPLINE__SLICE_CENTRE_Z --side-length $COLIBRE_DATA_PIPLINE__SLICE_WIDTH --z-side-length $COLIBRE_DATA_PIPLINE__SLICE_DEPTH $COLIBRE_DATA_PIPLINE__MAP_COLOURMAP
 fi
 
 # Last Halo Mass Map
@@ -132,46 +135,57 @@ if ! [ -f ./map_last_enrichment_halo_mass*.png ]
 then
     echo ""
     echo "Last Halo Mass Map"
-    sph-map modified_present_day_snap.hdf5 map_last_enrichment_halo_mass.png -t "\$M_{\rm halo}\$" --gas -x $COLIBRE_DATA_PIPLINE__SLICE_CENTRE_X -y $COLIBRE_DATA_PIPLINE__SLICE_CENTRE_Y -z "0" --projection -w $COLIBRE_DATA_PIPLINE__SLICE_WIDTH -s gas.last_halo_masses -u "Msun" -p --log-pre-intergration --limit-fields gas.last_halo_masses --limit-units "Msun" --limits-min "$just_above_zero" -c gas.masses --exclude-limits-from-contour --centre-x-position $COLIBRE_DATA_PIPLINE__SLICE_CENTRE_X --centre-y-position $COLIBRE_DATA_PIPLINE__SLICE_CENTRE_Y --centre-z-position $COLIBRE_DATA_PIPLINE__SLICE_CENTRE_Z --side-length 25 --z-side-length $COLIBRE_DATA_PIPLINE__SLICE_DEPTH $COLIBRE_DATA_PIPLINE__MAP_COLOURMAP
+    sph-map modified_present_day_snap.hdf5 map_last_enrichment_halo_mass.png -t "\$M_{\rm halo}\$" --gas -x $COLIBRE_DATA_PIPLINE__SLICE_CENTRE_X -y $COLIBRE_DATA_PIPLINE__SLICE_CENTRE_Y -z "0" --projection -w $COLIBRE_DATA_PIPLINE__SLICE_WIDTH -s gas.last_halo_masses -u "Msun" -p --log-pre-intergration --limit-fields gas.last_halo_masses --limit-units "Msun" --limits-min "$just_above_zero" -c gas.masses --exclude-limits-from-contour --centre-x-position $COLIBRE_DATA_PIPLINE__SLICE_CENTRE_X --centre-y-position $COLIBRE_DATA_PIPLINE__SLICE_CENTRE_Y --centre-z-position $COLIBRE_DATA_PIPLINE__SLICE_CENTRE_Z --side-length $COLIBRE_DATA_PIPLINE__SLICE_WIDTH --z-side-length $COLIBRE_DATA_PIPLINE__SLICE_DEPTH $COLIBRE_DATA_PIPLINE__MAP_COLOURMAP
 fi
 if ! [ -f ./map_low_density_last_enrichment_halo_mass*.png ]
 then
     echo ""
     echo "(Low Density) Last Halo Mass Map"
-    sph-map modified_present_day_snap.hdf5 map_low_density_last_enrichment_halo_mass.png -t "\$M_{\rm halo}\$" --gas -x $COLIBRE_DATA_PIPLINE__SLICE_CENTRE_X -y $COLIBRE_DATA_PIPLINE__SLICE_CENTRE_Y -z "0" --projection -w $COLIBRE_DATA_PIPLINE__SLICE_WIDTH -s gas.last_halo_masses -u "Msun" -p --log-pre-intergration --limit-fields "gas.last_halo_masses;gas.densities/#<$critical_gas_density>#" --limit-units "Msun;" --limits-min "$just_above_zero;" --limits-max ";2.5" -c gas.masses --exclude-limits-from-contour --centre-x-position $COLIBRE_DATA_PIPLINE__SLICE_CENTRE_X --centre-y-position $COLIBRE_DATA_PIPLINE__SLICE_CENTRE_Y --centre-z-position $COLIBRE_DATA_PIPLINE__SLICE_CENTRE_Z --side-length 25 --z-side-length $COLIBRE_DATA_PIPLINE__SLICE_DEPTH $COLIBRE_DATA_PIPLINE__MAP_COLOURMAP
+    sph-map modified_present_day_snap.hdf5 map_low_density_last_enrichment_halo_mass.png -t "\$M_{\rm halo}\$" --gas -x $COLIBRE_DATA_PIPLINE__SLICE_CENTRE_X -y $COLIBRE_DATA_PIPLINE__SLICE_CENTRE_Y -z "0" --projection -w $COLIBRE_DATA_PIPLINE__SLICE_WIDTH -s gas.last_halo_masses -u "Msun" -p --log-pre-intergration --limit-fields "gas.last_halo_masses;gas.densities/#<$critical_gas_density>#" --limit-units "Msun;" --limits-min "$just_above_zero;" --limits-max ";2.5" -c gas.masses --exclude-limits-from-contour --centre-x-position $COLIBRE_DATA_PIPLINE__SLICE_CENTRE_X --centre-y-position $COLIBRE_DATA_PIPLINE__SLICE_CENTRE_Y --centre-z-position $COLIBRE_DATA_PIPLINE__SLICE_CENTRE_Z --side-length $COLIBRE_DATA_PIPLINE__SLICE_WIDTH --z-side-length $COLIBRE_DATA_PIPLINE__SLICE_DEPTH $COLIBRE_DATA_PIPLINE__MAP_COLOURMAP
 fi
 if ! [ -f ./map_mid_density_last_enrichment_halo_mass*.png ]
 then
     echo ""
     echo "(Mid Density) Last Halo Mass Map"
-    sph-map modified_present_day_snap.hdf5 map_mid_density_last_enrichment_halo_mass.png -t "\$M_{\rm halo}\$" --gas -x $COLIBRE_DATA_PIPLINE__SLICE_CENTRE_X -y $COLIBRE_DATA_PIPLINE__SLICE_CENTRE_Y -z "0" --projection -w $COLIBRE_DATA_PIPLINE__SLICE_WIDTH -s gas.last_halo_masses -u "Msun" -p --log-pre-intergration --limit-fields "gas.last_halo_masses;gas.densities/#<$critical_gas_density>#" --limit-units "Msun;" --limits-min "$just_above_zero;2.5" --limits-max ";7.5" -c gas.masses --exclude-limits-from-contour --centre-x-position $COLIBRE_DATA_PIPLINE__SLICE_CENTRE_X --centre-y-position $COLIBRE_DATA_PIPLINE__SLICE_CENTRE_Y --centre-z-position $COLIBRE_DATA_PIPLINE__SLICE_CENTRE_Z --side-length 25 --z-side-length $COLIBRE_DATA_PIPLINE__SLICE_DEPTH $COLIBRE_DATA_PIPLINE__MAP_COLOURMAP
+    sph-map modified_present_day_snap.hdf5 map_mid_density_last_enrichment_halo_mass.png -t "\$M_{\rm halo}\$" --gas -x $COLIBRE_DATA_PIPLINE__SLICE_CENTRE_X -y $COLIBRE_DATA_PIPLINE__SLICE_CENTRE_Y -z "0" --projection -w $COLIBRE_DATA_PIPLINE__SLICE_WIDTH -s gas.last_halo_masses -u "Msun" -p --log-pre-intergration --limit-fields "gas.last_halo_masses;gas.densities/#<$critical_gas_density>#" --limit-units "Msun;" --limits-min "$just_above_zero;2.5" --limits-max ";7.5" -c gas.masses --exclude-limits-from-contour --centre-x-position $COLIBRE_DATA_PIPLINE__SLICE_CENTRE_X --centre-y-position $COLIBRE_DATA_PIPLINE__SLICE_CENTRE_Y --centre-z-position $COLIBRE_DATA_PIPLINE__SLICE_CENTRE_Z --side-length $COLIBRE_DATA_PIPLINE__SLICE_WIDTH --z-side-length $COLIBRE_DATA_PIPLINE__SLICE_DEPTH $COLIBRE_DATA_PIPLINE__MAP_COLOURMAP
 fi
 if ! [ -f ./map_high_density_last_enrichment_halo_mass*.png ]
 then
     echo ""
     echo "(High Density) Last Halo Mass Map"
-    sph-map modified_present_day_snap.hdf5 map_high_density_last_enrichment_halo_mass.png -t "\$M_{\rm halo}\$" --gas -x $COLIBRE_DATA_PIPLINE__SLICE_CENTRE_X -y $COLIBRE_DATA_PIPLINE__SLICE_CENTRE_Y -z "0" --projection -w $COLIBRE_DATA_PIPLINE__SLICE_WIDTH -s gas.last_halo_masses -u "Msun" -p --log-pre-intergration --limit-fields "gas.last_halo_masses;gas.densities/#<$critical_gas_density>#" --limit-units "Msun;" --limits-min "$just_above_zero;7.5" -c gas.masses --exclude-limits-from-contour --centre-x-position $COLIBRE_DATA_PIPLINE__SLICE_CENTRE_X --centre-y-position $COLIBRE_DATA_PIPLINE__SLICE_CENTRE_Y --centre-z-position $COLIBRE_DATA_PIPLINE__SLICE_CENTRE_Z --side-length 25 --z-side-length $COLIBRE_DATA_PIPLINE__SLICE_DEPTH $COLIBRE_DATA_PIPLINE__MAP_COLOURMAP
+    sph-map modified_present_day_snap.hdf5 map_high_density_last_enrichment_halo_mass.png -t "\$M_{\rm halo}\$" --gas -x $COLIBRE_DATA_PIPLINE__SLICE_CENTRE_X -y $COLIBRE_DATA_PIPLINE__SLICE_CENTRE_Y -z "0" --projection -w $COLIBRE_DATA_PIPLINE__SLICE_WIDTH -s gas.last_halo_masses -u "Msun" -p --log-pre-intergration --limit-fields "gas.last_halo_masses;gas.densities/#<$critical_gas_density>#" --limit-units "Msun;" --limits-min "$just_above_zero;7.5" -c gas.masses --exclude-limits-from-contour --centre-x-position $COLIBRE_DATA_PIPLINE__SLICE_CENTRE_X --centre-y-position $COLIBRE_DATA_PIPLINE__SLICE_CENTRE_Y --centre-z-position $COLIBRE_DATA_PIPLINE__SLICE_CENTRE_Z --side-length $COLIBRE_DATA_PIPLINE__SLICE_WIDTH --z-side-length $COLIBRE_DATA_PIPLINE__SLICE_DEPTH $COLIBRE_DATA_PIPLINE__MAP_COLOURMAP
 fi
 
-# Ejection Radius Map
-if ! [ -f ./map_halo_ejection_radius*.png ]
-then
-    echo ""
-    echo "Halo Ejection Radius Map"
-    sph-map modified_present_day_snap.hdf5 map_halo_ejection_radius.png -t "Ejection Radius" --gas -x $COLIBRE_DATA_PIPLINE__SLICE_CENTRE_X -y $COLIBRE_DATA_PIPLINE__SLICE_CENTRE_Y -z "0" --projection -w $COLIBRE_DATA_PIPLINE__SLICE_WIDTH -s gas.last_halo_ejection_distance -u "Mpc" -p --log-pre-intergration --limit-fields gas.last_halo_ejection_distance --limit-units "Mpc" --limits-min "0" -c gas.masses --exclude-limits-from-contour --centre-x-position $COLIBRE_DATA_PIPLINE__SLICE_CENTRE_X --centre-y-position $COLIBRE_DATA_PIPLINE__SLICE_CENTRE_Y --centre-z-position $COLIBRE_DATA_PIPLINE__SLICE_CENTRE_Z --side-length 25 --z-side-length $COLIBRE_DATA_PIPLINE__SLICE_DEPTH $COLIBRE_DATA_PIPLINE__MAP_COLOURMAP
-fi
-#if ! [ -f ./map_halo_metals_ejection_radius*.png ]
-#then
-#    echo ""
-#    echo "Halo Metal Ejection Radius Map"
-#    sph-map modified_present_day_snap.hdf5 map_halo_metals_ejection_radius.png -t "Ejection Radius" --gas -x $COLIBRE_DATA_PIPLINE__SLICE_CENTRE_X -y $COLIBRE_DATA_PIPLINE__SLICE_CENTRE_Y -z "0" --projection -w $COLIBRE_DATA_PIPLINE__SLICE_WIDTH -s gas.last_halo_ejection_distance -u "Mpc" -p --log-pre-intergration --limit-fields "gas.last_halo_ejection_distance;gas.metal_mass_fractions" --limit-units "Mpc;" --limits-min "0;$just_above_zero" -c gas.masses --exclude-limits-from-contour --centre-x-position $COLIBRE_DATA_PIPLINE__SLICE_CENTRE_X --centre-y-position $COLIBRE_DATA_PIPLINE__SLICE_CENTRE_Y --centre-z-position $COLIBRE_DATA_PIPLINE__SLICE_CENTRE_Z --side-length 25 --z-side-length $COLIBRE_DATA_PIPLINE__SLICE_DEPTH $COLIBRE_DATA_PIPLINE__MAP_COLOURMAP
-#fi
-if ! [ -f ./map_halo_nonzero_ejection_radius*.png ]
-then
-    echo ""
-    echo "Halo Nonzero Ejection Radius Map"
-    sph-map modified_present_day_snap.hdf5 map_halo_nonzero_ejection_radius.png -t "Ejection Radius" --gas -x $COLIBRE_DATA_PIPLINE__SLICE_CENTRE_X -y $COLIBRE_DATA_PIPLINE__SLICE_CENTRE_Y -z "0" --projection -w $COLIBRE_DATA_PIPLINE__SLICE_WIDTH -s gas.last_halo_ejection_distance -u "Mpc" -p --log-pre-intergration --limit-fields "gas.last_halo_ejection_distance" --limit-units "Mpc" --limits-min "$just_above_zero" -c gas.masses --exclude-limits-from-contour --centre-x-position $COLIBRE_DATA_PIPLINE__SLICE_CENTRE_X --centre-y-position $COLIBRE_DATA_PIPLINE__SLICE_CENTRE_Y --centre-z-position $COLIBRE_DATA_PIPLINE__SLICE_CENTRE_Z --side-length 25 --z-side-length $COLIBRE_DATA_PIPLINE__SLICE_DEPTH $COLIBRE_DATA_PIPLINE__MAP_COLOURMAP
-fi
+# # Ejection Radius Map
+# if ! [ -f ./map_halo_ejection_radius*.png ]
+# then
+#     echo ""
+#     echo "Halo Ejection Radius Map"
+#     sph-map modified_present_day_snap.hdf5 map_halo_ejection_radius.png -t "Ejection Radius" --gas -x $COLIBRE_DATA_PIPLINE__SLICE_CENTRE_X -y $COLIBRE_DATA_PIPLINE__SLICE_CENTRE_Y -z "0" --projection -w $COLIBRE_DATA_PIPLINE__SLICE_WIDTH -s gas.last_halo_ejection_distance -u "Mpc" -p --log-pre-intergration --limit-fields gas.last_halo_ejection_distance --limit-units "Mpc" --limits-min "0" -c gas.masses --exclude-limits-from-contour --centre-x-position $COLIBRE_DATA_PIPLINE__SLICE_CENTRE_X --centre-y-position $COLIBRE_DATA_PIPLINE__SLICE_CENTRE_Y --centre-z-position $COLIBRE_DATA_PIPLINE__SLICE_CENTRE_Z --side-length 25 --z-side-length $COLIBRE_DATA_PIPLINE__SLICE_DEPTH $COLIBRE_DATA_PIPLINE__MAP_COLOURMAP
+# fi
+# 
+# #if ! [ -f ./map_halo_metals_ejection_radius*.png ]
+# #then
+# #    echo ""
+# #    echo "Halo Metal Ejection Radius Map"
+# #    sph-map modified_present_day_snap.hdf5 map_halo_metals_ejection_radius.png -t "Ejection Radius" --gas -x $COLIBRE_DATA_PIPLINE__SLICE_CENTRE_X -y $COLIBRE_DATA_PIPLINE__SLICE_CENTRE_Y -z "0" --projection -w $COLIBRE_DATA_PIPLINE__SLICE_WIDTH -s gas.last_halo_ejection_distance -u "Mpc" -p --log-pre-intergration --limit-fields "gas.last_halo_ejection_distance;gas.metal_mass_fractions" --limit-units "Mpc;" --limits-min "0;$just_above_zero" -c gas.masses --exclude-limits-from-contour --centre-x-position $COLIBRE_DATA_PIPLINE__SLICE_CENTRE_X --centre-y-position $COLIBRE_DATA_PIPLINE__SLICE_CENTRE_Y --centre-z-position $COLIBRE_DATA_PIPLINE__SLICE_CENTRE_Z --side-length 25 --z-side-length $COLIBRE_DATA_PIPLINE__SLICE_DEPTH $COLIBRE_DATA_PIPLINE__MAP_COLOURMAP
+# #fi
+# if ! [ -f ./map_halo_nonzero_ejection_radius*.png ]
+# then
+#     echo ""
+#     echo "Halo Nonzero Ejection Radius Map"
+#     sph-map modified_present_day_snap.hdf5 map_halo_nonzero_ejection_radius.png -t "Ejection Radius" --gas -x $COLIBRE_DATA_PIPLINE__SLICE_CENTRE_X -y $COLIBRE_DATA_PIPLINE__SLICE_CENTRE_Y -z "0" --projection -w $COLIBRE_DATA_PIPLINE__SLICE_WIDTH -s gas.last_halo_ejection_distance -u "Mpc" -p --log-pre-intergration --limit-fields "gas.last_halo_ejection_distance" --limit-units "Mpc" --limits-min "$just_above_zero" -c gas.masses --exclude-limits-from-contour --centre-x-position $COLIBRE_DATA_PIPLINE__SLICE_CENTRE_X --centre-y-position $COLIBRE_DATA_PIPLINE__SLICE_CENTRE_Y --centre-z-position $COLIBRE_DATA_PIPLINE__SLICE_CENTRE_Z --side-length 25 --z-side-length $COLIBRE_DATA_PIPLINE__SLICE_DEPTH $COLIBRE_DATA_PIPLINE__MAP_COLOURMAP
+# fi
+# ##TODO: maths dosen't work with floating point?!
+# #for i in 0 1 2 3 4
+# #do
+# #    if ! [ -f ./map_slice_halo_ejection_radius*.png ]
+# #    then
+# #        echo ""
+# #        echo "Halo Ejection Radius Map (slice)"
+# #        sph-map modified_present_day_snap.hdf5 map_slice_${i}_halo_ejection_radius.png -t "Ejection Radius" --gas -x $COLIBRE_DATA_PIPLINE__SLICE_CENTRE_X -y $COLIBRE_DATA_PIPLINE__SLICE_CENTRE_Y -z "0" --projection -w $COLIBRE_DATA_PIPLINE__SLICE_WIDTH -s gas.last_halo_ejection_distance -u "Mpc" -p --log-pre-intergration --limit-fields gas.last_halo_ejection_distance --limit-units "Mpc" --limits-min "0" -c gas.masses --exclude-limits-from-contour --centre-x-position $COLIBRE_DATA_PIPLINE__SLICE_CENTRE_X --centre-y-position $COLIBRE_DATA_PIPLINE__SLICE_CENTRE_Y --centre-z-position $(($i * 2 - 2 + $COLIBRE_DATA_PIPLINE__SLICE_CENTRE_Z)) --side-length 25 --z-side-length 5 $COLIBRE_DATA_PIPLINE__MAP_COLOURMAP
+# #    fi
+# #done
 
 
 
@@ -182,7 +196,20 @@ if ! [ -f ./particle_density_hist.png ]
 then
     echo ""
     echo "Particle Density Histogram"
-    density-hist $present_day_data particle_density_hist.png --log-y-axis
+
+    density-hist $present_day_data particle_density_hist.png -l
+    density-hist $present_day_data particle_density_hist__metals.png --hist-metals -l
+    density-hist $present_day_data particle_density_hist__mass.png -m -l --max-y 0.2
+    density-hist $present_day_data particle_density_hist__metal_mass.png -e -l --max-y 0.2
+    density-hist $present_day_data particle_density_hist__volume.png -s -l
+    density-hist $present_day_data particle_density_hist__metal_volume.png -a -l
+
+    density-hist $present_day_data particle_density_hist__logged.png --log-y-axis -l
+    density-hist $present_day_data particle_density_hist__logged__metals.png --hist-metals --log-y-axis -l
+    density-hist $present_day_data particle_density_hist__logged__mass.png --log-y-axis -m -l
+    density-hist $present_day_data particle_density_hist__logged__metal_mass.png --log-y-axis -e -l
+    density-hist $present_day_data particle_density_hist__logged__volume.png --log-y-axis -s -l
+    density-hist $present_day_data particle_density_hist__logged__metal_volume.png --log-y-axis -a -l
 fi
 
 # Particle Density Histogram
@@ -190,16 +217,29 @@ if ! [ -f ./particle_density_hist__matched_halo_particles.png ]
 then
     echo ""
     echo "(Matched) Particle Density Histogram"
-    density-hist modified_present_day_snap.hdf5 particle_density_hist__matched_halo_particles.png --log-y-axis
+
+    density-hist modified_present_day_snap.hdf5 particle_density_hist__matched_halo_particles.png -l --limit-fields "last_halo_masses" --limit-units "Msun" --limits-min "0" --plot-unfiltered
+    density-hist modified_present_day_snap.hdf5 particle_density_hist__matched_halo_particles__metals.png --hist-metals -l --limit-fields "last_halo_masses" --limit-units "Msun" --limits-min "0" --plot-unfiltered
+    density-hist modified_present_day_snap.hdf5 particle_density_hist__matched_halo_particles__mass.png -m -l --max-y 0.2 --limit-fields "last_halo_masses" --limit-units "Msun" --limits-min "0" --plot-unfiltered
+    density-hist modified_present_day_snap.hdf5 particle_density_hist__matched_halo_particles__metal_mass.png -e -l --max-y 0.2 --limit-fields "last_halo_masses" --limit-units "Msun" --limits-min "0" --plot-unfiltered
+    density-hist modified_present_day_snap.hdf5 particle_density_hist__matched_halo_particles__volume.png -s -l --limit-fields "last_halo_masses" --limit-units "Msun" --limits-min "0" --plot-unfiltered
+    density-hist modified_present_day_snap.hdf5 particle_density_hist__matched_halo_particles__metal_volume.png -a -l --limit-fields "last_halo_masses" --limit-units "Msun" --limits-min "0" --plot-unfiltered
+
+    density-hist modified_present_day_snap.hdf5 particle_density_hist__logged__matched_halo_particles.png --log-y-axis -l --limit-fields "last_halo_masses" --limit-units "Msun" --limits-min "0" --plot-unfiltered
+    density-hist modified_present_day_snap.hdf5 particle_density_hist__logged__matched_halo_particles__metals.png --hist-metals --log-y-axis -l --limit-fields "last_halo_masses" --limit-units "Msun" --limits-min "0" --plot-unfiltered
+    density-hist modified_present_day_snap.hdf5 particle_density_hist__logged__matched_halo_particles__mass.png --log-y-axis -m -l --limit-fields "last_halo_masses" --limit-units "Msun" --limits-min "0" --plot-unfiltered
+    density-hist modified_present_day_snap.hdf5 particle_density_hist__logged__matched_halo_particles__metal_mass.png --log-y-axis -e -l --limit-fields "last_halo_masses" --limit-units "Msun" --limits-min "0" --plot-unfiltered
+    density-hist modified_present_day_snap.hdf5 particle_density_hist__logged__matched_halo_particles__volume.png --log-y-axis -s -l --limit-fields "last_halo_masses" --limit-units "Msun" --limits-min "0" --plot-unfiltered
+    density-hist modified_present_day_snap.hdf5 particle_density_hist__logged__matched_halo_particles__metal_volume.png --log-y-axis -a -l --limit-fields "last_halo_masses" --limit-units "Msun" --limits-min "0" --plot-unfiltered
 fi
 
-# Gas particle Ejection Radius Histogram
-if ! [ -f ./particle_ejection_radius_hist.png ]
-then
-    echo ""
-    echo "Gas particle Ejection Radius Histogram"
-    ejection-radius-hist modified_present_day_snap.hdf5 particle_ejection_radius_hist.png --log-y-axis -v -d
-fi
+# # Gas particle Ejection Radius Histogram
+# if ! [ -f ./particle_ejection_radius_hist.png ]
+# then
+#     echo ""
+#     echo "Gas particle Ejection Radius Histogram"
+#     ejection-radius-hist modified_present_day_snap.hdf5 particle_ejection_radius_hist.png --log-y-axis -v -d
+# fi
 
 
 
@@ -304,7 +344,7 @@ if ! [ -f ./plot_temp_dens_density_at_agn.png ]
 then
     echo ""
     echo "Temp Density Colour=DensitiesAtLastAGNEvent Weighting=Mass Contours=Mass"
-    t-d $present_day_data -o plot_temp_dens_density_at_agn.png -c "gas.densities_at_last_agnevent/#<$critical_gas_density>#" -u "" --colour-name "\$\rho_{\rm AGN}\$ / <\$\rho\$>" --log-colour --limit-fields gas.densities_at_last_agnevent --limit-units "Msun/Mpc**3" --limits-min 0.0 -l gas.masses --contour-unit Msun --exclude-limits-from-contour $COLIBRE_DATA_PIPLINE__RHO_T_COLOURMAP
+    t-d $present_day_data -v -d -o plot_temp_dens_density_at_agn.png -c "gas.densities_at_last_agnevent/#<$critical_gas_density>#" -u "" --colour-name "\$\rho_{\rm AGN}\$ / <\$\rho\$>" --log-colour --limit-fields gas.densities_at_last_agnevent --limit-units "Msun/Mpc**3" --limits-min 0.0 -l gas.masses --contour-unit Msun --exclude-limits-from-contour $COLIBRE_DATA_PIPLINE__RHO_T_COLOURMAP
 fi
 
 # Temp Density Colour=DensitiesAtLastSupernovaEvent Weighting=Mass Contours=Mass
@@ -401,6 +441,28 @@ fi
 
 
 
+# Cumulitive Plots
+
+# Cumulitive Metal Mass
+if ! [ -f ./cumulitive_metal_mass_by_parent_halo.png ]
+then
+    echo ""
+    echo "Cumulitive Metal Mass"
+    cumulitive-metal-contribution modified_present_day_snap.hdf5 cumulitive_metal_mass_by_parent_halo.png
+    cumulitive-metal-contribution modified_present_day_snap.hdf5 cumulitive_metal_mass_by_parent_halo__self_normalised.png -n
+fi
+
+# Cumulitive Volume
+if ! [ -f ./cumulitive_particle_volume_by_parent_halo.png ]
+then
+    echo ""
+    echo "Cumulitive Volume"
+    cumulitive-volume-contribution modified_present_day_snap.hdf5 cumulitive_particle_volume_by_parent_halo.png
+    cumulitive-volume-contribution modified_present_day_snap.hdf5 cumulitive_particle_volume_by_parent_halo__self_normalised.png -n
+fi
+
+
+
 echo ""
 echo "GRAPHS DONE"
 
@@ -428,12 +490,12 @@ sed -i "s@{mdlhm_map_file}@${search_result[0]}@" ./view.html
 search_result=( map_high_density_last_enrichment_halo_mass*.png )
 sed -i "s@{hdlhm_map_file}@${search_result[0]}@" ./view.html
 
-search_result=( map_halo_ejection_radius*.png )
-sed -i "s@{her_map_file}@${search_result[0]}@" ./view.html
-#search_result=( map_halo_metals_ejection_radius*.png )
-#sed -i "s@{hmer_map_file}@${search_result[0]}@" ./view.html
-search_result=( map_halo_nonzero_ejection_radius*.png )
-sed -i "s@{hner_map_file}@${search_result[0]}@" ./view.html
+# search_result=( map_halo_ejection_radius*.png )
+# sed -i "s@{her_map_file}@${search_result[0]}@" ./view.html
+# #search_result=( map_halo_metals_ejection_radius*.png )
+# #sed -i "s@{hmer_map_file}@${search_result[0]}@" ./view.html
+# #search_result=( map_halo_nonzero_ejection_radius*.png )
+# #sed -i "s@{hner_map_file}@${search_result[0]}@" ./view.html
 
 
 

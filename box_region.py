@@ -22,7 +22,6 @@ Dependancies:
 """
 
 import numpy as np
-from QuasarCode.IO.Text.console import print_info, print_verbose_info, print_warning, print_verbose_warning, print_error, print_verbose_error, print_debug
 from typing import Union, List
 
 SWIFTSIMIO_AVALIBLE = False

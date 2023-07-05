@@ -10,7 +10,8 @@ from matplotlib import pyplot as plt
 import numpy as np
 import os
 from QuasarCode import source_file_relitive_add_to_path
-from QuasarCode.IO.Text.console import print_info, print_verbose_info, print_warning, print_verbose_warning, print_error, print_verbose_error, print_debug
+#from QuasarCode.IO.Text.console import print_info, print_verbose_info, print_warning, print_verbose_warning, print_error, print_verbose_error, print_debug
+from QuasarCode import Console
 from QuasarCode.Tools import ScriptWrapper
 from sphviewer import Particles, Camera, Scene, Render
 import swiftsimio as sw
@@ -68,8 +69,8 @@ def _render_pixels(particle_data: sw.SWIFTDataset, parttype: PartType, spatial_f
         return image
 
 #def _render_pixels(particle_data: sw.SWIFTDataset, parttype: PartType, spatial_filter: np.ndarray, smooth_over: sw.SWIFTDataset, camera_settings: dict, return_camera = False):
-#    print_debug(f"Rendering map for {smooth_over}.")
-#    print_debug(f"Camera settings: {camera_settings}.")
+#    Console.print_debug(f"Rendering map for {smooth_over}.")
+#    Console.print_debug(f"Camera settings: {camera_settings}.")
 #
 #    wrapper = SPHViewerWrapper(parttype.get_dataset(particle_data), smooth_over = smooth_over)
 #
@@ -94,10 +95,10 @@ def make_plot(particle_data: sw.SWIFTDataset, output_file: str,
               title: str = "", no_density: bool = False, no_log: bool = False, log_pre_intergration: bool = False, image_size: int = 1080,
               colour_map: List[str] = None):
 
-    print_debug(("Making plot. Params are:" + ("\n{}" * 23)).format(particle_data, output_file, box_region, parttype, x, y, z, render_type, projection_width, smoothing_attr, smoothing_unit, limit_fields, limit_units, limits_min, limits_max, contour, contour_percentiles, exclude_limits_from_contour, title, no_density, no_log, image_size, colour_map))
+    Console.print_debug(("Making plot. Params are:" + ("\n{}" * 23)).format(particle_data, output_file, box_region, parttype, x, y, z, render_type, projection_width, smoothing_attr, smoothing_unit, limit_fields, limit_units, limits_min, limits_max, contour, contour_percentiles, exclude_limits_from_contour, title, no_density, no_log, image_size, colour_map))
     
     # Needed as masking may have only been spatial and would not be exact
-    print_verbose_info("Making spatial array filter.")
+    Console.print_verbose_info("Making spatial array filter.")
     spatial_filter = box_region.make_array_filter(particle_data.gas.coordinates)
 
 #    combined_filter = spatial_filter.copy()
@@ -117,7 +118,7 @@ def make_plot(particle_data: sw.SWIFTDataset, output_file: str,
     particle_filter.update(spatial_filter)
     
     # Set the units for coordinates and smothing lengths (this shouldn't actualy read the file so easier to do this for all 3 possible part types)
-    print_verbose_info("Converting units of spatial fields.")
+    Console.print_verbose_info("Converting units of spatial fields.")
     coordinate_units = "Mpc"
 
     particle_data.gas.coordinates.convert_to_units(coordinate_units)
@@ -129,7 +130,7 @@ def make_plot(particle_data: sw.SWIFTDataset, output_file: str,
     particle_data.stars.smoothing_lengths.convert_to_units(coordinate_units)
 
     # Create the camera settings
-    print_verbose_info("Assembling camera settings.")
+    Console.print_verbose_info("Assembling camera settings.")
     if render_type == RenderType.projection:
         camera_settings = { "r": "infinity", "extent": [-projection_width * Mpc / 2, projection_width * Mpc / 2, -projection_width * Mpc / 2, projection_width * Mpc / 2] }
     else:
@@ -146,62 +147,62 @@ def make_plot(particle_data: sw.SWIFTDataset, output_file: str,
     selected_dataset = parttype.get_dataset(particle_data)
 
     # Parsing the smothing attribute expression
-    print_verbose_info("Parsing smothing expression.")
+    Console.print_verbose_info("Parsing smothing expression.")
     selected_dataset.smothing_attribute = parse_string(smoothing_attr, particle_data)
 
-    print_debug("Raw smoothing attr min value: {}".format(np.array(selected_dataset.smothing_attribute[:][particle_filter.numpy_filter]).min()))
-    print_debug("Raw smoothing attr max value: {}".format(np.array(selected_dataset.smothing_attribute[:][particle_filter.numpy_filter]).max()))
-    print_debug("Raw smoothing attr mean value: {}".format(np.array(selected_dataset.smothing_attribute[:][particle_filter.numpy_filter]).mean()))
+    Console.print_debug("Raw smoothing attr min value: {}".format(np.array(selected_dataset.smothing_attribute[:][particle_filter.numpy_filter]).min()))
+    Console.print_debug("Raw smoothing attr max value: {}".format(np.array(selected_dataset.smothing_attribute[:][particle_filter.numpy_filter]).max()))
+    Console.print_debug("Raw smoothing attr mean value: {}".format(np.array(selected_dataset.smothing_attribute[:][particle_filter.numpy_filter]).mean()))
 
     # Set the units as requested
     selected_dataset.smothing_attribute.convert_to_units(smoothing_unit)
 
-    print_debug("Unit converted smoothing attr min value: {}".format(selected_dataset.smothing_attribute[particle_filter.numpy_filter].min()))
-    print_debug("Unit converted smoothing attr max value: {}".format(selected_dataset.smothing_attribute[particle_filter.numpy_filter].max()))
-    print_debug("Unit converted smoothing attr mean value: {}".format(selected_dataset.smothing_attribute[particle_filter.numpy_filter].mean()))
+    Console.print_debug("Unit converted smoothing attr min value: {}".format(selected_dataset.smothing_attribute[particle_filter.numpy_filter].min()))
+    Console.print_debug("Unit converted smoothing attr max value: {}".format(selected_dataset.smothing_attribute[particle_filter.numpy_filter].max()))
+    Console.print_debug("Unit converted smoothing attr mean value: {}".format(selected_dataset.smothing_attribute[particle_filter.numpy_filter].mean()))
     
     if log_pre_intergration and not no_log:
-        print_verbose_info("Logging the data values.")
+        Console.print_verbose_info("Logging the data values.")
         selected_dataset.smothing_attribute[selected_dataset.smothing_attribute != 0] = np.log10(selected_dataset.smothing_attribute[selected_dataset.smothing_attribute != 0])
-        print_debug("Logged smoothing attr min value: {}".format(selected_dataset.smothing_attribute[particle_filter.numpy_filter].min()))
-        print_debug("Logged smoothing attr max value: {}".format(selected_dataset.smothing_attribute[particle_filter.numpy_filter].max()))
-        print_debug("Logged smoothing attr mean value: {}".format(selected_dataset.smothing_attribute[particle_filter.numpy_filter].mean()))
+        Console.print_debug("Logged smoothing attr min value: {}".format(selected_dataset.smothing_attribute[particle_filter.numpy_filter].min()))
+        Console.print_debug("Logged smoothing attr max value: {}".format(selected_dataset.smothing_attribute[particle_filter.numpy_filter].max()))
+        Console.print_debug("Logged smoothing attr mean value: {}".format(selected_dataset.smothing_attribute[particle_filter.numpy_filter].mean()))
 
     # Make modifications to remove the surface density term from the result
     if no_density:
-        print_verbose_info("Preparing to account for surface density.")
+        Console.print_verbose_info("Preparing to account for surface density.")
         # Add a mass unit to the smothing unit to account for the mass weighting of the data
 #        smoothing_unit += ("*" if smoothing_unit != "" else "") + "Msun"
         selected_dataset.masses.convert_to_units("Msun")
-        print_debug("Masses min value: {}".format(selected_dataset.smothing_attribute[particle_filter.numpy_filter].min()))
-        print_debug("Masses max value: {}".format(selected_dataset.smothing_attribute[particle_filter.numpy_filter].max()))
-        print_debug("Masses mean value: {}".format(selected_dataset.smothing_attribute[particle_filter.numpy_filter].mean()))
+        Console.print_debug("Masses min value: {}".format(selected_dataset.smothing_attribute[particle_filter.numpy_filter].min()))
+        Console.print_debug("Masses max value: {}".format(selected_dataset.smothing_attribute[particle_filter.numpy_filter].max()))
+        Console.print_debug("Masses mean value: {}".format(selected_dataset.smothing_attribute[particle_filter.numpy_filter].mean()))
         selected_dataset.smothing_attribute = selected_dataset.smothing_attribute * selected_dataset.masses
-        print_verbose_info("New units of initial map are {}.".format(smoothing_unit))
+        Console.print_verbose_info("New units of initial map are {}.".format(smoothing_unit))
 
     # Generate the mapp of the data (or mass weighted data)
-    print_verbose_info("Generating initial map.")
+    Console.print_verbose_info("Generating initial map.")
     data_image, camera = _render_pixels(particle_data, parttype, particle_filter.numpy_filter, selected_dataset.smothing_attribute, camera_settings, return_camera = True)
 
     if no_density:
         # Remove the surface density dependance and make each pixel a mass weighted mean
-        print_verbose_info("Generating and dividing map by surface density map.")
+        Console.print_verbose_info("Generating and dividing map by surface density map.")
         data_image /= _render_pixels(particle_data, parttype, particle_filter.numpy_filter, selected_dataset.masses, camera_settings)
 
     # Log the pixel values for image-like maps (unless specified otherwise)
     if not log_pre_intergration and not no_log:
-        print_verbose_info("Logging the pixel values.")
+        Console.print_verbose_info("Logging the pixel values.")
         data_image[:, :] = np.log10(data_image)
 
-    print_debug("Final pixel min value: {}".format(data_image.min()))
-    print_debug("Final pixel max value: {}".format(data_image.max()))
-    print_debug("Final pixel mean value: {}".format(data_image.mean()))
+    Console.print_debug("Final pixel min value: {}".format(data_image.min()))
+    Console.print_debug("Final pixel max value: {}".format(data_image.max()))
+    Console.print_debug("Final pixel mean value: {}".format(data_image.mean()))
 
     # If contours are requested, plot them, but only one a projection map
     #TODO: surely contours should be ok on a perspective map???
     draw_contours = False
     if (contour is not None) and render_type == RenderType.projection:
-        print_verbose_info("Generating contours.")
+        Console.print_verbose_info("Generating contours.")
         draw_contours = True
             
         selected_dataset.contour_attribute = parse_string(contour, particle_data)
@@ -222,7 +223,7 @@ def make_plot(particle_data: sw.SWIFTDataset, output_file: str,
         percentiles = np.percentile(check_values[check_values != 0], contour_percentiles)
         
     # Get the stylesheets
-    print_verbose_info("Fetching stylesheets.")
+    Console.print_verbose_info("Fetching stylesheets.")
     stylesheet_directory = __file__.rsplit(os.path.sep, 1)[0]
     normal_stylesheet = os.path.join(stylesheet_directory, "sph_map_stylesheet.mplstyle")
     smalltext_stylesheet = os.path.join(stylesheet_directory, "sph_map_smalltext_stylesheet.mplstyle")
@@ -236,7 +237,7 @@ def make_plot(particle_data: sw.SWIFTDataset, output_file: str,
     plt.figure(dpi = dpi)
     plt.axis("off")
 
-    print_verbose_info("Rendering final map.")
+    Console.print_verbose_info("Rendering final map.")
     if colour_map is None:
         colour_map = [None]
     if not TOL_AVAILABLE and (len(colour_map) > 1 or colour_map[0] in ('sunset_discrete', 'sunset',
@@ -246,7 +247,7 @@ def make_plot(particle_data: sw.SWIFTDataset, output_file: str,
                                             'YlOrBr_discrete', 'YlOrBr',
                                             'WhOrBr', 'iridescent',
                                             'rainbow_PuRd', 'rainbow_PuBr', 'rainbow_WhRd', 'rainbow_WhBr', 'rainbow_discrete')):
-        print_warning(f"Paul Tol's colours are not avalible. This is likley required for colourmap: {colour_map} and this process may fail as a result!\nSee --help for instalation instructions.")
+        Console.print_warning(f"Paul Tol's colours are not avalible. This is likley required for colourmap: {colour_map} and this process may fail as a result!\nSee --help for instalation instructions.")
     # Render the map
     #plt.imshow(data_image, cmap = tol_colors.LinearSegmentedColormap.from_list("test", ["#125A56", "#FD9A44", "#A01813"]))
     plt.imshow(data_image, cmap = (tol_colors.tol_cmap(colour_map[0]) if len(colour_map) == 1 else tol_colors.LinearSegmentedColormap.from_list("custom-map", colour_map)) if TOL_AVAILABLE and (len(colour_map) > 1 or colour_map[0] in tol_colors.tol_cmap()) else colour_map[0])
@@ -256,7 +257,7 @@ def make_plot(particle_data: sw.SWIFTDataset, output_file: str,
     
 
     # Add a colourbar using the alt stylesheet
-    print_verbose_info("Adding colourbar.")
+    Console.print_verbose_info("Adding colourbar.")
     with plt.style.context(smalltext_stylesheet):
 #        colourbar = plt.colorbar(shrink = 0.7, location = "left", pad = -1.0)
         colourbar = plt.colorbar(shrink = 0.7, location = "left", pad = -0.98)
@@ -265,11 +266,12 @@ def make_plot(particle_data: sw.SWIFTDataset, output_file: str,
 
     if draw_contours:
         # If they were created earlier, plot the contours
-        print_verbose_info("Drawing contours.")
-        contours = plt.contour((xedges[:-1] + ((xedges[1] - xedges[0])/2)) * Mpc,
-                               (yedges[:-1] + ((yedges[1] - yedges[0])/2)) * Mpc,
-                               h.T,
-                               levels = percentiles,
+        Console.print_verbose_info("Drawing contours.")
+        # Data converted to arrays due to issues with the countour function and unyt arrays
+        contours = plt.contour(np.array((xedges[:-1] + ((xedges[1] - xedges[0])/2)) * Mpc, dtype = np.float64),
+                               np.array((yedges[:-1] + ((yedges[1] - yedges[0])/2)) * Mpc, dtype = np.float64),
+                               np.array(h.T, dtype = np.float64),
+                               levels = np.array(percentiles, dtype = np.float64),
                                colors = "k",
                                alpha = 0.5,
                                linewidths = 1,#0.7,
@@ -283,7 +285,7 @@ def make_plot(particle_data: sw.SWIFTDataset, output_file: str,
     # Add text with the camera info
 
     # Position
-    print_verbose_info("Adding camera position.")
+    Console.print_verbose_info("Adding camera position.")
     camera_params = camera.get_params()
     plt.text(0, image_size * (1 - 0.040),
              "(${0:.3f}$, ${1:.3f}$, ${2:.3f}$) ${{\\rm {3}}}$".format(camera_params["x"], camera_params["y"], camera_params["z"], coordinate_units),
@@ -292,7 +294,7 @@ def make_plot(particle_data: sw.SWIFTDataset, output_file: str,
 
     if render_type == RenderType.projection:
         # Viewport
-        print_verbose_info("Adding projection viewport.")
+        Console.print_verbose_info("Adding projection viewport.")
         viewport = camera_settings["extent"][1] - camera_settings["extent"][0]
         #plt.text(0, image_size * (1 - 0.093),
         plt.text(0, image_size * (1 - 0.102),# dh = 0.009 for adding ^
@@ -301,7 +303,7 @@ def make_plot(particle_data: sw.SWIFTDataset, output_file: str,
                  bbox = dict(facecolor = "black", alpha = 0.4, edgecolor = "black"))
 
         # Slice Depth
-        print_verbose_info("Adding depth.")
+        Console.print_verbose_info("Adding depth.")
         box_side_length = box_region.side_length
         if isinstance(box_side_length, list):
             box_side_length = box_side_length[2]
@@ -329,7 +331,7 @@ def make_plot(particle_data: sw.SWIFTDataset, output_file: str,
     cameraSettingsInsert = f"{float(viewport):.1f}Mpc2_{box_side_length:.1f}Mpc" if render_type == RenderType.projection else f""#TODO: perspective log text
     filepath_sections = output_file.rsplit(".", 1)
     target_file = f"{filepath_sections[0]}__{cameraSettingsInsert}_{image_size / RESOLUTION_BASE_MESUREMENT}K_py-sphviewer.{filepath_sections[1]}"
-    print_verbose_info(f"Saving image to {target_file}")
+    Console.print_verbose_info(f"Saving image to {target_file}")
     plt.savefig(target_file, dpi = dpi)
 
 

@@ -1,12 +1,17 @@
 AUTHOR = "Christopher Rowe"
 VERSION = "1.0.2"
-DATE = "27/03/2023"
+DATE = "30/06/2023"
 DESCRIPTION = "Gets the number of each type of particle listed as being part of halos for the specified SWIFT parttypes file."
 
 import h5py
 import numpy as np
-from QuasarCode.IO.Text.console import print_info
+#from QuasarCode.IO.Text.console import Console.print_info
+from QuasarCode import Console, source_file_relitive_add_to_path
 from QuasarCode.Tools import ScriptWrapper
+import os
+
+source_file_relitive_add_to_path(__file__)
+from velociraptor_multi_load import Multifile_VR_Catalogue
 
 __PARTTYPE_NAMES = ("Dark Matter",
                     "Gas        ",
@@ -15,12 +20,31 @@ __PARTTYPE_NAMES = ("Dark Matter",
 __PARTTYPE_NUMBERS = (1, 0, 4, 5)
 
 def __main(file):
-    print_info("Number of each particle type:")
-    data_file = h5py.File(file)
-    data = np.array(data_file["Particle_types"], dtype = np.int64)
-    data_file.close()
+    folder_and_file = file.rsplit(os.path.sep, maxsplit = 1)
+    catalogue = Multifile_VR_Catalogue(folder_and_file[0] if len(folder_and_file) > 1 else ".", folder_and_file[-1].split(".", maxsplit = 1)[0])
+
+    bound_parttype_ids = catalogue.read_raw_file_data("catalog_parttypes", lambda file: np.array(file["Particle_types"], dtype = np.int16))
+    unboundparttype_ids = catalogue.read_raw_file_data("catalog_parttypes.unbound", lambda file: np.array(file["Particle_types"], dtype = np.int16))
+
+    n_bound = []
+    n_unbound = []
+    n_all = []
     for i in range(len(__PARTTYPE_NAMES)):
-        print_info("{}:    {}".format(__PARTTYPE_NAMES[i], (data == __PARTTYPE_NUMBERS[i]).sum()))
+        n_bound.append((bound_parttype_ids == __PARTTYPE_NUMBERS[i]).sum())
+        n_unbound.append((unboundparttype_ids == __PARTTYPE_NUMBERS[i]).sum())
+        n_all.append(n_bound[-1] + n_unbound[-1])
+
+    max_bound_string_len = max([len(str(v)) for v in n_bound])
+    max_unbound_string_len = max([len(str(v)) for v in n_unbound])
+    max_all_string_len = max([len(str(v)) for v in n_all])
+
+    Console.print_info("Number of each particle type:")
+    
+    for i in range(len(__PARTTYPE_NAMES)):
+        padding_all = " " * (max_all_string_len - len(str(n_all[i])))
+        padding_bound = " " * (max_bound_string_len - len(str(n_bound[i])))
+        padding_unbound = " " * (max_unbound_string_len - len(str(n_unbound[i])))
+        Console.print_info("{}:    {}{} total ({}{} bound, {}{} unbound)".format(__PARTTYPE_NAMES[i], padding_all, n_all[i], padding_bound, n_bound[i], padding_unbound, n_unbound[i]))
 
 if __name__ == "__main__":
     args_info = [["file", "VELOCIraptor catalogue parttypes file.", None]]
