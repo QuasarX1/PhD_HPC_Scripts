@@ -108,5 +108,4 @@ if __name__ == "__main__":
 """
 np.polyfit
 np.polyval
-plot-bh-stellar-mass test2.png "/mnt/data2/users/astrcrai/simulations/COLIBRE/L0050N0376/colibre_0014.hdf5;/mnt/data2/users/astrcrai/simulations/COLIBRE/L0050N0376_bigSeed/colibre_0014.hdf5" "/mnt/data2/users/astrcrai/simulations/COLIBRE/L0050N0376/haloes/halo_0014.properties.0;/mnt/data2/users/astrcrai/simulations/COLIBRE/L0050N0376_bigSeed/haloes/halo_0014.properties.0" "Ref L50N376;Biig Seed" -v -d
 """
