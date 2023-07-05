@@ -5,9 +5,10 @@ DESCRIPTION = "Gets the redshift for the specified SWIFT snapshot."
 
 from QuasarCode.Tools import ScriptWrapper
 import swiftsimio as sw
+from .contra.calculations import get_redshift
 
 def __main(file):
-    print(sw.load(file).metadata.z)
+    print(get_redshift(sw.load(file)))
 
 if __name__ == "__main__":
     args_info = [["file", "SWIFT snapshot file.", None]]

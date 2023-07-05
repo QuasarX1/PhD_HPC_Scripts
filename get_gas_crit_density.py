@@ -5,17 +5,11 @@ DESCRIPTION = "Gets \u03A9_b * \u03C1_crit(z) for the specified SWIFT snapshot."
 
 from QuasarCode.Tools import ScriptWrapper
 import swiftsimio as sw
-from unyt import unyt_quantity
-
-def critical_gas_density(data, unit = None):
-    v = unyt_quantity.from_astropy(data.metadata.cosmology.Ob(data.metadata.z) * data.metadata.cosmology.critical_density(data.metadata.z))
-    if unit is not None:
-        v = v.to(unit)
-    return v
+from .contra.calculations import get_critical_gas_density
 
 def __main(file, unit, hide_unit):
     data = sw.load(file)
-    v = critical_gas_density(data, unit)
+    v = get_critical_gas_density(data, unit)
     if hide_unit:
         v = float(v.value)
     print(v)
