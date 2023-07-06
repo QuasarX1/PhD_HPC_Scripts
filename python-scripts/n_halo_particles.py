@@ -1,17 +1,16 @@
 AUTHOR = "Christopher Rowe"
-VERSION = "1.0.2"
-DATE = "30/06/2023"
+VERSION = "2.0.0"
+DATE = "06/07/2023"
 DESCRIPTION = "Gets the number of each type of particle listed as being part of halos for the specified SWIFT parttypes file."
 
-import h5py
 import numpy as np
-#from QuasarCode.IO.Text.console import Console.print_info
-from QuasarCode import Console, source_file_relitive_add_to_path
-from QuasarCode.Tools import ScriptWrapper
 import os
 
-source_file_relitive_add_to_path(__file__)
-from velociraptor_multi_load import Multifile_VR_Catalogue
+from QuasarCode import source_file_relitive_add_to_path, Console
+from QuasarCode.Tools import ScriptWrapper
+
+source_file_relitive_add_to_path(__file__, "..")
+from contra.io import Multifile_VR_Catalogue
 
 __PARTTYPE_NAMES = ("Dark Matter",
                     "Gas        ",
@@ -55,7 +54,7 @@ if __name__ == "__main__":
                            VERSION,
                            DATE,
                            DESCRIPTION,
-                           ["console_log_printing (local file)", "h5py", "os", "script_wrapper.py (local file)", "sys"],
+                           ["numpy", "os", "QuasarCode"],
                            [],
                            args_info,
                            kwargs_info)

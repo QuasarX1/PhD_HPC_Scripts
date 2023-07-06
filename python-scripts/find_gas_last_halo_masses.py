@@ -1,20 +1,21 @@
 AUTHOR = "Christopher Rowe"
-VERSION = "6.0.0"
-DATE = "14/06/2023"
+VERSION = "7.0.0"
+DATE = "06/07/2023"
 DESCRIPTION = "Identifies the last halo a gas particle was found in and records the mass of the largest halo in the structure."
 
 import h5py
 import numpy as np
 import os
 import pickle
-from QuasarCode import Settings, Console, source_file_relitive_add_to_path
-from QuasarCode.Tools import ScriptWrapper
 import swiftsimio as sw
 from time import time
 import velociraptor as vr
 
-source_file_relitive_add_to_path(__file__)
-from velociraptor_multi_load import Multifile_VR_Catalogue
+from QuasarCode import source_file_relitive_add_to_path, Settings, Console
+from QuasarCode.Tools import ScriptWrapper
+
+source_file_relitive_add_to_path(__file__, "..")
+from contra.io import Multifile_VR_Catalogue
 
 
 
@@ -299,6 +300,8 @@ def __main(snap_numbers, snap_directory, snap_file_template, cat_directory, cat_
 
 
 if __name__ == "__main__":
+    import sys
+    print(sys.argv)
     args_info = [
                  ["snap_numbers",         "Semicolon seperated list of strings that can be inserted into\nthe templates provided to create valid file names.\nSnapshots should be specified in chronological order.", ScriptWrapper.make_list_converter(";")],
                  ["snap_directory",       "Directory path that holds the snapshot files.", None],
@@ -315,7 +318,7 @@ if __name__ == "__main__":
                            VERSION,
                            DATE,
                            DESCRIPTION,
-                           ["console_log_printing (local file)", "h5py", "numpy", "os", "pickle", "script_wrapper (local file)", "swiftsimio", "sys", "time", "velociraptor"],
+                           ["h5py", "numpy", "os", "pickle", "QuasarCode", "swiftsimio", "sys", "time", "velociraptor"],
                            ["0000;0001;0002;0003;0004;0005;0006;0007 /storage/simulations/COLIBRE_ZOOMS/COLIBRE/five_spheres_20211006/volume04/l0/snapshots snapshot_{}.hdf5 /storage/simulations/COLIBRE_ZOOMS/COLIBRE/five_spheres_20211006/volume04/l0/haloes_sig_1p00 halo_{}.properties.0 /storage/simulations/COLIBRE_ZOOMS/COLIBRE/five_spheres_20211006/volume04/l0/haloes_sig_1p00 halo_{}.catalog_groups.0"],
                            args_info,
                            kwargs_info)

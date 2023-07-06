@@ -1,17 +1,19 @@
 AUTHOR = "Christopher Rowe"
-VERSION = "1.2.1"
-DATE = "05/04/2023"
+VERSION = "2.0.0"
+DATE = "06/07/2023"
 DESCRIPTION = "Inserts the last halo mass data into a copy of the latest snapshot."
 
 import numpy as np
 import pickle
-from QuasarCode import source_file_relitive_add_to_path
-from QuasarCode.Tools import ScriptWrapper
 import swiftsimio as sw
 import unyt
 
-source_file_relitive_add_to_path(__file__)
-from save_swift_snap_field import save_particle_fields, get_cgs_conversions, PartType, SIGNED_INT_64
+from QuasarCode import source_file_relitive_add_to_path
+from QuasarCode.Tools import ScriptWrapper
+
+source_file_relitive_add_to_path(__file__, "..")
+from contra.io import save_particle_fields, get_cgs_conversions, PartType, SIGNED_INT_64
+from ..contra.io.save_swift_snap_field import SIGNED_INT_64
 
 def __main(data):
     snap_data_present_day = sw.load(data)
@@ -55,7 +57,7 @@ if __name__ == "__main__":
                            VERSION,
                            DATE,
                            DESCRIPTION,
-                           ["numpy", "pickle", "QuasarCode", "save_swift_snap_field (local file)", "swiftsimio", "unyt"],
+                           ["numpy", "pickle", "QuasarCode", "swiftsimio", "unyt"],
                            ["/storage/simulations/COLIBRE_ZOOMS/COLIBRE/five_spheres_20211006/volume04/l0/snapshots/snapshot_0007.hdf5"],
                            args_info,
                            kwargs_info)

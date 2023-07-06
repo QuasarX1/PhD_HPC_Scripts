@@ -1,6 +1,6 @@
 #!/bin/bash
 #
-#SBATCH --job-name=qx1-Colibre-Pipline
+#SBATCH --job-name=contra-pipeline
 #SBATCH --time=01:00:00
 #SBATCH --partition=compute
 #SBATCH --output=logs/pipline-log-%j.txt

@@ -25,13 +25,10 @@ Dependancies:
 
 import h5py
 import numpy as np
-from QuasarCode import source_file_relitive_add_to_path
 import swiftsimio as sw
 from typing import Union, List
-
-source_file_relitive_add_to_path(__file__)
-from sph_map import PartType
-from swift_data_expression import parse_string
+from .swift_parttype_enum import PartType
+from .swift_data_expression import parse_string
 
 UNSIGNED_INT_8 = "u1"
 SIGNED_INT_8 = "i1"

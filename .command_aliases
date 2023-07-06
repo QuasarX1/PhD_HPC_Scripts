@@ -1,54 +1,60 @@
 scripts_directory=$(dirname "$(readlink -f ${BASH_SOURCE})")
 source $scripts_directory/.python_interpreter_path.sh
 
-alias pipeline-qx1="$scripts_directory/submit_pipline.sh"
-alias pipeline-qx1-local="$scripts_directory/local_run_pipline.sh"
-alias pipeline-qx1-new-config="cp $scripts_directory/_example_data_pipeline_settings.sh ./qx1_pipeline_settings_copy.sh"
+alias contra-new-config="cp $scripts_directory/_example_data_pipeline_settings.sh ./contra_settings_copy.sh"
+alias contra-run="$scripts_directory/submit_data_reduction.sh"
+alias contra-run-local="$scripts_directory/local_run_data_reduction.sh"
+alias pipeline-contra="$scripts_directory/submit_pipline.sh"
+alias pipeline-contra-local="$scripts_directory/local_run_pipline.sh"
 
 
 
-alias add-py="python $scripts_directory/install_py_file.py install"
+#alias add-py="python $scripts_directory/install_py_file.py install"
 
 
 
-alias cat-z="$QX1_PYTHON $scripts_directory/get_redshift.py"
-alias create-new-z0-data="$QX1_PYTHON $scripts_directory/create_additional_present_day_fields.py"
-alias cumulitive-metal-contribution="$QX1_PYTHON $scripts_directory/plot_cumulitive_metal_contribution_mass.py"
-alias cumulitive-volume-contribution="$QX1_PYTHON $scripts_directory/plot_cumulitive_volume_by_enrichment_halo.py"
-alias density-hist="$QX1_PYTHON $scripts_directory/density_histogram.py"
-alias ejection-radius-hist="$QX1_PYTHON $scripts_directory/ejection_radius_histogram.py"
-alias eval-swift-data="$QX1_PYTHON $scripts_directory/evaluate_swift_data_expression.py"
-alias finish-time="$QX1_PYTHON $scripts_directory/predict_finish_time.py"
-alias gas-crit-density="$QX1_PYTHON $scripts_directory/get_gas_crit_density.py"
-alias gas-line="$QX1_PYTHON $scripts_directory/gas_particle_line_graph.py"
-alias gal-mass-dist="$QX1_PYTHON $scripts_directory/galaxy_mass_profiles.py"
-alias gal-masses="$QX1_PYTHON $scripts_directory/galaxy_mass_frequency.py"
-alias get-past-halo-masses="$QX1_PYTHON $scripts_directory/find_gas_last_halo_masses.py"
-alias get-matched-halo-particle-ejection="$QX1_PYTHON $scripts_directory/calculate_ejection_distance.py"
-alias get-matched-present-day-haloes="$QX1_PYTHON $scripts_directory/find_present_day_halo_counterparts.py"
-alias graph-past-halo-masses="$QX1_PYTHON $scripts_directory/last_halo_mass.py"
-alias halo-n-part="$QX1_PYTHON $scripts_directory/n_halo_particles.py"
-alias img_data="$QX1_PYTHON $scripts_directory/img_data.py"
-alias img_data_mpi="$scripts_directory/img_data_mpi.sh"
-alias metal-halo-breakdown="$QX1_PYTHON $scripts_directory/plot_metal_mass_by_bin.py"
-alias plot-bh-stellar-mass="$QX1_PYTHON $scripts_directory/plot_BH_mass_stellar_mass.py"
-alias sph-map="$QX1_PYTHON $scripts_directory/sph_map.py"
-alias t-d="$QX1_PYTHON $scripts_directory/temp_density_diagram.py"
+alias cat-z="$CONTRA_PYTHON $scripts_directory/python-scripts/get_redshift.py"
+alias create-new-z0-data="$CONTRA_PYTHON $scripts_directory/python-scripts/create_additional_present_day_fields.py"
+alias cumulitive-metal-contribution="$CONTRA_PYTHON $scripts_directory/python-scripts/plot_cumulitive_metal_contribution_mass.py"
+alias cumulitive-volume-contribution="$CONTRA_PYTHON $scripts_directory/python-scripts/plot_cumulitive_volume_by_enrichment_halo.py"
+alias density-hist="$CONTRA_PYTHON $scripts_directory/python-scripts/density_histogram.py"
+alias ejection-radius-hist="$CONTRA_PYTHON $scripts_directory/python-scripts/ejection_radius_histogram.py"
+alias eval-swift-data="$CONTRA_PYTHON $scripts_directory/python-scripts/evaluate_swift_data_expression.py"
+alias finish-time="$CONTRA_PYTHON $scripts_directory/python-scripts/predict_finish_time.py"
+alias gas-crit-density="$CONTRA_PYTHON $scripts_directory/python-scripts/get_gas_crit_density.py"
+alias gas-line="$CONTRA_PYTHON $scripts_directory/python-scripts/gas_particle_line_graph.py"
+alias gal-mass-dist="$CONTRA_PYTHON $scripts_directory/python-scripts/galaxy_mass_profiles.py"
+alias gal-masses="$CONTRA_PYTHON $scripts_directory/python-scripts/galaxy_mass_frequency.py"
+alias get-past-halo-masses="$CONTRA_PYTHON $scripts_directory/python-scripts/find_gas_last_halo_masses.py"
+alias get-matched-halo-particle-ejection="$CONTRA_PYTHON $scripts_directory/python-scripts/calculate_ejection_distance.py"
+alias get-matched-present-day-haloes="$CONTRA_PYTHON $scripts_directory/python-scripts/find_present_day_halo_counterparts.py"
+alias graph-past-halo-masses="$CONTRA_PYTHON $scripts_directory/python-scripts/last_halo_mass.py"
+alias halo-n-part="$CONTRA_PYTHON $scripts_directory/python-scripts/n_halo_particles.py"
+#alias img_data="$CONTRA_PYTHON $scripts_directory/img_data.py"
+#alias img_data_mpi="$scripts_directory/img_data_mpi.sh"
+alias metal-halo-breakdown="$CONTRA_PYTHON $scripts_directory/python-scripts/plot_metal_mass_by_bin.py"
+alias plot-bh-stellar-mass="$CONTRA_PYTHON $scripts_directory/python-scripts/plot_BH_mass_stellar_mass.py"
+alias sph-map="$CONTRA_PYTHON $scripts_directory/python-scripts/sph_map.py"
+alias t-d="$CONTRA_PYTHON $scripts_directory/python-scripts/temp_density_diagram.py"
 
 
 
-alias qx1-help="echo 'Avalible Commands:
+alias contra-help="echo 'CONTRA HELP INFORMATION
+
+Description:
+    A set of Python tools for analysing SWIFT+VR simulation outputs.
+
+Avalible Commands:
     This Help Information:
-        qx1-help
-        help-qx1
+        contra-help
+        help-contra
 
     Shell Scripts:
-        pipeline-qx1 <config-file> [wallclock-time]
-        pipeline-qx1-local <config-file> [number-output-lines]
-        pipeline-qx1-new-config
-
-    Python Tools:
-        add-py <module file name>
+        contra-new-config
+        contra-run <config-file> [wallclock-time]
+        contra-run-local <config-file> [number-output-lines]
+        pipeline-contra <config-file> [wallclock-time]
+        pipeline-contra-local <config-file> [number-output-lines]
 
     SWIFT Data Python Scripts (use <command> -h for more infomation):
         cat-z
@@ -68,11 +74,9 @@ alias qx1-help="echo 'Avalible Commands:
         get-matched-present-day-haloes
         graph-past-halo-masses
         halo-n-part
-        img_data
-        img_data_mpi
         metal-halo-breakdown
         sph-map
         t-d
 '"
 
-alias help-qx1="qx1-help"
+alias help-contra="contra-help"

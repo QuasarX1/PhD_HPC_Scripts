@@ -22,14 +22,12 @@ Dependancies:
 """
 
 import numpy as np
-from QuasarCode import source_file_relitive_add_to_path
 from QuasarCode.Tools import ScriptWrapper
 import swiftsimio as sw
 from typing import List, Union
 
-source_file_relitive_add_to_path(__file__)
-from swift_data_expression import parse_string
-from swift_parttype_enum import PartType
+from ..io.swift_data_expression import parse_string
+from ..io.swift_parttype_enum import PartType
 
 class ParticleFilter(object):
     @staticmethod

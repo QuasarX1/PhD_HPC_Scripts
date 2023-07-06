@@ -9,7 +9,6 @@ from matplotlib.colors import LogNorm, ListedColormap
 import numpy as np
 import os
 from QuasarCode import source_file_relitive_add_to_path
-#from QuasarCode.IO.Text.console import print_info, Console.print_verbose_info, Console.print_warning, print_verbose_warning, print_error, print_verbose_error, Console.print_debug
 from QuasarCode import Console
 from QuasarCode.Tools import ScriptWrapper
 from scipy.interpolate import Rbf

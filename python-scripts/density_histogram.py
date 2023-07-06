@@ -1,19 +1,20 @@
 AUTHOR = "Christopher Rowe"
-VERSION = "1.0.0"
-DATE = "28/03/2023"
+VERSION = "2.0.0"
+DATE = "06/07/2023"
 DESCRIPTION = "Creates a histogram for the desnities of gas particles from a SWIFT snapshot."
 
 from matplotlib import pyplot as plt
 import numpy as np
-from QuasarCode.Tools import DirectoryTools
-from QuasarCode.Tools import ScriptWrapper
 import swiftsimio as sw
 from typing import List, Union
 
-DirectoryTools.source_file_relitive_add_to_path(__file__)
-from box_region import BoxRegion
-from get_gas_crit_density import critical_gas_density
-from swift_data_expression import parse_string as make_attribute
+from QuasarCode import source_file_relitive_add_to_path
+from QuasarCode.Tools import ScriptWrapper
+
+source_file_relitive_add_to_path(__file__, "..")
+from contra.filters import BoxRegion
+from contra.calculations import get_critical_gas_density as critical_gas_density
+from contra.io.swift_data_expression import parse_string as make_attribute
 
 def __main(data, output_file, log_y_axis: bool, limit_fields: List[str], limit_units: List[str], limits_min: List[float], limits_max: List[float], hist_metals: bool, sum_mass: bool, sum_metal_mass: bool, sum_volume: bool, sum_metal_volume: bool, use_line: bool, plot_unfiltered: bool, max_y: Union[float, None], **kwargs):
     nBins = 40
@@ -177,7 +178,7 @@ if __name__ == "__main__":
                            VERSION,
                            DATE,
                            DESCRIPTION,
-                           ["BoxRegion.py  (local file)", "matplotlib", "numpy", "os", "QuasarCode", "swift_data_expression.py (local file)", "swiftsimio", "typing"],
+                           ["matplotlib", "numpy", "os", "QuasarCode", "swiftsimio", "typing"],
                            [],
                            args_info,
                            kwargs_info)

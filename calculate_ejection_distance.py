@@ -1,3 +1,5 @@
+raise DeprecationWarning("This dosen't work and is not up-to-date!")
+
 AUTHOR = "Christopher Rowe"
 VERSION = "1.1.0"
 DATE = "24/04/2023"

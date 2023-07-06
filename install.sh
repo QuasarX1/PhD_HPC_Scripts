@@ -14,4 +14,4 @@ pip install -r $scripts_directory/requirements.txt
 
 deactivate
 
-echo "export QX1_PYTHON=$(readlink -f ./environment/bin)/python">$scripts_directory/.python_interpreter_path.sh
+echo "export CONTRA_PYTHON=$(readlink -f ./environment/bin)/python">$scripts_directory/.python_interpreter_path.sh

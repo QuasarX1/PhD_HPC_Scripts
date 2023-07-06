@@ -1,3 +1,5 @@
+raise DeprecationWarning("The source data collection algorithm for this dosen't work and is not up-to-date!")
+
 AUTHOR = "Christopher Rowe"
 VERSION = "1.0.0"
 DATE = "06/04/2023"
