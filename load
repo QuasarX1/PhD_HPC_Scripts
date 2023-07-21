@@ -1,0 +1,5 @@
+#!/bin/bash
+
+scripts_directory=$(dirname "$(readlink -f ${BASH_SOURCE})")
+
+source $scripts_directory/.pre_activate_aliases

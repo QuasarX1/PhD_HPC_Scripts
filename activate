@@ -1,1 +1,12 @@
-source $(dirname "$(readlink -f ${BASH_SOURCE})")/environment/bin/activate
+#!/bin/bash
+
+scripts_directory=$(dirname "$(readlink -f ${BASH_SOURCE})")
+
+if ! [[ -z "$VIRTUAL_ENV" ]]
+then
+    deactivate
+fi
+
+source $scripts_directory/.python_interpreter_path.sh
+source "${CONTRA_PYTHON%/*}/activate"
+source $(dirname "$(readlink -f ${BASH_SOURCE})")/.command_aliases

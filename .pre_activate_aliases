@@ -1,0 +1,55 @@
+#!/bin/bash
+
+scripts_directory=$(dirname "$(readlink -f ${BASH_SOURCE})")
+source $scripts_directory/.python_interpreter_path.sh
+
+
+alias activate-contra="source $scripts_directory/activate"
+
+alias contra-help="echo 'CONTRA HELP INFORMATION
+
+Description:
+    A set of Python tools for analysing SWIFT+VR simulation outputs.
+
+Avalible Commands:
+    This Help Information:
+        contra-help
+        help-contra
+
+    Activation:
+        activate-contra
+
+    Shell Scripts:
+        contra-init <folder-name> <simulation-output-folder>
+        contra-new [folder-name] <redshift-number>
+        contra-new-config
+        contra-run <config-file> [wallclock-time]
+        contra-run-local <config-file> [number-output-lines]
+        pipeline-contra <config-file> [wallclock-time]
+        pipeline-contra-local <config-file> [number-output-lines]
+
+    SWIFT Data Python Scripts (use <command> -h for more infomation):
+        cat-z
+        create-new-z0-data
+        cumulitive-metal-contribution
+        cumulitive-volume-contribution
+        density-hist
+        eval-swift-data
+        finish-time
+        gas-crit-density
+        gas-line
+        gal-mass-dist
+        gal-masses
+        get-past-halo-masses
+        graph-past-halo-masses
+        halo-n-part
+        metal-halo-breakdown
+        plot-bh-halo-mass
+        plot-bh-stellar-mass
+        plot-track-frac-by-Z
+        plot-untracked-gas-distribution
+        sph-map
+        t-d
+'"
+
+alias help-contra="contra-help"

@@ -2,7 +2,7 @@
 #
 #SBATCH --job-name=contra
 #SBATCH --time=01:00:00
-#SBATCH --partition=test
+#SBATCH --partition=compute
 #SBATCH --output=logs/data-reduction-log-%j.txt
 #SBATCH --error=logs/errors/data-reduction-log-%j.err
 #SBATCH --ntasks=1
@@ -48,8 +48,17 @@ cd $COLIBRE_DATA_PIPLINE__PIPELINE_OUTPUT_DIRECTORY
 
 
 
-# Critical Gas Density
-#critical_gas_density=$(gas-crit-density "$present_day_data" -u "Msun/Mpc**3")
+#if ! [ -f ./stars_particle_ejection_tracking__halo_masses.pickle ]
+#then
+#    echo ""
+#    echo "Trace Gas Halo Interactions"
+#    get-past-halo-masses "stars" $COLIBRE_DATA_PIPLINE__SNAPSHOTS $COLIBRE_DATA_PIPLINE__SNAPSHOT_DIRECTORY $COLIBRE_DATA_PIPLINE__SNAPSHOT_FILE_TEMPLATE $COLIBRE_DATA_PIPLINE__CATALOGUE_DIRECTORY $COLIBRE_DATA_PIPLINE__CATALOGUE_FILE_TEMPLATE -v -d
+#else
+#    echo ""
+#    echo "Found saved star-halo interaction data. Remove or rename this data to re-generate."
+#fi
+
+
 
 # Make modified snapshot
 
@@ -57,7 +66,8 @@ if ! [ -f ./gas_particle_ejection_tracking__halo_masses.pickle ]
 then
     echo ""
     echo "Trace Gas Halo Interactions"
-    get-past-halo-masses $COLIBRE_DATA_PIPLINE__SNAPSHOTS $COLIBRE_DATA_PIPLINE__SNAPSHOT_DIRECTORY $COLIBRE_DATA_PIPLINE__SNAPSHOT_FILE_TEMPLATE $COLIBRE_DATA_PIPLINE__CATALOGUE_DIRECTORY $COLIBRE_DATA_PIPLINE__CATALOGUE_FILE_TEMPLATE $COLIBRE_DATA_PIPLINE__CATALOGUE_DIRECTORY $COLIBRE_DATA_PIPLINE__CATALOGUE_GROUPS_FILE_TEMPLATE -v -d
+#    get-past-halo-masses $COLIBRE_DATA_PIPLINE__SNAPSHOTS $COLIBRE_DATA_PIPLINE__SNAPSHOT_DIRECTORY $COLIBRE_DATA_PIPLINE__SNAPSHOT_FILE_TEMPLATE $COLIBRE_DATA_PIPLINE__CATALOGUE_DIRECTORY $COLIBRE_DATA_PIPLINE__CATALOGUE_FILE_TEMPLATE $COLIBRE_DATA_PIPLINE__CATALOGUE_DIRECTORY $COLIBRE_DATA_PIPLINE__CATALOGUE_GROUPS_FILE_TEMPLATE -v -d
+    get-past-halo-masses "gas" $COLIBRE_DATA_PIPLINE__SNAPSHOTS $COLIBRE_DATA_PIPLINE__SNAPSHOT_DIRECTORY $COLIBRE_DATA_PIPLINE__SNAPSHOT_FILE_TEMPLATE $COLIBRE_DATA_PIPLINE__CATALOGUE_DIRECTORY $COLIBRE_DATA_PIPLINE__CATALOGUE_FILE_TEMPLATE -v -d
 else
     echo ""
     echo "Found saved gas-halo interaction data. Remove or rename this data to re-generate."

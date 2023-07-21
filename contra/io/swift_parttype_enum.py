@@ -19,6 +19,19 @@ class PartType(Enum):
             return "black_holes"
         else:
             raise RuntimeError()
+        
+    @staticmethod
+    def from_string(value: str):
+        if value.lower() == "gas":
+            return PartType.gas
+        elif value.lower() == "dark_matter":
+            return PartType.dark_matter
+        elif value.lower() == "stars":
+            return PartType.star
+        elif value.lower() == "black_holes":
+            return PartType.black_hole
+        else:
+            raise ValueError(f"Particle type string \"{value}\" is not a valid particle type.")
 
     def get_dataset(self, particle_data: sw.SWIFTDataset):
         if self == PartType.gas:

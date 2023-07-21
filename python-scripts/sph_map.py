@@ -1,23 +1,16 @@
 AUTHOR = "Christopher Rowe"
-VERSION = "2.1.2"
-DATE = "27/03/2023"
+VERSION = "3.0.0"
+DATE = "07/07/2023"
 DESCRIPTION = "Renders SWIFT SPH data."
-
-
 
 from enum import Enum
 from matplotlib import pyplot as plt
 import numpy as np
 import os
-from QuasarCode import source_file_relitive_add_to_path
-#from QuasarCode.IO.Text.console import print_info, print_verbose_info, print_warning, print_verbose_warning, print_error, print_verbose_error, print_debug
-from QuasarCode import Console
-from QuasarCode.Tools import ScriptWrapper
 from sphviewer import Particles, Camera, Scene, Render
 import swiftsimio as sw
-from swiftsimio.visualisation.sphviewer import SPHViewerWrapper
 from typing import List, Union
-from unyt import Mpc, unyt_quantity
+from unyt import Mpc
 
 TOL_AVAILABLE = False
 try:
@@ -25,11 +18,12 @@ try:
     TOL_AVAILABLE = True
 except: pass
 
-source_file_relitive_add_to_path(__file__)
-from box_region import BoxRegion
-from swift_data_expression import parse_string
-from swift_particle_filtering import ParticleFilter
-from swift_parttype_enum import PartType
+from QuasarCode import Console, source_file_relitive_add_to_path
+from QuasarCode.Tools import ScriptWrapper
+
+source_file_relitive_add_to_path(__file__, "..")
+from contra.filters import BoxRegion, ParticleFilter
+from contra.io import parse_swift_string as parse_string, PartType
 
 
 
@@ -224,7 +218,7 @@ def make_plot(particle_data: sw.SWIFTDataset, output_file: str,
         
     # Get the stylesheets
     Console.print_verbose_info("Fetching stylesheets.")
-    stylesheet_directory = __file__.rsplit(os.path.sep, 1)[0]
+    stylesheet_directory = os.path.join(__file__.rsplit(os.path.sep, 1)[0], "..", "stylesheets")
     normal_stylesheet = os.path.join(stylesheet_directory, "sph_map_stylesheet.mplstyle")
     smalltext_stylesheet = os.path.join(stylesheet_directory, "sph_map_smalltext_stylesheet.mplstyle")
 

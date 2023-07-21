@@ -1,10 +1,11 @@
 import velociraptor as vr
 import os
 import glob
-from typing import Union, List, Callable
+from typing import Union, List, Tuple, Callable
 from unyt import unyt_array
 import numpy as np
 import h5py
+from QuasarCode import Console
 
 class Multifile_VR_Catalogue_Query(object):
     def __init__(self, parent):
@@ -184,21 +185,22 @@ class Multifile_VR_Catalogue(object):
 
         return return_list if len(return_list) != 1 else return_list[0]
     
-    def halo_properties_by_particle(self, fields: Union[List[str], str], parttype: int = None, use_cache = True, write_cache = True, overwrite_cache = False):
-        if isinstance(fields, str):
+    def halo_properties_by_particle(self, fields: Union[List[str], List[Tuple[str, Union[np.ndarray, unyt_array]]], str], parttype: int = None, use_cache = True, write_cache = True, overwrite_cache = False) -> dict:
+        if isinstance(fields, str) or isinstance(fields, tuple):
             fields = [fields]
 
         if self.__large_data_cache is not None and not overwrite_cache:
             all_fields_present = True
             new_fields = []
-            for field in fields:
-                if field in self.__large_data_cache:
+            for field_index, field in enumerate(fields):
+                field_name = field if isinstance(field, str) else field[0]
+                if field_name not in self.__large_data_cache:
                     all_fields_present = False
-                    if field not in ("particle_ids", "parttypes", "ids.id"):
-                        new_fields.append(field)
+                    if field_name not in ("particle_ids", "parttypes", "ids.id"):
+                        new_fields.append(field if isinstance(field, str) else field_index)
         else:
             all_fields_present = False
-            new_fields = [field for field in fields if field not in ("particle_ids", "parttypes", "ids.id")]
+            new_fields = [(field if isinstance(field, str) else field_index) for field_index, field in enumerate(fields) if (field if isinstance(field, str) else field[0]) not in ("particle_ids", "parttypes", "ids.id")]
         
         result_data = None
         
@@ -211,11 +213,20 @@ class Multifile_VR_Catalogue(object):
 #            halo_masses = np.array(self.masses.mass_200crit.value.to("Msun"), dtype = np.float64)
             field_halo_data = []
             for field in new_fields:
-                data = self
-                for section in field.split("."):
-                    data = getattr(data, section)
-                #field_halo_data.append(dict(zip(halo_ids, data.value)))
-                field_halo_data.append(data.value)
+                if isinstance(field, int):
+                    field_halo_data.append(fields[field][1].copy())
+                else:
+                    data = self
+                    for section in field.split("."):
+                        data = getattr(data, section)
+                    #field_halo_data.append(dict(zip(halo_ids, data.value)))
+                    field_halo_data.append(data.value)
+            
+            # Now the data has been loaded or coppied, replace the field indexes with the key (for data passes in)
+            for i in range(len(new_fields)):
+                if isinstance(new_fields[i], int):
+                    new_fields[i] = fields[new_fields[i]][0]
+                
             
 
             
@@ -282,7 +293,10 @@ class Multifile_VR_Catalogue(object):
             all_halo_particles__field_halo_data = []
             for raw_dataset in field_halo_data:
                 #all_halo_particles__field_halo_data.append(unyt_array(np.empty(all_halo_particles__particle_ids.shape, dtype = np.float64), list(raw_dataset.values())[0].units))
-                all_halo_particles__field_halo_data.append(unyt_array(np.empty(all_halo_particles__particle_ids.shape, dtype = np.float64), raw_dataset.units))
+                if isinstance(raw_dataset, unyt_array):
+                    all_halo_particles__field_halo_data.append(unyt_array(np.empty(all_halo_particles__particle_ids.shape, dtype = np.float64), raw_dataset.units))
+                else:
+                    all_halo_particles__field_halo_data.append(np.empty(all_halo_particles__particle_ids.shape, dtype = raw_dataset.dtype))
 #            halo_masses = np.empty(all_halo_particles__particle_ids.shape, dtype = np.float64)
 
             
@@ -346,22 +360,5 @@ class Multifile_VR_Catalogue(object):
             for key in return_data:
                 return_data[key] = return_data[key][halo_parttype_particles__filter]
 
-        return { key: return_data[key] for key in return_data if key in (*fields, "particle_ids", "parttypes") }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-        
+        return { key: return_data[key] for key in return_data if key in (*((field if isinstance(field, str) else field[0]) for field in fields), "particle_ids", "parttypes") }
+    

@@ -1,6 +1,6 @@
 AUTHOR = "Christopher Rowe"
-VERSION = "3.2.1"
-DATE = "03/04/2023"
+VERSION = "4.0.0"
+DATE = "07/07/2023"
 DESCRIPTION = "Creates a temprature vs. density diagram from SWIFT particle data."
 
 from argparse import ArgumentError
@@ -8,13 +8,8 @@ from matplotlib import pyplot as plt
 from matplotlib.colors import LogNorm, ListedColormap
 import numpy as np
 import os
-from QuasarCode import source_file_relitive_add_to_path
-from QuasarCode import Console
-from QuasarCode.Tools import ScriptWrapper
-from scipy.interpolate import Rbf
 import swiftsimio as sw
 from typing import List, Union
-from unyt import Mpc, unyt_quantity, unyt_array as u_arr
 
 TOL_AVAILABLE = False
 try:
@@ -22,13 +17,14 @@ try:
     TOL_AVAILABLE = True
 except: pass
 
-source_file_relitive_add_to_path(__file__)
-from box_region import BoxRegion
-from get_gas_crit_density import critical_gas_density
-from swift_data_expression import parse_string
-from swift_particle_filtering import ParticleFilter
-from swift_parttype_enum import PartType
-from unit_string_formatter import format_unit_string
+from QuasarCode import Console, source_file_relitive_add_to_path
+from QuasarCode.Tools import ScriptWrapper
+
+source_file_relitive_add_to_path(__file__, "..")
+from contra.filters import BoxRegion, ParticleFilter
+from contra.io import parse_swift_string as parse_string, PartType
+from contra.calculations import get_critical_gas_density as critical_gas_density
+from contra.tools import format_unit_string
 
 def make_diagram(particle_data, output_file_path, colour_variable_name = "gas.masses", colour_unit = "Msun", colour_name = None, fraction_colour = False, fraction_mean_colour = False, log_colour = False, colour_weight = "gas.masses", contour_variable_name = None, contour_unit = None, box_region = BoxRegion(), min_colour_value = None, max_colour_value = None, keep_outliers = False, limit_fields: Union[None, str, List[str]] = None, limit_units: Union[None, str, List[str]] = None, limits_min: Union[None, float, List[float]] = None, limits_max: Union[None, float, List[float]] = None, exclude_limits_from_contour: bool = False, colour_map = None):
     Console.print_debug(f"make_diagram arguments: {particle_data} {output_file_path} {colour_variable_name} {contour_variable_name} {box_region.x_min} {box_region.x_max} {box_region.y_min} {box_region.y_max} {box_region.z_min} {box_region.z_max} {min_colour_value} {max_colour_value} {keep_outliers} {limit_fields} {limit_units} {limits_min} {limits_max} {colour_map}")
@@ -96,7 +92,7 @@ def make_diagram(particle_data, output_file_path, colour_variable_name = "gas.ma
         w = parse_string(colour_weight, particle_data)[particle_filter.numpy_filter]
 
     Console.print_verbose_info("Making plot.")
-    stylesheet_directory = __file__.rsplit(os.path.sep, 1)[0]
+    stylesheet_directory = os.path.join(__file__.rsplit(os.path.sep, 1)[0], "..", "stylesheets")
     normal_stylesheet = os.path.join(stylesheet_directory, "temp_diagram_stylesheet.mplstyle")
     plt.style.use(normal_stylesheet)
     fig = plt.figure()

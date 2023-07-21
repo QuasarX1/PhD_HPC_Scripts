@@ -1,6 +1,15 @@
+#!/bin/bash
+
 scripts_directory=$(dirname "$(readlink -f ${BASH_SOURCE})")
 source $scripts_directory/.python_interpreter_path.sh
 
+
+source $scripts_directory/.pre_activate_aliases
+
+
+
+alias contra-init="$scripts_directory/initialise_new_folder.sh"
+alias contra-new="$scripts_directory/initialise_new_redshift_run.sh"
 alias contra-new-config="cp $scripts_directory/_example_data_pipeline_settings.sh ./contra_settings_copy.sh"
 alias contra-run="$scripts_directory/submit_data_reduction.sh"
 alias contra-run-local="$scripts_directory/local_run_data_reduction.sh"
@@ -18,7 +27,7 @@ alias create-new-z0-data="$CONTRA_PYTHON $scripts_directory/python-scripts/creat
 alias cumulitive-metal-contribution="$CONTRA_PYTHON $scripts_directory/python-scripts/plot_cumulitive_metal_contribution_mass.py"
 alias cumulitive-volume-contribution="$CONTRA_PYTHON $scripts_directory/python-scripts/plot_cumulitive_volume_by_enrichment_halo.py"
 alias density-hist="$CONTRA_PYTHON $scripts_directory/python-scripts/density_histogram.py"
-alias ejection-radius-hist="$CONTRA_PYTHON $scripts_directory/python-scripts/ejection_radius_histogram.py"
+#alias ejection-radius-hist="$CONTRA_PYTHON $scripts_directory/python-scripts/ejection_radius_histogram.py"
 alias eval-swift-data="$CONTRA_PYTHON $scripts_directory/python-scripts/evaluate_swift_data_expression.py"
 alias finish-time="$CONTRA_PYTHON $scripts_directory/python-scripts/predict_finish_time.py"
 alias gas-crit-density="$CONTRA_PYTHON $scripts_directory/python-scripts/get_gas_crit_density.py"
@@ -26,57 +35,62 @@ alias gas-line="$CONTRA_PYTHON $scripts_directory/python-scripts/gas_particle_li
 alias gal-mass-dist="$CONTRA_PYTHON $scripts_directory/python-scripts/galaxy_mass_profiles.py"
 alias gal-masses="$CONTRA_PYTHON $scripts_directory/python-scripts/galaxy_mass_frequency.py"
 alias get-past-halo-masses="$CONTRA_PYTHON $scripts_directory/python-scripts/find_gas_last_halo_masses.py"
-alias get-matched-halo-particle-ejection="$CONTRA_PYTHON $scripts_directory/python-scripts/calculate_ejection_distance.py"
-alias get-matched-present-day-haloes="$CONTRA_PYTHON $scripts_directory/python-scripts/find_present_day_halo_counterparts.py"
+#alias get-matched-halo-particle-ejection="$CONTRA_PYTHON $scripts_directory/python-scripts/calculate_ejection_distance.py"
+#alias get-matched-present-day-haloes="$CONTRA_PYTHON $scripts_directory/python-scripts/find_present_day_halo_counterparts.py"
 alias graph-past-halo-masses="$CONTRA_PYTHON $scripts_directory/python-scripts/last_halo_mass.py"
 alias halo-n-part="$CONTRA_PYTHON $scripts_directory/python-scripts/n_halo_particles.py"
 #alias img_data="$CONTRA_PYTHON $scripts_directory/img_data.py"
 #alias img_data_mpi="$scripts_directory/img_data_mpi.sh"
 alias metal-halo-breakdown="$CONTRA_PYTHON $scripts_directory/python-scripts/plot_metal_mass_by_bin.py"
+alias plot-bh-halo-mass="$CONTRA_PYTHON $scripts_directory/python-scripts/plot_BH_mass_halo_mass.py"
 alias plot-bh-stellar-mass="$CONTRA_PYTHON $scripts_directory/python-scripts/plot_BH_mass_stellar_mass.py"
+alias plot-track-frac-by-Z="$CONTRA_PYTHON $scripts_directory/python-scripts/metalicity_selection_limitation.py"
+alias plot-untracked-gas-distribution="$CONTRA_PYTHON $scripts_directory/python-scripts/untracked_gas_histograms.py"
 alias sph-map="$CONTRA_PYTHON $scripts_directory/python-scripts/sph_map.py"
 alias t-d="$CONTRA_PYTHON $scripts_directory/python-scripts/temp_density_diagram.py"
 
 
 
-alias contra-help="echo 'CONTRA HELP INFORMATION
-
-Description:
-    A set of Python tools for analysing SWIFT+VR simulation outputs.
-
-Avalible Commands:
-    This Help Information:
-        contra-help
-        help-contra
-
-    Shell Scripts:
-        contra-new-config
-        contra-run <config-file> [wallclock-time]
-        contra-run-local <config-file> [number-output-lines]
-        pipeline-contra <config-file> [wallclock-time]
-        pipeline-contra-local <config-file> [number-output-lines]
-
-    SWIFT Data Python Scripts (use <command> -h for more infomation):
-        cat-z
-        create-new-z0-data
-        cumulitive-metal-contribution
-        cumulitive-volume-contribution
-        density-hist
-        ejection-radius-hist
-        eval-swift-data
-        finish-time
-        gas-crit-density
-        gas-line
-        gal-mass-dist
-        gal-masses
-        get-past-halo-masses
-        get-matched-halo-particle-ejection
-        get-matched-present-day-haloes
-        graph-past-halo-masses
-        halo-n-part
-        metal-halo-breakdown
-        sph-map
-        t-d
-'"
-
-alias help-contra="contra-help"
+#alias contra-help="echo 'CONTRA HELP INFORMATION
+#
+#Description:
+#    A set of Python tools for analysing SWIFT+VR simulation outputs.
+#
+#Avalible Commands:
+#    This Help Information:
+#        contra-help
+#        help-contra
+#
+#    Shell Scripts:
+#        contra-init <folder-name> <simulation-output-folder>
+#        contra-new <folder-name> <redshift-number>
+#        contra-new-config
+#        contra-run <config-file> [wallclock-time]
+#        contra-run-local <config-file> [number-output-lines]
+#        pipeline-contra <config-file> [wallclock-time]
+#        pipeline-contra-local <config-file> [number-output-lines]
+#
+#    SWIFT Data Python Scripts (use <command> -h for more infomation):
+#        cat-z
+#        create-new-z0-data
+#        cumulitive-metal-contribution
+#        cumulitive-volume-contribution
+#        density-hist
+#        eval-swift-data
+#        finish-time
+#        gas-crit-density
+#        gas-line
+#        gal-mass-dist
+#        gal-masses
+#        get-past-halo-masses
+#        graph-past-halo-masses
+#        halo-n-part
+#        metal-halo-breakdown
+#        plot-bh-stellar-mass
+#        plot-track-frac-by-Z
+#        plot-untracked-gas-distribution
+#        sph-map
+#        t-d
+#'"
+#
+#alias help-contra="contra-help"

@@ -1,27 +1,23 @@
 AUTHOR = "Christopher Rowe"
-VERSION = "1.3.1"
-DATE = "27/03/2023"
+VERSION = "2.0.0"
+DATE = "07/07/2023"
 DESCRIPTION = "Creates line graphs (with errors) for binned data from SWIFT gas particles."
 
 from argparse import ArgumentError
 from matplotlib import pyplot as plt
-from matplotlib.colors import LogNorm, ListedColormap
 from matplotlib.patches import Polygon
 import numpy as np
 import os
-from QuasarCode import source_file_relitive_add_to_path
-#from QuasarCode.IO.Text.console import print_info, Console.print_verbose_info, print_warning, print_verbose_warning, print_error, print_verbose_error, print_debug
-from QuasarCode import Console
-from QuasarCode.Tools import ScriptWrapper
-from scipy.interpolate import Rbf
 import swiftsimio as sw
-import sys
 from typing import List
-from unyt import Mpc, unyt_array as u_arr
 
-source_file_relitive_add_to_path(__file__)
-from box_region import BoxRegion
-from swift_data_expression import parse_string as make_attribute
+
+from QuasarCode import Console, source_file_relitive_add_to_path
+from QuasarCode.Tools import ScriptWrapper
+
+source_file_relitive_add_to_path(__file__, "..")
+from contra.filters import BoxRegion
+from contra.io import parse_swift_string as make_attribute
 
 
 
@@ -33,7 +29,7 @@ def make_graph(particle_data_list, data_name_list, output_file_path, x_axis_fiel
     if not isinstance(y_axis_field, list):
         y_axis_field = [y_axis_field]
     
-    stylesheet_directory = __file__.rsplit(os.path.sep, 1)[0]
+    stylesheet_directory = os.path.join(__file__.rsplit(os.path.sep, 1)[0], "..", "stylesheets")
     normal_stylesheet = os.path.join(stylesheet_directory, "temp_diagram_stylesheet.mplstyle")
     plt.style.use(normal_stylesheet)
     

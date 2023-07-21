@@ -1,21 +1,16 @@
 AUTHOR = "Christopher Rowe"
-VERSION = "1.0.0"
-DATE = "22/05/2023"
+VERSION = "2.0.0"
+DATE = "07/07/2023"
 DESCRIPTION = "Plots the fraction of metal mass occupied by each log halo mass bin."
 
 import swiftsimio as sw
-import h5py
 import numpy as np
-import os
-import pickle
-from QuasarCode import source_file_relitive_add_to_path
-from QuasarCode.Tools import ScriptWrapper
 import swiftsimio as sw
-import sys
-from unyt import unyt_array
 from matplotlib import pyplot as plt
 
-source_file_relitive_add_to_path(__file__)
+
+from QuasarCode import source_file_relitive_add_to_path
+from QuasarCode.Tools import ScriptWrapper
 
 def load_data(file):
     snap = sw.load(file)

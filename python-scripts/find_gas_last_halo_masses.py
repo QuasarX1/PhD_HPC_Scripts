@@ -3,6 +3,41 @@ VERSION = "7.0.0"
 DATE = "06/07/2023"
 DESCRIPTION = "Identifies the last halo a gas particle was found in and records the mass of the largest halo in the structure."
 
+import os
+import pickle
+import swiftsimio as sw
+from typing import List
+
+from QuasarCode import source_file_relitive_add_to_path, Console
+from QuasarCode.Tools import ScriptWrapper
+
+source_file_relitive_add_to_path(__file__, "..")
+from contra.io import PartType
+from contra.algorithms import reverse_search
+
+def __main(particle_type: PartType, snap_numbers: List[str], snap_directory: str, snap_file_template: str, cat_directory: str, cat_file_template: str):
+    final_halo_snap_number_index, final_halo_snap_numbers, final_halo_ids, final_halo_masses = reverse_search(
+        snapshot__present_day = sw.load(os.path.join(snap_directory, snap_file_template).format(snap_numbers[-1])),
+        snap_numbers = snap_numbers,
+        catalogue_directory = cat_directory,
+        catalogue_prefix_template = cat_file_template.split(".")[0],
+        particle_type = particle_type,
+        allow_printing = True)
+    
+    Console.print_verbose_info(f"All data retrived. Saving to files.")
+
+    with open(f"{particle_type}_particle_ejection_tracking__halo_snapshot_number_indexes.pickle", "wb") as file:
+        pickle.dump(final_halo_snap_number_index, file)
+    with open(f"{particle_type}_particle_ejection_tracking__halo_snapshot_numbers.pickle", "wb") as file:
+        pickle.dump(final_halo_snap_numbers, file)
+    with open(f"{particle_type}_particle_ejection_tracking__halo_ids_in_snapshot.pickle", "wb") as file:
+        pickle.dump(final_halo_ids, file)
+    with open(f"{particle_type}_particle_ejection_tracking__halo_masses.pickle", "wb") as file:
+        pickle.dump(final_halo_masses, file)
+        
+
+
+"""
 import h5py
 import numpy as np
 import os
@@ -10,22 +45,21 @@ import pickle
 import swiftsimio as sw
 from time import time
 import velociraptor as vr
+from unyt import Msun
+from typing import List
 
 from QuasarCode import source_file_relitive_add_to_path, Settings, Console
 from QuasarCode.Tools import ScriptWrapper
 
 source_file_relitive_add_to_path(__file__, "..")
-from contra.io import Multifile_VR_Catalogue
-
-
+from contra.io import Multifile_VR_Catalogue, PartType
+from contra.algorithms import reverse_search
 
 def __main(snap_numbers, snap_directory, snap_file_template, cat_directory, cat_file_template, groups_directory, groups_file_template):
 
     __DEBUG = Settings.debug
 
     snapshot_file_path_template = os.path.join(snap_directory, snap_file_template)
-#    catalogue_file_path_template = os.path.join(cat_directory, cat_file_template)
-#    group_file_path_template = os.path.join(groups_directory, groups_file_template)
 
     Console.print_debug("Reading z = 0 snapshot data.")
 
@@ -59,49 +93,13 @@ def __main(snap_numbers, snap_directory, snap_file_template, cat_directory, cat_
 
         Console.print_verbose_info(f"Searching snapshot {snap_numbers[i]}.")
 
-        # Select the passed filepaths and create versions for other catalogue file types
-#        catalogue_filepath = catalogue_file_path_template.format(snap_numbers[i])
-#        groups_filepath = group_file_path_template.format(snap_numbers[i])
-#        bound_particles_filepath = groups_filepath.replace("catalog_groups", "catalog_particles")
-#        unbound_particles_filepath = groups_filepath.replace("catalog_groups", "catalog_particles.unbound")
-#        bound_parttypes_filepath = groups_filepath.replace("catalog_groups", "catalog_parttypes")
-#        unbound_parttypes_filepath = groups_filepath.replace("catalog_groups", "catalog_parttypes.unbound")
-
         # Start the timer
         start_time = time()
         
         # Open the catalogue file and read data
-#        catalogue_data = vr.load(catalogue_filepath)
-#        halo_ids = np.array(catalogue_data.ids.id, dtype = np.int64)
-#        halo_masses = np.array(catalogue_data.masses.mass_200crit.to("Msun"), dtype = np.float64)
-
         catalogue_data = Multifile_VR_Catalogue(cat_directory, cat_file_template.format(snap_numbers[i]).split(".")[0])
         halo_ids = np.array(catalogue_data.ids.id.value, dtype = np.int64)
         halo_masses = np.array(catalogue_data.masses.mass_200crit.value.to("Msun"), dtype = np.float64)
-        
-#        # Open the catalogue particles files and read data
-#        with h5py.File(bound_particles_filepath, "r") as file:
-#            bound_particle_ids = np.array(file["Particle_IDs"], dtype = np.int64)
-#        with h5py.File(unbound_particles_filepath, "r") as file:
-#            unbound_particle_ids = np.array(file["Particle_IDs"], dtype = np.int64)
-#
-#        # Open the catalogue particle types files and read data
-#        with h5py.File(bound_parttypes_filepath, "r") as file:
-#            bound_parttypes = np.array(file["Particle_types"], dtype = np.int16)
-#        with h5py.File(unbound_parttypes_filepath, "r") as file:
-#            unbound_parttypes = np.array(file["Particle_types"], dtype = np.int16)
-#
-#        # NOTE: this assumes there is only one of each file per snapshot!
-#        # Open the catalogue groups file and read data
-#        with h5py.File(groups_filepath, "r") as file:
-#            n_halos = file["Total_num_of_groups"][0]
-#
-#            parent_halo_ids = np.array(file["Parent_halo_ID"], dtype = np.int64)
-#
-#            offsets__bound = np.array(file["Offset"], dtype = np.int64)
-#            offsets__unbound = np.array(file["Offset_unbound"], dtype = np.int64)
-#
-#            group_size = np.array(file["Group_Size"], dtype = np.int64)
 
         # Open the catalogue particles files and read data
         bound_particle_ids, bound_particle_number_by_file = catalogue_data.read_raw_file_data("catalog_particles",
@@ -138,9 +136,6 @@ def __main(snap_numbers, snap_directory, snap_file_template, cat_directory, cat_
 
             modified_offset_haloes += n_halos_in_file
 
-            #last_item = modified_offset_haloes - 1
-            #next_offset_boost_bound = offsets__bound[last_item] + bound_particle_number_by_file[file_index]
-            #next_offset_boost_unbound = offsets__unbound[last_item] + unbound_particle_number_by_file[file_index]
             next_offset_boost_bound += bound_particle_number_by_file[file_index]
             next_offset_boost_unbound += unbound_particle_number_by_file[file_index]
             
@@ -296,20 +291,20 @@ def __main(snap_numbers, snap_directory, snap_file_template, cat_directory, cat_
         pickle.dump(final_halo_ids, file)
     with open("gas_particle_ejection_tracking__halo_masses.pickle", "wb") as file:
         pickle.dump(final_halo_masses, file)
+"""
 
 
 
 if __name__ == "__main__":
-    import sys
-    print(sys.argv)
     args_info = [
+                 ["particle_type",        "String name for a valid SWIFT particle type. Choose from:\ngas, dark_matter, stars or black_holes", (lambda value: PartType.from_string(value))],
                  ["snap_numbers",         "Semicolon seperated list of strings that can be inserted into\nthe templates provided to create valid file names.\nSnapshots should be specified in chronological order.", ScriptWrapper.make_list_converter(";")],
                  ["snap_directory",       "Directory path that holds the snapshot files.", None],
                  ["snap_file_template",   "File name template that produces a valid file name.\nUse '{}' to indicate where the snapshot number string should be inserted.", None],
                  ["cat_directory",        "The same as snap_directory, but for the catalogue files.", None],
                  ["cat_file_template",    "The same as snap_file_template, but for the catalogue files.", None],
-                 ["groups_directory",     "The same as snap_directory, but for the groups files.", None],
-                 ["groups_file_template", "The same as snap_file_template, but for the groups files.", None],
+#                 ["groups_directory",     "The same as snap_directory, but for the groups files.", None],
+#                 ["groups_file_template", "The same as snap_file_template, but for the groups files.", None],
                 ]
     kwargs_info = []
     

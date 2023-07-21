@@ -1,23 +1,20 @@
 AUTHOR = "Christopher Rowe"
-VERSION = "1.0.1"
-DATE = "27/03/2023"
+VERSION = "2.0.0"
+DATE = "07/07/2023"
 DESCRIPTION = "Creates a graph for the distribution of galaxy stellar mass radial profiles."
 
 import h5py
 from matplotlib import pyplot as plt
 import numpy as np
 import os
-#from QuasarCode.IO.Text.console import Console.print_info, Console.print_verbose_info, Console.print_debug
-from QuasarCode import Console
-from QuasarCode.Tools import ScriptWrapper
 import swiftsimio as sw
-import sys
-from time import time
 import unyt
-import velociraptor as vr
 
-source_file_relitive_add_to_path(__file__)
-from velociraptor_multi_load import Multifile_VR_Catalogue
+from QuasarCode import Console, source_file_relitive_add_to_path
+from QuasarCode.Tools import ScriptWrapper
+
+source_file_relitive_add_to_path(__file__, "..")
+from contra.io import Multifile_VR_Catalogue
 
 
 

@@ -49,7 +49,7 @@ if __name__ == "__main__":
     args_info = [["file", "VELOCIraptor catalogue parttypes file.", None]]
     kwargs_info = []
     
-    script = ScriptWrapper("get_redshift.py",
+    script = ScriptWrapper("n_halo_particles.py",
                            AUTHOR,
                            VERSION,
                            DATE,

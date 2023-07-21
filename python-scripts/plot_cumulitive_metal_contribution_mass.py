@@ -1,17 +1,18 @@
 AUTHOR = "Christopher Rowe"
-VERSION = "1.1.0"
-DATE = "26/06/2023"
+VERSION = "2.0.0"
+DATE = "07/07/2023"
 DESCRIPTION = "Plots the cumulitive sum of metal masses for particles in assending order of last halo mass."
 
 import swiftsimio as sw
 import numpy as np
-from QuasarCode import source_file_relitive_add_to_path
-from QuasarCode.Tools import ScriptWrapper
 import swiftsimio as sw
 from matplotlib import pyplot as plt
 
-source_file_relitive_add_to_path(__file__)
-from get_gas_crit_density import critical_gas_density
+from QuasarCode import source_file_relitive_add_to_path
+from QuasarCode.Tools import ScriptWrapper
+
+source_file_relitive_add_to_path(__file__, "..")
+from contra.calculations import get_critical_gas_density as critical_gas_density
 
 def __main(data: str, filename: str, include_non_metals: bool, include_non_metal_mass: bool, self_normalise_comparisons: bool):
     # Read data
@@ -52,8 +53,8 @@ def __main(data: str, filename: str, include_non_metals: bool, include_non_metal
     density_filters = [particle_densities_sorted >= cuttof for cuttof in density_cuttoffs]
 
     particle_metalicities_sorted = metalicities[sorted_indexes]
-    metalicity_cuttoffs = (0.001, 0.0134, 0.1, 0.3)# Z_sun = ~0.0134
-    metalicity_cuttoff_label_values = (0.001, "Z_\\odot", 0.1, 0.3)# Z_sun = ~0.0134
+    metalicity_cuttoffs = (4e-05, 0.001, 0.0134, 0.1, 0.3)# Z_sun = ~0.0134
+    metalicity_cuttoff_label_values = (4e-05, 0.001, "Z_\\odot", 0.1, 0.3)# Z_sun = ~0.0134
     metalicity_filters = [particle_metalicities_sorted >= cuttof for cuttof in metalicity_cuttoffs]
 
     plotted_x_values = log_m200[sorted_indexes]

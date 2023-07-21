@@ -46,52 +46,59 @@ export COLIBRE_DATA_PIPLINE__PIPELINE_OUTPUT_DIRECTORY="$(readlink -f $COLIBRE_D
 mkdir $COLIBRE_DATA_PIPLINE__PIPELINE_OUTPUT_DIRECTORY
 cd $COLIBRE_DATA_PIPLINE__PIPELINE_OUTPUT_DIRECTORY
 
+if ! [ -f ./modified_present_day_snap.hdf5 ]
+then
+    echo "No contra reduced data present. Use \`contra-run\` before running the pipeline!"
+    echo "END"
+    exit
+fi
+
 
 
 # Critical Gas Density
-#critical_gas_density=$(gas-crit-density "$present_day_data" -u "Msun/Mpc**3")
+critical_gas_density=$(gas-crit-density "$present_day_data" -u "Msun/Mpc**3")
 
-# Make modified snapshot
-
-if ! [ -f ./gas_particle_ejection_tracking__halo_masses.pickle ]
-then
-    echo ""
-    echo "Trace Gas Halo Interactions"
-    get-past-halo-masses $COLIBRE_DATA_PIPLINE__SNAPSHOTS $COLIBRE_DATA_PIPLINE__SNAPSHOT_DIRECTORY $COLIBRE_DATA_PIPLINE__SNAPSHOT_FILE_TEMPLATE $COLIBRE_DATA_PIPLINE__CATALOGUE_DIRECTORY $COLIBRE_DATA_PIPLINE__CATALOGUE_FILE_TEMPLATE $COLIBRE_DATA_PIPLINE__CATALOGUE_DIRECTORY $COLIBRE_DATA_PIPLINE__CATALOGUE_GROUPS_FILE_TEMPLATE -v -d
-else
-    echo ""
-    echo "Found saved gas-halo interaction data. Remove or rename this data to re-generate."
-fi
-
-if ! [ -f ./modified_present_day_snap.hdf5 ]
-then
-    echo ""
-    echo "Creating Updated Snapshot"
-    create-new-z0-data "$present_day_data" -v -d
-else
-    echo ""
-    echo "Found updated snapshot. Remove or rename this data to re-generate."
-fi
-
-#if ! [ -f ./gas_particle_ejection_tracking__present_day_halo_id.pickle ]
-#then
-#    echo ""
-#    echo "Tracking Haloes To Present Day"
-#    get-matched-present-day-haloes modified_present_day_snap.hdf5 "$COLIBRE_DATA_PIPLINE__LAST_SNAPSHOT" "$COLIBRE_DATA_PIPLINE__CATALOGUE_DIRECTORY" "$COLIBRE_DATA_PIPLINE__CATALOGUE_FILE_TEMPLATE" "$COLIBRE_DATA_PIPLINE__CATALOGUE_DIRECTORY" "$COLIBRE_DATA_PIPLINE__CATALOGUE_GROUPS_FILE_TEMPLATE" -v -d
-#else
-#    echo ""
-#    echo "Found forward tracked haloes. Remove or rename this data to re-generate."
-#fi
-
-# if ! [ -f ./gas_particle_ejection_tracking__present_day_ejection_distance.pickle ]
+# # Make modified snapshot
+# 
+# if ! [ -f ./gas_particle_ejection_tracking__halo_masses.pickle ]
 # then
 #     echo ""
-#     echo "Calculate Gas Ejection Displacement"
-#     get-matched-halo-particle-ejection modified_present_day_snap.hdf5 "$COLIBRE_DATA_PIPLINE__LAST_SNAPSHOT" "$COLIBRE_DATA_PIPLINE__CATALOGUE_DIRECTORY" "$COLIBRE_DATA_PIPLINE__CATALOGUE_FILE_TEMPLATE" -v -d
+#     echo "Trace Gas Halo Interactions"
+#     get-past-halo-masses $COLIBRE_DATA_PIPLINE__SNAPSHOTS $COLIBRE_DATA_PIPLINE__SNAPSHOT_DIRECTORY $COLIBRE_DATA_PIPLINE__SNAPSHOT_FILE_TEMPLATE $COLIBRE_DATA_PIPLINE__CATALOGUE_DIRECTORY $COLIBRE_DATA_PIPLINE__CATALOGUE_FILE_TEMPLATE $COLIBRE_DATA_PIPLINE__CATALOGUE_DIRECTORY $COLIBRE_DATA_PIPLINE__CATALOGUE_GROUPS_FILE_TEMPLATE -v -d
 # else
 #     echo ""
-#     echo "Found saved gas ejection data. Remove or rename this data to re-generate."
+#     echo "Found saved gas-halo interaction data. Remove or rename this data to re-generate."
 # fi
+# 
+# if ! [ -f ./modified_present_day_snap.hdf5 ]
+# then
+#     echo ""
+#     echo "Creating Updated Snapshot"
+#     create-new-z0-data "$present_day_data" -v -d
+# else
+#     echo ""
+#     echo "Found updated snapshot. Remove or rename this data to re-generate."
+# fi
+# 
+# #if ! [ -f ./gas_particle_ejection_tracking__present_day_halo_id.pickle ]
+# #then
+# #    echo ""
+# #    echo "Tracking Haloes To Present Day"
+# #    get-matched-present-day-haloes modified_present_day_snap.hdf5 "$COLIBRE_DATA_PIPLINE__LAST_SNAPSHOT" "$COLIBRE_DATA_PIPLINE__CATALOGUE_DIRECTORY" "$COLIBRE_DATA_PIPLINE__CATALOGUE_FILE_TEMPLATE" "$COLIBRE_DATA_PIPLINE__CATALOGUE_DIRECTORY" "$COLIBRE_DATA_PIPLINE__CATALOGUE_GROUPS_FILE_TEMPLATE" -v -d
+# #else
+# #    echo ""
+# #    echo "Found forward tracked haloes. Remove or rename this data to re-generate."
+# #fi
+# 
+# # if ! [ -f ./gas_particle_ejection_tracking__present_day_ejection_distance.pickle ]
+# # then
+# #     echo ""
+# #     echo "Calculate Gas Ejection Displacement"
+# #     get-matched-halo-particle-ejection modified_present_day_snap.hdf5 "$COLIBRE_DATA_PIPLINE__LAST_SNAPSHOT" "$COLIBRE_DATA_PIPLINE__CATALOGUE_DIRECTORY" "$COLIBRE_DATA_PIPLINE__CATALOGUE_FILE_TEMPLATE" -v -d
+# # else
+# #     echo ""
+# #     echo "Found saved gas ejection data. Remove or rename this data to re-generate."
+# # fi
 
 
 
@@ -240,6 +247,20 @@ fi
 #     echo "Gas particle Ejection Radius Histogram"
 #     ejection-radius-hist modified_present_day_snap.hdf5 particle_ejection_radius_hist.png --log-y-axis -v -d
 # fi
+
+# Untracked Gas Distribution
+if ! [ -f ./untracked_gas_distribution_temperature.png ]
+then
+    echo ""
+    echo "Untracked Gas Histograms"
+    plot-untracked-gas-distribution modified_present_day_snap.hdf5 -v -d
+fi
+if ! [ -f ./untracked_metal_gas_distribution_temperature.png ]
+then
+    echo ""
+    echo "Untracked Gas Histograms (Metals Only)"
+    plot-untracked-gas-distribution modified_present_day_snap.hdf5 -m -v -d
+fi
 
 
 
@@ -395,48 +416,53 @@ then
     gas-line modified_present_day_snap.hdf5 "\$M_{\rm halo}>10^{10}\$" "plot_dens_metal_mass_fraction_no_dwarfs.png" "densities/#<$critical_gas_density>#" "" "metal_mass_fractions/$Zsun" "" --x-axis-name "$\rho$/<$\rho$>" --y-axis-name "\$M_Z/M\$ \$\rm Z_{\odot}\$" --log-x-axis --log-y-axis --y-axis-weight-field "masses" --min-y-field-value 0.0 --limit-fields last_halo_masses --limit-units Msun --limits-min 10000000000 -e
 fi
 
-# Density Halo Ejection Radius Gas Line Plot X=density Y=log_10(Ejection Radius) Weighting=Mass
-if ! [ -f ./plot_dens_log_halo_ejection_radius.png ]
-then
-    echo ""
-    echo "Density Halo Ejection Radius Gas Line Plot X=density Y=log_10(Ejection Radius) Weighting=Mass"
-    gas-line modified_present_day_snap.hdf5 "Data" "plot_dens_log_halo_ejection_radius.png" "densities/#<$critical_gas_density>#" "" "last_halo_ejection_distance" "Mpc" --x-axis-name "$\rho$/<$\rho$>" --y-axis-name "Ejection Radius" --log-x-axis --log-y-axis --y-axis-weight-field "masses" --min-y-field-value 0 -e
-fi
+# # Density Halo Ejection Radius Gas Line Plot X=density Y=log_10(Ejection Radius) Weighting=Mass
+# if ! [ -f ./plot_dens_log_halo_ejection_radius.png ]
+# then
+#     echo ""
+#     echo "Density Halo Ejection Radius Gas Line Plot X=density Y=log_10(Ejection Radius) Weighting=Mass"
+#     gas-line modified_present_day_snap.hdf5 "Data" "plot_dens_log_halo_ejection_radius.png" "densities/#<$critical_gas_density>#" "" "last_halo_ejection_distance" "Mpc" --x-axis-name "$\rho$/<$\rho$>" --y-axis-name "Ejection Radius" --log-x-axis --log-y-axis --y-axis-weight-field "masses" --min-y-field-value 0 -e
+# fi
 
-# Density Redshift Gas Line Plot Convergence Test X=density Y=log_10(1+z_Z) Weighting=Mass
-if ! [ -f ./convergence_test__plot_dens_log_redshift.png ]
+if ! [[ -z "$COLIBRE_DATA_PIPLINE__COMPARISON_SNAPSHOTS" ]]
 then
-    echo ""
-    echo "Density Redshift Gas Line Plot Convergence Test X=density Y=log_10(1+z_Z) Weighting=Mass"
-    gas-line "$present_day_data;$COLIBRE_DATA_PIPLINE__COMPARISON_SNAPSHOTS" "$COLIBRE_DATA_PIPLINE__COMPARISON_ALL_LABELS" "convergence_test__plot_dens_log_redshift.png" "densities/#<$critical_gas_density>#" "" "1+mean_metal_weighted_redshifts" "" --x-axis-name "$\rho$/<$\rho$>" --y-axis-name "\$1+z_Z\$" --log-x-axis --log-y-axis --y-axis-weight-field "masses" --min-y-field-value 1.0 --max-y-field-value 11.2 -e
-fi
 
-# Temp Redshift Gas Line Plot Convergence Test X=temp Y=log_10(1+z_Z) Weighting=Mass
-if ! [ -f ./convergence_test__plot_temp_log_redshift.png ]
-then
-    echo ""
-    echo "Temp Redshift Gas Line Plot Convergence Test X=temp Y=log_10(1+z_Z) Weighting=Mass"
-    gas-line "$present_day_data;$COLIBRE_DATA_PIPLINE__COMPARISON_SNAPSHOTS" "$COLIBRE_DATA_PIPLINE__COMPARISON_ALL_LABELS" "convergence_test__plot_temp_log_redshift.png" "temperatures" "K" "1+mean_metal_weighted_redshifts" "" --x-axis-name "\$T\$" --y-axis-name "\$1+z_Z\$" --log-x-axis --log-y-axis --y-axis-weight-field masses --min-y-field-value 1.0 --max-y-field-value 11.2 -e
-fi
+    # Density Redshift Gas Line Plot Convergence Test X=density Y=log_10(1+z_Z) Weighting=Mass
+    if ! [ -f ./convergence_test__plot_dens_log_redshift.png ]
+    then
+        echo ""
+        echo "Density Redshift Gas Line Plot Convergence Test X=density Y=log_10(1+z_Z) Weighting=Mass"
+        gas-line "$present_day_data;$COLIBRE_DATA_PIPLINE__COMPARISON_SNAPSHOTS" "$COLIBRE_DATA_PIPLINE__COMPARISON_ALL_LABELS" "convergence_test__plot_dens_log_redshift.png" "densities/#<$critical_gas_density>#" "" "1+mean_metal_weighted_redshifts" "" --x-axis-name "$\rho$/<$\rho$>" --y-axis-name "\$1+z_Z\$" --log-x-axis --log-y-axis --y-axis-weight-field "masses" --min-y-field-value 1.0 --max-y-field-value 11.2 -e
+    fi
 
-# Density Metal Mass Fraction Gas Line Plot Convergence Test X=density Y=log_10(M_Z/M) Weighting=Mass
-if ! [ -f ./plot_dens_metal_mass_fraction_comparison.png ]
-then
-    echo ""
-    echo "Density Redshift Gas Line Plot Convergence Test X=density Y=log_10(M_Z/M) Weighting=Mass"
-    gas-line "$present_day_data;$COLIBRE_DATA_PIPLINE__COMPARISON_SNAPSHOTS" "$COLIBRE_DATA_PIPLINE__COMPARISON_ALL_LABELS" "plot_dens_metal_mass_fraction_comparison.png" "densities/#<$critical_gas_density>#" "" "metal_mass_fractions/$Zsun" "" --x-axis-name "$\rho$/<$\rho$>" --y-axis-name "\$M_Z/M\$ \$\rm Z_{\odot}\$" --log-x-axis --log-y-axis --y-axis-weight-field "masses" --min-y-field-value 0.0 -e
-fi
-if ! [ -f ./plot_dens_metal_mass_fraction_only_halo_matches_comparison.png ]
-then
-    echo ""
-    echo "(Matched) Density Redshift Gas Line Plot Convergence Test X=density Y=log_10(M_Z/M) Weighting=Mass"
-    gas-line "modified_present_day_snap.hdf5;$COLIBRE_DATA_PIPLINE__COMPARISON_SNAPSHOTS" "$COLIBRE_DATA_PIPLINE__COMPARISON_ALL_LABELS" "plot_dens_metal_mass_fraction_only_halo_matches_comparison.png" "densities/#<$critical_gas_density>#" "" "metal_mass_fractions/$Zsun" "" --x-axis-name "$\rho$/<$\rho$>" --y-axis-name "\$M_Z/M\$ \$\rm Z_{\odot}\$" --log-x-axis --log-y-axis --y-axis-weight-field "masses" --min-y-field-value 0.0 --limit-fields last_halo_masses --limit-units Msun --limits-min 0 -e
-fi
-if ! [ -f ./plot_dens_metal_mass_fraction_no_dwarfs_comparison.png ]
-then
-    echo ""
-    echo "(M > 10**10) Density Redshift Gas Line Plot Convergence Test X=density Y=log_10(M_Z/M) Weighting=Mass"
-    gas-line "modified_present_day_snap.hdf5;$COLIBRE_DATA_PIPLINE__COMPARISON_SNAPSHOTS" "$COLIBRE_DATA_PIPLINE__COMPARISON_ALL_LABELS" "plot_dens_metal_mass_fraction_no_dwarfs_comparison.png" "densities/#<$critical_gas_density>#" "" "metal_mass_fractions/$Zsun" "" --x-axis-name "$\rho$/<$\rho$>" --y-axis-name "\$M_Z/M\$ \$\rm Z_{\odot}\$" --log-x-axis --log-y-axis --y-axis-weight-field "masses" --min-y-field-value 0.0 --limit-fields last_halo_masses --limit-units Msun --limits-min 10000000000 -e
+    # Temp Redshift Gas Line Plot Convergence Test X=temp Y=log_10(1+z_Z) Weighting=Mass
+    if ! [ -f ./convergence_test__plot_temp_log_redshift.png ]
+    then
+        echo ""
+        echo "Temp Redshift Gas Line Plot Convergence Test X=temp Y=log_10(1+z_Z) Weighting=Mass"
+        gas-line "$present_day_data;$COLIBRE_DATA_PIPLINE__COMPARISON_SNAPSHOTS" "$COLIBRE_DATA_PIPLINE__COMPARISON_ALL_LABELS" "convergence_test__plot_temp_log_redshift.png" "temperatures" "K" "1+mean_metal_weighted_redshifts" "" --x-axis-name "\$T\$" --y-axis-name "\$1+z_Z\$" --log-x-axis --log-y-axis --y-axis-weight-field masses --min-y-field-value 1.0 --max-y-field-value 11.2 -e
+    fi
+
+    # Density Metal Mass Fraction Gas Line Plot Convergence Test X=density Y=log_10(M_Z/M) Weighting=Mass
+    if ! [ -f ./plot_dens_metal_mass_fraction_comparison.png ]
+    then
+        echo ""
+        echo "Density Redshift Gas Line Plot Convergence Test X=density Y=log_10(M_Z/M) Weighting=Mass"
+        gas-line "$present_day_data;$COLIBRE_DATA_PIPLINE__COMPARISON_SNAPSHOTS" "$COLIBRE_DATA_PIPLINE__COMPARISON_ALL_LABELS" "plot_dens_metal_mass_fraction_comparison.png" "densities/#<$critical_gas_density>#" "" "metal_mass_fractions/$Zsun" "" --x-axis-name "$\rho$/<$\rho$>" --y-axis-name "\$M_Z/M\$ \$\rm Z_{\odot}\$" --log-x-axis --log-y-axis --y-axis-weight-field "masses" --min-y-field-value 0.0 -e
+    fi
+    if ! [ -f ./plot_dens_metal_mass_fraction_only_halo_matches_comparison.png ]
+    then
+        echo ""
+        echo "(Matched) Density Redshift Gas Line Plot Convergence Test X=density Y=log_10(M_Z/M) Weighting=Mass"
+        gas-line "modified_present_day_snap.hdf5;$COLIBRE_DATA_PIPLINE__COMPARISON_SNAPSHOTS" "$COLIBRE_DATA_PIPLINE__COMPARISON_ALL_LABELS" "plot_dens_metal_mass_fraction_only_halo_matches_comparison.png" "densities/#<$critical_gas_density>#" "" "metal_mass_fractions/$Zsun" "" --x-axis-name "$\rho$/<$\rho$>" --y-axis-name "\$M_Z/M\$ \$\rm Z_{\odot}\$" --log-x-axis --log-y-axis --y-axis-weight-field "masses" --min-y-field-value 0.0 --limit-fields last_halo_masses --limit-units Msun --limits-min 0 -e
+    fi
+    if ! [ -f ./plot_dens_metal_mass_fraction_no_dwarfs_comparison.png ]
+    then
+        echo ""
+        echo "(M > 10**10) Density Redshift Gas Line Plot Convergence Test X=density Y=log_10(M_Z/M) Weighting=Mass"
+        gas-line "modified_present_day_snap.hdf5;$COLIBRE_DATA_PIPLINE__COMPARISON_SNAPSHOTS" "$COLIBRE_DATA_PIPLINE__COMPARISON_ALL_LABELS" "plot_dens_metal_mass_fraction_no_dwarfs_comparison.png" "densities/#<$critical_gas_density>#" "" "metal_mass_fractions/$Zsun" "" --x-axis-name "$\rho$/<$\rho$>" --y-axis-name "\$M_Z/M\$ \$\rm Z_{\odot}\$" --log-x-axis --log-y-axis --y-axis-weight-field "masses" --min-y-field-value 0.0 --limit-fields last_halo_masses --limit-units Msun --limits-min 10000000000 -e
+    fi
+
 fi
 
 

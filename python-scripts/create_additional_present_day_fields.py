@@ -12,8 +12,8 @@ from QuasarCode import source_file_relitive_add_to_path
 from QuasarCode.Tools import ScriptWrapper
 
 source_file_relitive_add_to_path(__file__, "..")
-from contra.io import save_particle_fields, get_cgs_conversions, PartType, SIGNED_INT_64
-from ..contra.io.save_swift_snap_field import SIGNED_INT_64
+from contra.io import save_particle_fields, get_cgs_conversions, PartType
+from contra.io.save_swift_snap_field import SIGNED_INT_64
 
 def __main(data):
     snap_data_present_day = sw.load(data)

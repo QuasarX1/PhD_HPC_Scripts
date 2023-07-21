@@ -1,6 +1,6 @@
 AUTHOR = "Christopher Rowe"
-VERSION = "3.0.0"
-DATE = "03/04/2023"
+VERSION = "4.0.0"
+DATE = "07/07/2023"
 DESCRIPTION = "Run an expression against a swift snapshot file."
 
 import numpy as np
@@ -8,8 +8,8 @@ from QuasarCode import Console, source_file_relitive_add_to_path
 from QuasarCode.Tools import ScriptWrapper
 import swiftsimio as sw
 
-source_file_relitive_add_to_path(__file__)
-from swift_data_expression import parse_string
+source_file_relitive_add_to_path(__file__, "..")
+from contra.io import parse_swift_string as parse_string
 
 def __main(file: str, expression: str, print_attrs: bool, print_range_stats: bool, unit: str = None):
     data = sw.load(file)
