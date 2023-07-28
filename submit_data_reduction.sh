@@ -20,7 +20,7 @@ do
         t)
             time_flag="--time $OPTARG "
             ;;
-        n)
+        p)
             partition="--partition $OPTARG "
             ;;
         \?)
