@@ -23,9 +23,9 @@ Avalible Commands:
         contra-init <folder-name> <simulation-output-folder>
         contra-new [folder-name] <redshift-number>
         contra-new-config
-        contra-run <config-file> [wallclock-time]
+        contra-run <config-file> [-t wallclock-time] [-p partition]
         contra-run-local <config-file> [number-output-lines]
-        pipeline-contra <config-file> [wallclock-time]
+        pipeline-contra <config-file> [-t wallclock-time] [-p partition]
         pipeline-contra-local <config-file> [number-output-lines]
 
     SWIFT Data Python Scripts (use <command> -h for more infomation):
