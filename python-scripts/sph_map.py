@@ -1,6 +1,6 @@
 AUTHOR = "Christopher Rowe"
-VERSION = "3.0.0"
-DATE = "07/07/2023"
+VERSION = "3.0.1"
+DATE = "15/08/2023"
 DESCRIPTION = "Renders SWIFT SPH data."
 
 from enum import Enum
@@ -9,6 +9,7 @@ import numpy as np
 import os
 from sphviewer import Particles, Camera, Scene, Render
 import swiftsimio as sw
+from swiftsimio.visualisation import generate_smoothing_lengths as generate_SWIFT_smoothing_lengths
 from typing import List, Union
 from unyt import Mpc
 
@@ -37,14 +38,29 @@ class RenderType(Enum):
 
 
 
+def create_smoothing_lengths(data_file: sw.SWIFTDataset, parttype: PartType):
+    particle_data = parttype.get_dataset(data_file)
+
+    # Parameters required to generate smoothing lengths
+    number_of_neighbours = int(round(particle_data.metadata.hydro_scheme["Kernel target N_ngb"][0]))
+    kernel_eta = particle_data.metadata.hydro_scheme["Kernel eta"][0]
+
+    kernel_gamma = ((3.0 * number_of_neighbours) / (4.0 * 3.14159))**(1/3) / kernel_eta
+
+    return generate_SWIFT_smoothing_lengths(particle_data.coordinates, boxsize = particle_data.metadata.boxsize, kernel_gamma = kernel_gamma)
+
 def _render_pixels(particle_data: sw.SWIFTDataset, parttype: PartType, spatial_filter: np.ndarray, smooth_over: sw.SWIFTDataset, camera_settings: dict, return_camera = False):
     dataset = parttype.get_dataset(particle_data)
 
     length_units = dataset.coordinates.units
     smooth_units = smooth_over.units / (length_units**2)
     
-    # TODO; this may fali for DM - no smothing lengths...?
-    particles = Particles(pos = dataset.coordinates.value[spatial_filter], hsml = dataset.smoothing_lengths.value[spatial_filter], mass = smooth_over.value[spatial_filter])
+    smoothing_lengths = None
+    try:
+        smoothing_lengths = dataset.smoothing_lengths.value[spatial_filter]
+    except:
+        smoothing_lengths = create_smoothing_lengths(particle_data, parttype)[spatial_filter]
+    particles = Particles(pos = dataset.coordinates.value[spatial_filter], hsml = smoothing_lengths, mass = smooth_over.value[spatial_filter])
 
     camera = Camera()
     camera.set_autocamera(particles)
@@ -87,13 +103,14 @@ def make_plot(particle_data: sw.SWIFTDataset, output_file: str,
               limit_fields: Union[None, str, List[str]] = None, limit_units: Union[None, str, List[str]] = None, limits_min: Union[None, float, List[float]] = None, limits_max: Union[None, float, List[float]] = None,
               contour: str = None, contour_percentiles: List[float] = [10.0, 25.0, 50.0, 75.0, 90.0], exclude_limits_from_contour: bool = False,
               title: str = "", no_density: bool = False, no_log: bool = False, log_pre_intergration: bool = False, image_size: int = 1080,
-              colour_map: List[str] = None):
+              colour_map: List[str] = None, image_only: bool = False):
 
     Console.print_debug(("Making plot. Params are:" + ("\n{}" * 23)).format(particle_data, output_file, box_region, parttype, x, y, z, render_type, projection_width, smoothing_attr, smoothing_unit, limit_fields, limit_units, limits_min, limits_max, contour, contour_percentiles, exclude_limits_from_contour, title, no_density, no_log, image_size, colour_map))
     
     # Needed as masking may have only been spatial and would not be exact
     Console.print_verbose_info("Making spatial array filter.")
-    spatial_filter = box_region.make_array_filter(particle_data.gas.coordinates)
+#    spatial_filter = box_region.make_array_filter(particle_data.gas.coordinates)
+    spatial_filter = box_region.make_array_filter(parttype.get_dataset(particle_data).coordinates)
 
 #    combined_filter = spatial_filter.copy()
 #    if filter_attr is not None:
@@ -251,12 +268,13 @@ def make_plot(particle_data: sw.SWIFTDataset, output_file: str,
     
 
     # Add a colourbar using the alt stylesheet
-    Console.print_verbose_info("Adding colourbar.")
-    with plt.style.context(smalltext_stylesheet):
-#        colourbar = plt.colorbar(shrink = 0.7, location = "left", pad = -1.0)
-        colourbar = plt.colorbar(shrink = 0.7, location = "left", pad = -0.98)
-        colourbar.set_label(("${\\rm log_{10}}$ " if not no_log else "") + title + " " + (("${\\rm " + str(data_image[0][0].units.expr).replace("**", "^").replace("sun", "_{\odot}") + "}$") if str(data_image[0][0].units.expr) != "1" else ""), backgroundcolor = "#00000066")
-        colourbar.ax.tick_params(direction = "in")#, pad = -20)
+    if not image_only:
+        Console.print_verbose_info("Adding colourbar.")
+        with plt.style.context(smalltext_stylesheet):
+    #        colourbar = plt.colorbar(shrink = 0.7, location = "left", pad = -1.0)
+            colourbar = plt.colorbar(shrink = 0.7, location = "left", pad = -0.98)
+            colourbar.set_label(("${\\rm log_{10}}$ " if not no_log else "") + title + " " + (("${\\rm " + str(data_image[0][0].units.expr).replace("**", "^").replace("sun", "_{\odot}") + "}$") if str(data_image[0][0].units.expr) != "1" else ""), backgroundcolor = "#00000066")
+            colourbar.ax.tick_params(direction = "in")#, pad = -20)
 
     if draw_contours:
         # If they were created earlier, plot the contours
@@ -279,32 +297,35 @@ def make_plot(particle_data: sw.SWIFTDataset, output_file: str,
     # Add text with the camera info
 
     # Position
-    Console.print_verbose_info("Adding camera position.")
-    camera_params = camera.get_params()
-    plt.text(0, image_size * (1 - 0.040),
-             "(${0:.3f}$, ${1:.3f}$, ${2:.3f}$) ${{\\rm {3}}}$".format(camera_params["x"], camera_params["y"], camera_params["z"], coordinate_units),
-             #usetex = False,#True,
-             bbox = dict(facecolor = "black", alpha = 0.4, edgecolor = "black"))
+    if not image_only:
+        Console.print_verbose_info("Adding camera position.")
+        camera_params = camera.get_params()
+        plt.text(0, image_size * (1 - 0.040),
+                "(${0:.3f}$, ${1:.3f}$, ${2:.3f}$) ${{\\rm {3}}}$".format(camera_params["x"], camera_params["y"], camera_params["z"], coordinate_units),
+                #usetex = False,#True,
+                bbox = dict(facecolor = "black", alpha = 0.4, edgecolor = "black"))
 
     if render_type == RenderType.projection:
         # Viewport
         Console.print_verbose_info("Adding projection viewport.")
         viewport = camera_settings["extent"][1] - camera_settings["extent"][0]
-        #plt.text(0, image_size * (1 - 0.093),
-        plt.text(0, image_size * (1 - 0.102),# dh = 0.009 for adding ^
-                 f"${float(viewport):.1f}^2$ ${{\\rm Mpc^2}}$",
-                 #usetex = False,#True,
-                 bbox = dict(facecolor = "black", alpha = 0.4, edgecolor = "black"))
+        if not image_only:
+            #plt.text(0, image_size * (1 - 0.093),
+            plt.text(0, image_size * (1 - 0.102),# dh = 0.009 for adding ^
+                    f"${float(viewport):.1f}^2$ ${{\\rm Mpc^2}}$",
+                    #usetex = False,#True,
+                    bbox = dict(facecolor = "black", alpha = 0.4, edgecolor = "black"))
 
         # Slice Depth
         Console.print_verbose_info("Adding depth.")
         box_side_length = box_region.side_length
         if isinstance(box_side_length, list):
             box_side_length = box_side_length[2]
-        plt.text(0, image_size * (1 - 0.158),
-                 f"${float(box_side_length):.1f}$ ${{\\rm Mpc}}$",
-                 #usetex = False,#True,
-                 bbox = dict(facecolor = "black", alpha = 0.4, edgecolor = "black"))
+        if not image_only:
+            plt.text(0, image_size * (1 - 0.158),
+                    f"${float(box_side_length):.1f}$ ${{\\rm Mpc}}$",
+                    #usetex = False,#True,
+                    bbox = dict(facecolor = "black", alpha = 0.4, edgecolor = "black"))
 
     else:
         pass#TODO: perspective log text
@@ -322,7 +343,7 @@ def make_plot(particle_data: sw.SWIFTDataset, output_file: str,
     #             bbox = dict(facecolor = "black", alpha = 0.4, edgecolor = "black"))
 
     #plt.rcParams["figure.figsize"] = (inches, inches)
-    cameraSettingsInsert = f"{float(viewport):.1f}Mpc2_{box_side_length:.1f}Mpc" if render_type == RenderType.projection else f""#TODO: perspective log text
+    cameraSettingsInsert = f"{float(viewport):.1f}Mpc2_{box_side_length.value:.1f}Mpc" if render_type == RenderType.projection else f""#TODO: perspective log text
     filepath_sections = output_file.rsplit(".", 1)
     target_file = f"{filepath_sections[0]}__{cameraSettingsInsert}_{image_size / RESOLUTION_BASE_MESUREMENT}K_py-sphviewer.{filepath_sections[1]}"
     Console.print_verbose_info(f"Saving image to {target_file}")
@@ -337,7 +358,7 @@ def __main(data: str, output_file: str,
            limit_fields: Union[None, str, List[str]], limit_units: Union[None, str, List[str]], limits_min: Union[None, float, List[float]], limits_max: Union[None, float, List[float]],
            contour: str, contour_percentiles: List[float], exclude_limits_from_contour: bool,
            title: str, no_density: bool, no_log: bool, log_pre_intergration: bool, image_size: int,
-           colour_map: List[str],
+           colour_map: List[str], image_only: bool,
            **kwargs):
 
     parttype = PartType.gas if gas else PartType.dark_matter if dark_matter else PartType.star
@@ -361,7 +382,7 @@ def __main(data: str, output_file: str,
               limit_fields, limit_units, limits_min, limits_max,
               contour, contour_percentiles, exclude_limits_from_contour,
               title, no_density, no_log, log_pre_intergration, image_size,
-              colour_map)
+              colour_map, image_only)
 
 
 
@@ -401,6 +422,7 @@ if __name__ == "__main__":
                    ["image-size", "r", "Size of the (square) image in pixels (defaults to 1080px).", False, False, int, 1080],
 
                    ["colour-map", None, "Name of the colour map to use. Supports the avalible matplotlib colourmaps" + (", as well as those designed by Paul Tol (https://personal.sron.nl/~pault/).\nTo use a custom map, specify the colours in the format \"#RRGGBB\" as a semicolon seperated list (must have at least 2 values)." if TOL_AVAILABLE else ".\nTo add support for Paul Tol's colours, download the python file from https://personal.sron.nl/~pault/ and install using \"add-py tol_colors\".") + "\nDefaults to whatever is set by the stylesheet - usually \"twilight_shifted\".", False, False, ScriptWrapper.make_list_converter(";"), None],
+                   ["image-only", "o", "Hide labels and colourbar.", False, True, None, None],
 
                    *BoxRegion.get_command_params(use_abbriviation = False)
                   ]

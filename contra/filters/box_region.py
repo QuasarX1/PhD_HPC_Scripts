@@ -28,6 +28,7 @@ SWIFTSIMIO_AVALIBLE = False
 try:
     import swiftsimio as sw
     import unyt
+    from unyt import unyt_quantity
     SWIFTSIMIO_AVALIBLE = True
 except ImportError: pass
 
@@ -199,18 +200,18 @@ class BoxRegion(object):
     @staticmethod
     def get_command_params(use_abbriviation = True):
         return [
-            ["centre-x-position", "x" if use_abbriviation else None,  "Position of the bounding box centre on\nthe x-axis (in Mpc).",               False, False, float, None],
-            ["centre-y-position", "y" if use_abbriviation else None,  "Position of the bounding box centre on\nthe y-axis (in Mpc).",               False, False, float, None],
-            ["centre-z-position", "z" if use_abbriviation else None,  "Position of the bounding box centre on\nthe z-axis (in Mpc).",               False, False, float, None],
-            ["side-length",       "w" if use_abbriviation else None,  "Side length of the bounding box (in Mpc).",                                  False, False, float, None],
-            ["x-min",             None,                               "X-axis minimum bound (in Mpc).",                                             False, False, float, None],
-            ["x-max",             None,                               "X-axis maximum bound (in Mpc).",                                             False, False, float, None],
-            ["y-min",             None,                               "Y-axis minimum bound (in Mpc).",                                             False, False, float, None],
-            ["y-max",             None,                               "Y-axis maximum bound (in Mpc).",                                             False, False, float, None],
-            ["z-min",             None,                               "Z-axis minimum bound (in Mpc).",                                             False, False, float, None],
-            ["x-side-length",     None,                               "Overrides the side-length paramiters for the X-axis minimum only (in Mpc).", False, False, float, None],
-            ["y-side-length",     None,                               "Overrides the side-length paramiters for the Y-axis minimum only (in Mpc).", False, False, float, None],
-            ["z-side-length",     None,                               "Overrides the side-length paramiters for the Z-axis minimum only (in Mpc).", False, False, float, None]]
+            ["centre-x-position", "x" if use_abbriviation else None,  "Position of the bounding box centre on\nthe x-axis (in Mpc).",               False, False, lambda v: unyt_quantity(float(v), "Mpc"), None],
+            ["centre-y-position", "y" if use_abbriviation else None,  "Position of the bounding box centre on\nthe y-axis (in Mpc).",               False, False, lambda v: unyt_quantity(float(v), "Mpc"), None],
+            ["centre-z-position", "z" if use_abbriviation else None,  "Position of the bounding box centre on\nthe z-axis (in Mpc).",               False, False, lambda v: unyt_quantity(float(v), "Mpc"), None],
+            ["side-length",       "w" if use_abbriviation else None,  "Side length of the bounding box (in Mpc).",                                  False, False, lambda v: unyt_quantity(float(v), "Mpc"), None],
+            ["x-min",             None,                               "X-axis minimum bound (in Mpc).",                                             False, False, lambda v: unyt_quantity(float(v), "Mpc"), None],
+            ["x-max",             None,                               "X-axis maximum bound (in Mpc).",                                             False, False, lambda v: unyt_quantity(float(v), "Mpc"), None],
+            ["y-min",             None,                               "Y-axis minimum bound (in Mpc).",                                             False, False, lambda v: unyt_quantity(float(v), "Mpc"), None],
+            ["y-max",             None,                               "Y-axis maximum bound (in Mpc).",                                             False, False, lambda v: unyt_quantity(float(v), "Mpc"), None],
+            ["z-min",             None,                               "Z-axis minimum bound (in Mpc).",                                             False, False, lambda v: unyt_quantity(float(v), "Mpc"), None],
+            ["x-side-length",     None,                               "Overrides the side-length paramiters for the X-axis minimum only (in Mpc).", False, False, lambda v: unyt_quantity(float(v), "Mpc"), None],
+            ["y-side-length",     None,                               "Overrides the side-length paramiters for the Y-axis minimum only (in Mpc).", False, False, lambda v: unyt_quantity(float(v), "Mpc"), None],
+            ["z-side-length",     None,                               "Overrides the side-length paramiters for the Z-axis minimum only (in Mpc).", False, False, lambda v: unyt_quantity(float(v), "Mpc"), None]]
 
     @staticmethod
     def get_command_param_names():
